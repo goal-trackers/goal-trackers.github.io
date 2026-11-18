@@ -711,3 +711,6 @@ button.pecahan-item:active { transform: scale(.98); }
 .install-bar img { border-radius: 10px; flex: none; }
 .install-bar .tiny { color: rgba(255,255,255,.75); }
 .install-bar[hidden] { display: none; }
+.utama-card { background: linear-gradient(135deg, #E9FBEF, var(--card) 60%); }
+[data-theme="dark"] .utama-card { background: var(--card); }
+.utama-ic { width: 52px; height: 52px; border-radius: 16px; background: #CFF2D6; display: grid; place-items: center; font-size: 26px; flex: none; }

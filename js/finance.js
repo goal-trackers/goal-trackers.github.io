@@ -57,7 +57,7 @@ function loanInfo(l) {
 // TEMPLATE RENCANA (form goal)
 // ============================================================
 function needsExecDate(g) {
-  return g.tipe_target === 'Finansial' && g.template !== 'darurat' && g.template !== 'sekolah';
+  return g.tipe_target === 'Finansial' && g.template !== 'darurat' && g.template !== 'sekolah' && !parseMeta(g.meta).utama;
 }
 function tplChipsHtml(cur) {
   return `<div class="field"><span>Mulai dari template <small>(opsional)</small></span><div class="chips chips-wrap">
@@ -124,6 +124,8 @@ function recalcTpl(f) {
   }
 }
 function tplMetaFromForm(f) {
+  const ex = goalById(f.goal_id && f.goal_id.value);
+  if (ex && parseMeta(ex.meta).utama) return ex.meta;            // Tabungan Utama: pertahankan penanda
   const t = f.template.value;
   if (t === 'liburan') return JSON.stringify({ tujuan: f.tpl_tujuan.value.trim() });
   if (t === 'darurat') return JSON.stringify({ pengeluaran: parseNum(f.tpl_pengeluaran.value, true), bulan: Number(f.tpl_bulan.value) || 6 });
@@ -265,6 +267,66 @@ function finSavingsHtml(f) {
     ${list.length ? `<div class="ggrid">${cards}</div>` : `<div class="card">${emptyHtml('bi-piggy-bank', 'Belum ada rencana tabungan. Pilih template di atas untuk mulai.')}</div>`}
     <div class="card mt-3"><h3>Tren Tabungan 12 Bulan <span class="muted tiny">batang = setoran per bulan · garis = total terkumpul</span></h3><div class="chart-box"><canvas id="chFin" aria-label="Grafik tren tabungan per bulan" role="img"></canvas></div></div>`;
 }
+// ── TABUNGAN UTAMA: rekening penampung kupon / imbalan investasi (SR, SBN, ORI, deposito, dll) ──
+const utamaGoal = () => S.goals.find(g => g.status !== 'Arsip' && parseMeta(g.meta).utama);
+function createUtama(arahkan) {
+  if (utamaGoal()) return utamaGoal();
+  const t = today();
+  const g = {
+    goal_id: uid(), judul: 'Tabungan Utama', deskripsi: 'Penampung kupon & imbalan investasi (SR, SBN, ORI, deposito, dll).',
+    kategori_id: S.categories.some(c => c.kategori_id === 'cat-keuangan') ? 'cat-keuangan' : (S.categories[0] || {}).kategori_id,
+    jenis: 'Bersama', visibilitas: 'Terlihat pasangan', tipe_target: 'Finansial', nilai_target: 100000000, satuan: 'Rp',
+    tgl_mulai: t, tenggat: (Number(t.slice(0, 4)) + 10) + t.slice(4), prioritas: 'Tinggi', ikon: '', warna: '#CFF2D6',
+    tgl_pelaksanaan: '', template: '', meta: JSON.stringify({ utama: true })
+  };
+  S.goals.push(Object.assign({}, g, { pemilik_id: S.me.user_id, nilai_saat_ini: 0, status: 'Aktif', dibuat_pada: nowIso(), diubah_pada: nowIso() }));
+  Outbox.push('saveGoal', [g, []]);
+  if (arahkan) arahkanKupon(g.goal_id, true);
+  saveSnapshot();
+  return goalById(g.goal_id);
+}
+function arahkanKupon(goalId, silent) {
+  const list = S.assets.filter(a => a.status === 'Aktif' && a.goal_tujuan_id !== goalId);
+  list.forEach(a => { a.goal_tujuan_id = goalId; a.diubah_pada = nowIso(); Outbox.push('saveAsset', [Object.assign({}, a)]); });
+  saveSnapshot();
+  if (!silent) toast(list.length ? `${list.length} investasi kini mengirim kupon ke Tabungan Utama 🏦` : 'Semua kupon sudah masuk ke Tabungan Utama');
+  return list.length;
+}
+function utamaCardHtml() {
+  const g = utamaGoal();
+  if (!g) return `<div class="card utama-card mb-3"><div class="d-flex align-items-center gap-3 flex-wrap">
+      <div class="utama-ic" aria-hidden="true">🏦</div>
+      <div class="flex-grow-1" style="min-width:200px"><h3 class="mb-1">Tabungan Utama</h3><p class="tiny muted mb-0">Satu rekening untuk menampung semua kupon & imbalan investasi (SR, SBN, ORI, deposito). Kupon bersih masuk otomatis tiap tanggal kupon.</p></div>
+      <button class="btn btn-dark btn-sm" data-action="utamaBuat"><i class="bi bi-plus-lg"></i> Buat Tabungan Utama</button></div></div>`;
+  const ym = today().slice(0, 7);
+  const inc = S.assetIncome.filter(x => x.goal_id === g.goal_id);
+  const bulanIni = inc.filter(x => String(x.periode || x.tanggal).slice(0, 7) === ym).reduce((s, x) => s + Number(x.jumlah), 0);
+  const total = inc.reduce((s, x) => s + Number(x.jumlah), 0);
+  const linked = S.assets.filter(a => a.status === 'Aktif' && a.goal_tujuan_id === g.goal_id);
+  const lain = S.assets.filter(a => a.status === 'Aktif' && a.goal_tujuan_id !== g.goal_id);
+  const perBulan = linked.reduce((s, a) => s + assetInfo(a).net, 0);
+  const next = linked.map(a => ({ a, i: assetInfo(a) })).filter(x => x.i.next).sort((x, y) => x.i.next.localeCompare(y.i.next))[0];
+  return `<div class="card utama-card mb-3">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      <div class="utama-ic" aria-hidden="true">🏦</div>
+      <div class="flex-grow-1" style="min-width:200px">
+        <div class="tiny muted fw-bold">Tabungan Utama · penampung kupon investasi</div>
+        <div class="harta-total">${fmtVal(g.nilai_saat_ini, 'Rp')}</div>
+        <div class="tiny muted">${linked.length} investasi terhubung · ±${fmtShort(perBulan, 'Rp')}/bln${next ? ' · kupon berikutnya ' + fmtDate(next.i.next) + ' (' + esc(next.a.nama) + ')' : ''}</div>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button class="btn btn-mint btn-sm" data-action="logProgress" data-id="${g.goal_id}"><i class="bi bi-arrow-left-right"></i> Setor / tarik</button>
+        <button class="btn btn-soft btn-sm" data-action="openGoal" data-id="${g.goal_id}"><i class="bi bi-clock-history"></i> Riwayat</button>
+      </div>
+    </div>
+    <div class="kv mt-3">
+      <div><small>Kupon masuk bulan ini</small><b>${fmtShort(bulanIni, 'Rp')}</b></div>
+      <div><small>Total kupon diterima</small><b>${fmtShort(total, 'Rp')}</b></div>
+    </div>
+    ${lain.length ? `<div class="price-box"><div><small class="muted">${lain.length} investasi aktif belum mengirim kupon ke sini</small><b style="font-size:14px">${lain.map(a => esc(a.nama)).join(', ')}</b></div>
+      <button class="btn btn-dark btn-sm" data-action="utamaArahkan"><i class="bi bi-arrow-down-circle"></i> Arahkan ke Tabungan Utama</button></div>` : ''}
+  </div>`;
+}
 function finAssetsHtml() {
   const list = S.assets.slice().sort((a, b) => (a.status === 'Aktif' ? 0 : 1) - (b.status === 'Aktif' ? 0 : 1) || a.tgl_mulai.localeCompare(b.tgl_mulai));
   const cards = list.map(a => {
@@ -293,7 +355,7 @@ function finAssetsHtml() {
         <button class="btn btn-soft btn-sm" data-action="delAsset" data-id="${a.aset_id}"><i class="bi bi-trash3"></i> Hapus</button></div>
     </div>`;
   }).join('');
-  return `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+  return `${utamaCardHtml()}<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
       <p class="tiny muted mb-0" style="max-width:560px">Catat SBN, Sukuk Ritel, ORI, ST, deposito, dll. Kupon bersih tiap bulan otomatis masuk ke tabungan pilihan (diproses pukul 07.00 WITA pada tanggal kupon).</p>
       <button class="btn btn-dark btn-sm" data-action="newAsset"><i class="bi bi-plus-lg"></i> Tambah Investasi</button></div>
     ${list.length ? `<div class="ggrid">${cards}</div>` : `<div class="card">${emptyHtml('bi-bank', 'Belum ada investasi tercatat.', '<button class="btn btn-dark btn-sm" data-action="newAsset">Tambah investasi pertama</button>')}</div>`}`;
@@ -336,7 +398,7 @@ function ownerOptions(cur) {
   return `<option value="">Bersama</option>` + S.users.map(u => `<option value="${u.user_id}" ${cur === u.user_id ? 'selected' : ''}>${esc(u.nama)}</option>`).join('');
 }
 function openAssetForm(id) {
-  const a = S.assets.find(x => x.aset_id === id) || { aset_id: uid(), nama: '', jenis: 'SR', pemilik_id: '', nominal: '', kupon_persen: '', pajak_persen: 10, tenor_bulan: 36, tgl_mulai: today(), tgl_kupon: 10, goal_tujuan_id: '', status: 'Aktif', catatan: '' };
+  const a = S.assets.find(x => x.aset_id === id) || { aset_id: uid(), nama: '', jenis: 'SR', pemilik_id: '', nominal: '', kupon_persen: '', pajak_persen: 10, tenor_bulan: 36, tgl_mulai: today(), tgl_kupon: 10, goal_tujuan_id: (utamaGoal() || {}).goal_id || '', status: 'Aktif', catatan: '' };
   const goals = S.goals.filter(g => g.tipe_target === 'Finansial' && g.status !== 'Arsip');
   openSheet(id ? 'Edit Investasi' : 'Investasi Baru 🏦', `
   <form data-form="asset" novalidate>
@@ -351,7 +413,7 @@ function openAssetForm(id) {
       <label class="field"><span>Tanggal mulai (setelmen)</span><input type="date" name="tgl_mulai" data-change="assetCalc" value="${esc(a.tgl_mulai)}"></label>
       <label class="field"><span>Kupon dibayar tiap tanggal</span><input name="tgl_kupon" type="number" min="1" max="31" data-input="assetCalc" value="${esc(a.tgl_kupon)}"></label>
     </div>
-    <label class="field"><span>Kupon bulanan masuk ke tabungan</span><select name="goal_tujuan_id"><option value="">— tidak diarahkan —</option>${goals.map(g => `<option value="${g.goal_id}" ${a.goal_tujuan_id === g.goal_id ? 'selected' : ''}>${esc(g.judul)}</option>`).join('')}</select>
+    <label class="field"><span>Kupon bulanan masuk ke tabungan</span><select name="goal_tujuan_id"><option value="">— tidak diarahkan —</option>${goals.map(g => `<option value="${g.goal_id}" ${a.goal_tujuan_id === g.goal_id ? 'selected' : ''}>${parseMeta(g.meta).utama ? '🏦 ' : ''}${esc(g.judul)}</option>`).join('')}</select>
       <small>Setiap tanggal kupon, kupon bersih otomatis dicatat sebagai setoran ke tabungan ini.</small></label>
     <div class="grid-2">
       <label class="field"><span>Pemilik</span><select name="pemilik_id">${ownerOptions(a.pemilik_id)}</select></label>
@@ -499,6 +561,13 @@ Object.assign(Actions, {
   finTab: d => { S.ui.finTab = d.tab; renderFinance(); },
   tplPick: d => tplPick(d.tpl || ''),
   newAsset: () => openAssetForm(),
+  utamaBuat: () => {
+    const ada = S.assets.some(a => a.status === 'Aktif');
+    const go = arahkan => { createUtama(arahkan); renderAll(); toast('Tabungan Utama dibuat 🏦' + (arahkan ? ' — kupon investasi diarahkan ke sini' : '')); };
+    if (!ada) return go(false);
+    confirmBox({ title: 'Arahkan kupon ke Tabungan Utama?', text: 'Kupon semua investasi aktif akan masuk ke Tabungan Utama mulai kupon berikutnya. Setoran yang sudah tercatat di tabungan lain tidak berubah.', ok: 'Ya, arahkan' }, () => { closeSheet(); go(true); });
+  },
+  utamaArahkan: () => { const g = utamaGoal(); if (g) { arahkanKupon(g.goal_id); renderAll(); } },
   editAsset: d => openAssetForm(d.id),
   delAsset: d => confirmBox({ title: 'Hapus investasi ini?', text: 'Catatan investasi & riwayat kupon otomatisnya dihapus. Setoran yang sudah masuk ke tabungan tetap ada.', ok: 'Hapus', danger: true }, () => {
     S.assets = S.assets.filter(x => x.aset_id !== d.id); S.assetIncome = S.assetIncome.filter(x => x.aset_id !== d.id);
