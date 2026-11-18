@@ -57,7 +57,7 @@ const parseNum = (s, money) => {
   return Number(s.replace(/\s/g, '').replace(',', '.')) || 0;
 };
 const PASTELS = ['#CFF2D6', '#E8D3F5', '#D5F0F7', '#FBEBB5', '#F8CFE0', '#FFE1C7'];
-const CAT_ICONS = ['bi-wallet2', 'bi-piggy-bank', 'bi-heart-pulse', 'bi-bicycle', 'bi-briefcase', 'bi-mortarboard', 'bi-book', 'bi-moon-stars',
+const CAT_ICONS = ['bi-wallet2', 'bi-safe2', 'bi-heart-pulse', 'bi-bicycle', 'bi-briefcase', 'bi-mortarboard', 'bi-book', 'bi-moon-stars',
   'bi-airplane', 'bi-house-heart', 'bi-car-front', 'bi-cup-hot', 'bi-flower1', 'bi-gift', 'bi-music-note-beamed', 'bi-camera',
   'bi-lightning-charge', 'bi-tree', 'bi-people', 'bi-balloon-heart', 'bi-palette', 'bi-laptop', 'bi-basket', 'bi-trophy'];
 const AVATARS = ['🧔', '👩', '👨', '🧕', '🙂', '😎', '🦸‍♂️', '🦸‍♀️', '🐻', '🐱', '🌸', '⭐'];

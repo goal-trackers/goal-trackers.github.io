@@ -103,8 +103,8 @@ function renderDashboard() {
           <div class="pbar"><span style="width:${f.target ? Math.min(100, f.saved / f.target * 100) : 0}%"></span></div>
           <div class="fin-row tiny"><span class="muted">Bulan ini</span><strong>+${fmtShort(f.month, 'Rp')}</strong></div>
           ${finExtraHtml()}
-          <button class="btn btn-mint btn-sm" data-action="logProgress" data-tipe="Finansial"><i class="bi bi-piggy-bank"></i> Setor tabungan</button>
-        </div>` : `<div class="card">${emptyHtml('bi-piggy-bank', 'Belum ada target finansial.', '<button class="btn btn-dark btn-sm" data-action="newGoal" data-tipe="Finansial">Buat target tabungan</button>')}</div>`}
+          <button class="btn btn-mint btn-sm" data-action="logProgress" data-tipe="Finansial"><i class="bi bi-wallet2"></i> Setor tabungan</button>
+        </div>` : `<div class="card">${emptyHtml('bi-wallet2', 'Belum ada target finansial.', '<button class="btn btn-dark btn-sm" data-action="newGoal" data-tipe="Finansial">Buat target tabungan</button>')}</div>`}
       </div>
       <h2 class="sec-title">Goal Bersama <span aria-hidden="true">💞</span> <button class="link-btn ms-auto" data-action="nav" data-page="goals" data-tab="bersama">Lihat semua</button></h2>
       ${shared.length ? `<div class="slider"><button type="button" class="slide-btn prev" data-slide="-1" aria-label="Geser ke kiri"><i class="bi bi-chevron-left"></i></button><div class="hscroll">${shared.map((g, i) => goalCard(g, { featured: i === 0 })).join('')}</div><button type="button" class="slide-btn next" data-slide="1" aria-label="Geser ke kanan"><i class="bi bi-chevron-right"></i></button></div>`

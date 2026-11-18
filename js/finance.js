@@ -212,7 +212,7 @@ function renderFinance() {
   const runLoans = S.loans.filter(l => l.status !== 'Lunas' && !loanInfo(l).done);
   const sisaPinjam = runLoans.reduce((s, l) => s + loanInfo(l).sisaBayar, 0);
   const cicilan = runLoans.reduce((s, l) => s + loanInfo(l).c, 0);
-  const tabs = [['tabungan', 'Tabungan & Rencana', f.count, 'bi-piggy-bank', '#CFF2D6'], ['investasi', 'Investasi', S.assets.length, 'bi-graph-up-arrow', '#D5F0F7'],
+  const tabs = [['tabungan', 'Tabungan & Rencana', f.count, 'bi-wallet2', '#CFF2D6'], ['investasi', 'Investasi', S.assets.length, 'bi-graph-up-arrow', '#D5F0F7'],
     ['pinjaman', 'Pinjaman', S.loans.length, 'bi-credit-card', '#E8D3F5'], ['harta', 'Harta', hartaOwned().length, 'bi-gem', '#FBEBB5']]
     .map(([k, l, n, ic, c]) => `<button role="tab" aria-selected="${tab === k}" class="${tab === k ? 'on' : ''}" style="--tc:${c}" data-action="finTab" data-tab="${k}"><span class="tab-ic"><i class="bi ${ic}"></i></span>${l}<span class="n">${n}</span></button>`).join('');
   let body = '';
@@ -335,7 +335,7 @@ function finSavingsHtml(f) {
       ${Object.keys(TPL).map(k => `<button class="chip-btn" data-action="newGoal" data-tpl="${k}">${TPL[k].emoji} ${TPL[k].label}</button>`).join('')}
       <button class="chip-btn" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>
     </div>
-    ${list.length ? finLayout(cardArr, `<div class="glist">${list.map(rowItem).join('')}</div>`) : `<div class="card">${emptyHtml('bi-piggy-bank', 'Belum ada rencana tabungan. Pilih template di atas untuk mulai.')}</div>`}
+    ${list.length ? finLayout(cardArr, `<div class="glist">${list.map(rowItem).join('')}</div>`) : `<div class="card">${emptyHtml('bi-wallet2', 'Belum ada rencana tabungan. Pilih template di atas untuk mulai.')}</div>`}
     <div class="card mt-3"><h3>Tren Tabungan 12 Bulan <span class="muted tiny">batang = setoran per bulan · garis = total terkumpul</span></h3><div class="chart-box"><canvas id="chFin" aria-label="Grafik tren tabungan per bulan" role="img"></canvas></div></div>`;
 }
 // ── TABUNGAN UTAMA: rekening penampung kupon / imbalan investasi (SR, SBN, ORI, deposito, dll) ──

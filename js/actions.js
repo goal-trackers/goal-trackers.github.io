@@ -258,7 +258,7 @@ const Actions = {
   logProgress: d => openProgressForm(d.id, d.tipe),
   quickAdd: () => openSheet('Tambah', `<div class="menu-list">
       <button data-action="logProgress"><i class="bi bi-plus-circle"></i> Catat progres</button>
-      <button data-action="logProgress" data-tipe="Finansial"><i class="bi bi-piggy-bank"></i> Setor tabungan</button>
+      <button data-action="logProgress" data-tipe="Finansial"><i class="bi bi-wallet2"></i> Setor tabungan</button>
       <button data-action="newGoal" data-jenis="Pribadi"><i class="bi bi-person"></i> Goal pribadi baru</button>
       <button data-action="newGoal" data-jenis="Bersama"><i class="bi bi-people"></i> Goal bersama baru</button></div>`),
   moreMenu: () => {
