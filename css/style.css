@@ -746,3 +746,5 @@ button.pecahan-item:active { transform: scale(.98); }
 .plan-acts .btn:first-child { flex-basis: 100%; }
 .harta-item-pic { width: 60px; min-height: 60px; display: grid; place-items: center; flex: none; }
 .harta-item .kv small + b + small { display: block; font-size: 12px; font-weight: 700; margin-top: 2px; }
+.row-item .ic-raw { display: grid; place-items: center; flex: none; }
+.row-item .ic-raw svg { display: block; }

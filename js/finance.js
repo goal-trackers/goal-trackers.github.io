@@ -258,10 +258,29 @@ function finViewBody(cards, listHtml) {
   }
   return `<div class="ggrid">${cards.join('')}</div>`;
 }
+/** Lencana instrumen investasi (ilustrasi sendiri, bukan logo resmi): warna per jenis + kode seri */
+const ASSET_BADGE = {
+  SR: ['#1F8A5B', '#E3F5EC', 'SUKUK RITEL'], ST: ['#0E7C86', '#DDF3F4', 'SUKUK TAB.'], ORI: ['#B42318', '#FDECEA', 'OBLIGASI RI'],
+  SBR: ['#A15C07', '#FEF3E2', 'SAVINGS BOND'], SBN: ['#1D4ED8', '#E6EEFD', 'SURAT NEGARA'], Deposito: ['#6D28D9', '#F0E9FD', 'DEPOSITO'],
+  Obligasi: ['#334155', '#EEF1F5', 'OBLIGASI'], Lainnya: ['#475569', '#EEF1F5', 'INVESTASI']
+};
+function assetBadgeSvg(a, size) {
+  const [fg, bg, cap] = ASSET_BADGE[a.jenis] || ASSET_BADGE.Lainnya;
+  const kode = a.jenis.length <= 3 ? a.jenis : a.jenis.slice(0, 3).toUpperCase();
+  const seri = (String(a.nama).match(/\d{2,4}/) || [''])[0];
+  const w = size || 44;
+  return `<svg viewBox="0 0 48 48" width="${w}" height="${w}" role="img" aria-label="${esc(a.jenis)} ${esc(seri)}">
+    <rect x="1" y="1" width="46" height="46" rx="12" fill="${bg}" stroke="${fg}" stroke-opacity=".35"/>
+    <rect x="1" y="1" width="46" height="11" rx="6" fill="${fg}"/><rect x="1" y="7" width="46" height="5" fill="${fg}"/>
+    <text x="24" y="9.6" text-anchor="middle" font-family="Arial,sans-serif" font-size="5.2" font-weight="700" fill="#fff" letter-spacing=".3">${cap}</text>
+    <text x="24" y="${seri ? 30 : 34}" text-anchor="middle" font-family="Arial,sans-serif" font-size="${kode.length > 2 ? 13 : 16}" font-weight="900" fill="${fg}">${esc(kode)}</text>
+    ${seri ? `<text x="24" y="41.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" font-weight="800" fill="${fg}" opacity=".85">${esc(seri)}</text>` : ''}
+  </svg>`;
+}
 const finLayout = (cards, listHtml) => `<div class="goals-layout">${viewRailHtml()}<div style="min-width:0">${finViewBody(cards, listHtml)}</div></div>`;
 /** Baris ringkas untuk tampilan Daftar */
 const finRow = o => `<button class="row-item" ${o.act}>
-    <span class="ic tint" style="--c:${o.c}">${o.ic}</span>
+    ${o.raw ? `<span class="ic-raw">${o.raw}</span>` : `<span class="ic tint" style="--c:${o.c}">${o.ic}</span>`}
     <span><b>${esc(o.title)}</b><span class="sub">${o.badge || ''}${o.sub}</span>
       <span class="pbar sm mt-2"><span style="width:${Math.min(100, o.pct)}%"></span></span></span>
     <span class="pct">${o.right}</span>
@@ -392,7 +411,7 @@ function finAssetsHtml() {
         <button class="btn btn-soft btn-sm" data-action="delAsset" data-id="${a.aset_id}"><i class="bi bi-trash3"></i> Hapus</button></div>
     </div>`;
   });
-  const rowsA = `<div class="glist">${list.map(a => { const i = assetInfo(a); return finRow({ act: `data-action="editAsset" data-id="${a.aset_id}"`, ic: '🏦', c: '#D5F0F7', title: a.nama,
+  const rowsA = `<div class="glist">${list.map(a => { const i = assetInfo(a); return finRow({ act: `data-action="editAsset" data-id="${a.aset_id}"`, raw: assetBadgeSvg(a, 44), title: a.nama,
     badge: a.status !== 'Aktif' ? `<span class="badge-s s-done" style="padding:2px 8px">${esc(a.status)}</span>` : '<span class="badge-s s-active" style="padding:2px 8px">Aktif</span>',
     sub: `${esc(a.jenis)} · ${fmtShort(a.nominal, 'Rp')} · kupon ${fmtShort(i.net, 'Rp')}/bln · ${i.k}/${i.n} bln`, pct: i.pct, right: Math.round(i.pct) + '%' }); }).join('')}</div>`;
   return `${utamaCardHtml()}<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
