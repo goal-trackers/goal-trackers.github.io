@@ -6,7 +6,7 @@ const HARTA = {
   Perak:     { satuan: 'gram', emoji: '🥈', icon: 'bi-coin',          c: '#E6E8EE', harga: true,  contoh: 'mis. Perak batangan 100 gr', simpan: 'mis. Brankas rumah' },
   Tanah:     { satuan: 'm²',   emoji: '🌳', icon: 'bi-tree',          c: '#CFF2D6', harga: true,  contoh: 'mis. Tanah kavling Batu',    simpan: 'mis. Jl. Mawar No. 3, Batu' },
   Rumah:     { satuan: 'unit', emoji: '🏠', icon: 'bi-house-door',    c: '#FFE1C7', harga: false, contoh: 'mis. Rumah Perum Griya',     simpan: 'Alamat' },
-  Kendaraan: { satuan: 'unit', emoji: '🚗', icon: 'bi-car-front',     c: '#D5F0F7', harga: false, contoh: 'mis. Motor Vario 2023',      simpan: 'mis. Plat nomor / garasi' },
+  Kendaraan: { satuan: 'unit', emoji: '🚗', icon: 'bi-car-front',     c: '#D5F0F7', harga: false, susut: 5, contoh: 'mis. Motor Vario 2023',      simpan: 'mis. Plat nomor / garasi' },
   Lainnya:   { satuan: 'unit', emoji: '📦', icon: 'bi-box-seam',      c: '#E8D3F5', harga: false, contoh: 'mis. Koleksi, peralatan',    simpan: 'Lokasi' }
 };
 const HARTA_SATUAN = ['gram', 'kg', 'm²', 'hektare', 'unit', 'keping', 'batang'];
@@ -15,12 +15,24 @@ const hartaOwned = () => (S.harta || []).filter(h => h.status !== 'Dijual');
 const hargaPasar = jenis => Number(S.settings['harga_' + jenis]) || 0;
 const fmtQty = (n, sat) => fmtN(Math.round(Number(n) * 1000) / 1000) + ' ' + sat;
 
-/** Nilai taksiran satu harta: jumlah × harga pasar/satuan (bila diatur & satuan cocok), selain itu harga beli. */
+/** Penyusutan per tahun (%) untuk jenis yang nilainya turun (kendaraan). Disimpan di Settings "harga_<jenis>". */
+const susutRate = jenis => { const t = HARTA[jenis]; if (!t || !t.susut) return 0; const v = S.settings['harga_' + jenis]; return v === undefined || v === '' ? t.susut : Number(v) || 0; };
+const usiaTahun = iso => iso ? Math.max(0, (new Date(today() + 'T12:00:00') - new Date(iso + 'T12:00:00')) / (365.25 * 864e5)) : 0;
+/** Nilai taksiran satu harta:
+ *  - emas/perak/tanah: jumlah × harga pasar/satuan (bila diatur & satuan cocok)
+ *  - kendaraan: harga beli × (1 − susut%)^usia (saldo menurun)
+ *  - selain itu: harga beli */
 function hartaNilai(h) {
-  const hp = hargaPasar(h.jenis), def = (HARTA[h.jenis] || {}).satuan;
-  if (hp > 0 && h.satuan === def) return { v: Number(h.jumlah) * hp, pasar: true };
-  return { v: Number(h.harga_beli) || 0, pasar: false };
+  const t = HARTA[h.jenis] || {}, beli = Number(h.harga_beli) || 0;
+  if (t.susut && beli > 0 && h.tgl_beli) {
+    const r = susutRate(h.jenis), th = usiaTahun(h.tgl_beli);
+    return { v: beli * Math.pow(1 - r / 100, th), susut: true, usia: th, rate: r };
+  }
+  const hp = hargaPasar(h.jenis);
+  if (t.harga && hp > 0 && h.satuan === t.satuan) return { v: Number(h.jumlah) * hp, pasar: true };
+  return { v: beli, pasar: false };
 }
+const fmtUsia = th => fmtN(Math.round(th * 10) / 10) + ' thn';
 /** Total per jenis: { jumlah per satuan, nilai, modal, banyak } */
 function hartaSummary(list) {
   const out = {};
@@ -62,6 +74,7 @@ function finHartaHtml() {
           <div class="fw-bold text-truncate">${esc(h.nama)}</div>
           <div class="tiny muted">${h.tgl_beli ? 'Beli ' + fmtDate(h.tgl_beli) : 'Tanggal beli -'}${Number(h.harga_beli) ? ' · ' + fmtShort(h.harga_beli, 'Rp') + (per ? ' (' + fmtShort(per, 'Rp') + '/' + esc(h.satuan) + ')' : '') : ''}</div>
           <div class="tiny muted text-truncate">${esc(ownerName(h.pemilik_id))}${h.lokasi ? ' · ' + esc(h.lokasi) : ''}</div>
+          ${(() => { const n = hartaNilai(h); return n.susut ? `<div class="tiny mt-1"><span class="muted">Taksiran jual sekarang</span> <b>±${fmtShort(n.v, 'Rp')}</b> <span class="muted">· usia ${fmtUsia(n.usia)}</span></div>` : ''; })()}
         </div>
         <div class="d-flex gap-1">
           <button class="icon-btn sm" data-action="editHarta" data-id="${h.harta_id}" aria-label="Edit ${esc(h.nama)}"><i class="bi bi-pencil"></i></button>
@@ -75,10 +88,11 @@ function finHartaHtml() {
         <div class="flex-grow-1" style="min-width:0">
           <div class="tiny muted fw-bold">${esc(k)} · ${s.n} catatan</div>
           <div class="harta-total">${qtyText(s.qty)}</div>
-          <div class="tiny muted">${hp > 0 ? 'Taksiran ' + fmtShort(s.nilai, 'Rp') + ' @ ' + fmtShort(hp, 'Rp') + '/' + t.satuan + (gain !== null ? ` · <b style="color:${gain >= 0 ? 'var(--green-ink, #1B7F3A)' : 'var(--red-ink)'}">${gain >= 0 ? '+' : ''}${fmtN(Math.round(gain * 10) / 10)}%</b>` : '') : 'Modal beli ' + fmtShort(s.modal, 'Rp')}</div>
+          <div class="tiny muted">${t.susut ? (s.modal > 0 ? 'Taksiran jual ' + fmtShort(s.nilai, 'Rp') + ' · modal ' + fmtShort(s.modal, 'Rp') + ` · <b style="color:var(--red-ink)">−${fmtN(Math.round((1 - s.nilai / s.modal) * 1000) / 10)}%</b>` : 'Isi harga & tanggal beli untuk taksiran') : hp > 0 ? 'Taksiran ' + fmtShort(s.nilai, 'Rp') + ' @ ' + fmtShort(hp, 'Rp') + '/' + t.satuan + (gain !== null ? ` · <b style="color:${gain >= 0 ? 'var(--green-ink, #1B7F3A)' : 'var(--red-ink)'}">${gain >= 0 ? '+' : ''}${fmtN(Math.round(gain * 10) / 10)}%</b>` : '') : 'Modal beli ' + fmtShort(s.modal, 'Rp')}</div>
         </div>
         <button class="btn btn-dark btn-sm harta-add" data-action="newHarta" data-jenis="${k}"><i class="bi bi-plus-lg"></i> Tambah ${esc(k.toLowerCase())}</button>
       </div>
+      ${t.susut ? `<button class="link-btn p-0 tiny" style="min-height:32px" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-graph-down-arrow"></i> Penyusutan ${fmtN(susutRate(k))}%/tahun${S.settings['harga_' + k] === undefined || S.settings['harga_' + k] === '' ? ' (bawaan)' : ''} · ubah</button>` : ''}
       ${t.harga ? `<button class="link-btn p-0 tiny" style="min-height:32px" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-tag"></i> ${hp > 0 ? 'Ubah harga ' + k.toLowerCase() + ' per ' + t.satuan + ' (diatur ' + (S.settings['harga_' + k + '_tgl'] ? fmtDate(S.settings['harga_' + k + '_tgl']) : '-') + ')' : 'Atur harga ' + k.toLowerCase() + ' per ' + t.satuan + ' untuk taksiran nilai'}</button>` : ''}
       <div class="harta-list mt-2">${rows}</div>
     </div>`;
@@ -151,7 +165,8 @@ function hartaPreview(f) {
   if (h.jumlah > 0) parts.push(`Total ${h.jenis.toLowerCase()} setelah disimpan: ${fmtQty(before + (h.status === 'Dijual' ? 0 : h.jumlah), h.satuan)}`);
   if (h.jumlah > 0 && h.harga_beli > 0) parts.push(`harga beli ${fmtVal(Math.round(h.harga_beli / h.jumlah), 'Rp')}/${h.satuan}`);
   const hp = hargaPasar(h.jenis);
-  if (h.jumlah > 0 && hp > 0 && h.satuan === HARTA[h.jenis].satuan) parts.push(`taksiran sekarang ${fmtShort(h.jumlah * hp, 'Rp')}`);
+  if (HARTA[h.jenis].susut && h.harga_beli > 0 && h.tgl_beli) { const n = hartaNilai(h); parts.push(`taksiran jual sekarang ±${fmtShort(n.v, 'Rp')} (usia ${fmtUsia(n.usia)}, susut ${fmtN(n.rate)}%/thn)`); }
+  if (HARTA[h.jenis].harga && h.jumlah > 0 && hp > 0 && h.satuan === HARTA[h.jenis].satuan) parts.push(`taksiran sekarang ${fmtShort(h.jumlah * hp, 'Rp')}`);
   el.textContent = parts.length ? parts.join(' · ') : 'Isi jumlah (mis. 5 gram, 200 m²) untuk melihat total.';
 }
 function submitHarta(f) {
@@ -170,6 +185,17 @@ function submitHarta(f) {
 // ── Form harga pasar per satuan (emas/gram, tanah/m²) ──
 function openHargaForm(jenis) {
   const t = HARTA[jenis]; if (!t) return;
+  if (t.susut) {
+    openSheet(`Penyusutan ${jenis} ${t.emoji}`, `
+    <form data-form="hargaHarta"><input type="hidden" name="jenis" value="${jenis}">
+      <p class="muted tiny">Taksiran harga jual = harga beli × (1 − penyusutan)<sup>usia</sup>. Di Indonesia, mobil Jepang populer (Avanza, Xenia, BR-V, dll) umumnya turun ±5–6% per tahun dalam harga jual ke dealer; mobil mewah/Eropa dan motor biasanya lebih cepat (10–15%). Cocokkan dengan harga bekas di OLX/Carmudi untuk tahun & tipe yang sama.</p>
+      <label class="field"><span>Penyusutan per tahun (%)</span><input name="harga" inputmode="decimal" data-input="susutCalc" value="${fmtN(susutRate(jenis))}"></label>
+      <div class="card" style="box-shadow:none;background:var(--soft)"><div class="tiny fw-bold" id="susutPreview"></div></div>
+      <div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button><button class="btn btn-dark" type="submit">Simpan</button></div>
+    </form>`);
+    susutPreview($('#sheet form'));
+    return;
+  }
   const hp = hargaPasar(jenis);
   openSheet(`Harga ${jenis} ${t.emoji}`, `
   <form data-form="hargaHarta"><input type="hidden" name="jenis" value="${jenis}">
@@ -178,8 +204,23 @@ function openHargaForm(jenis) {
     <div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button><button class="btn btn-dark" type="submit">Simpan</button></div>
   </form>`);
 }
+function susutPreview(f) {
+  const el = $('#susutPreview'); if (!el || !f) return;
+  const r = Math.min(90, Math.max(0, parseNum(f.harga.value)));
+  const cars = hartaOwned().filter(h => h.jenis === f.jenis.value && Number(h.harga_beli) > 0 && h.tgl_beli);
+  el.innerHTML = cars.length ? cars.map(h => { const th = usiaTahun(h.tgl_beli); return `${esc(h.nama)}: ${fmtShort(h.harga_beli, 'Rp')} (${fmtUsia(th)}) → <b>±${fmtShort(Number(h.harga_beli) * Math.pow(1 - r / 100, th), 'Rp')}</b>`; }).join('<br>')
+    : 'Belum ada kendaraan dengan harga & tanggal beli.';
+}
 function submitHarga(f) {
-  const jenis = f.jenis.value, v = parseNum(f.harga.value, true);
+  const jenis = f.jenis.value, isSusut = !!HARTA[jenis].susut;
+  const v = isSusut ? Math.min(90, Math.max(0, parseNum(f.harga.value))) : parseNum(f.harga.value, true);
+  if (isSusut) {
+    S.settings['harga_' + jenis] = String(v); S.settings['harga_' + jenis + '_tgl'] = today();
+    saveSnapshot(); closeSheet(); S.ui.finTab = 'harta'; renderFinance();
+    toast(`Penyusutan ${jenis.toLowerCase()} ${fmtN(v)}%/tahun disimpan`);
+    Outbox.push('saveHargaHarta', [jenis, v]);
+    return;
+  }
   S.settings['harga_' + jenis] = v ? String(v) : '';
   S.settings['harga_' + jenis + '_tgl'] = v ? today() : '';
   saveSnapshot(); closeSheet(); S.ui.finTab = 'harta'; renderFinance();
@@ -215,6 +256,6 @@ Object.assign(Changes, {
   hartaCalc: el => hartaPreview(el.form),
   hartaStatus: el => { el.form.querySelectorAll('.sold-f').forEach(x => { x.hidden = el.value !== 'Dijual'; }); }
 });
-Object.assign(Inputs, { hartaCalc: debounce(el => hartaPreview(el.form), 150) });
+Object.assign(Inputs, { hartaCalc: debounce(el => hartaPreview(el.form), 150), susutCalc: debounce(el => susutPreview(el.form), 120) });
 Object.assign(Forms, { harta: f => submitHarta(f), hargaHarta: f => submitHarga(f) });
 window.__GT_PARTS = (window.__GT_PARTS || []).concat('JS6');
