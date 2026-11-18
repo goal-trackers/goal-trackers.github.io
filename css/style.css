@@ -751,3 +751,21 @@ button.pecahan-item:active { transform: scale(.98); }
 .asset-img { position: relative; display: inline-block; }
 .asset-img img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
 .asset-img i { position: absolute; right: -6px; bottom: -4px; font-style: normal; font-size: 10px; font-weight: 800; background: #fff; color: #1B4F8A; border: 1px solid #C9D8EA; border-radius: 999px; padding: 0 5px; line-height: 15px; }
+/* ── Mode gelap: warna pastel & badge lebih terang agar terbaca ── */
+[data-theme="dark"] {
+  --mint: #3A6B4A; --sky: #2F6476; --lav: #5B4A7A; --sun: #73652B; --pink: #78435D; --peach: #7A5A3C; --red: #7D3A35;
+  --soft: #2A2A2A; --line: #343434; --muted: #B4B4B4; --tint-mix: 40%;
+}
+[data-theme="dark"] .s-active { background: #2B5F6F; color: #CDEFFA; }
+[data-theme="dark"] .s-done { background: #2F6440; color: #C9F5D6; }
+[data-theme="dark"] .s-overdue { background: #7A3530; color: #FFD3CD; }
+[data-theme="dark"] .s-upcoming { background: #3A3A3A; color: #E2E2E2; }
+[data-theme="dark"] .s-archived { background: #333; color: #CFCFCF; }
+[data-theme="dark"] .pbar { background: #3A3A3A; }
+[data-theme="dark"] .ring { background: conic-gradient(var(--green) calc(var(--p) * 1%), rgba(255,255,255,.18) 0); }
+[data-theme="dark"] .chip-btn .n, [data-theme="dark"] .tabs .n { background: #3A3A3A; color: #EDEDED; }
+[data-theme="dark"] .chip, [data-theme="dark"] .chip.tint { color: #F2F2F2; }
+[data-theme="dark"] .gcard .gc-corner { background: color-mix(in srgb, var(--c) 55%, #2A2A2A); color: #fff; }
+[data-theme="dark"] .verdict.good { background: #24452F; color: #C9F5D6; }
+[data-theme="dark"] .verdict.bad { background: #4A2522; color: #FFD3CD; }
+[data-theme="dark"] .price-box, [data-theme="dark"] .harta-row, [data-theme="dark"] .exp-row { background: #262626; }
