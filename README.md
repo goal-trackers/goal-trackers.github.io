@@ -27,4 +27,4 @@ js/finance.js    ← keuangan: template rencana, investasi, pinjaman + start apl
 
 ## Memperbarui
 
-Ubah berkas → commit ke branch `main` → GitHub Pages memperbarui situs dalam 1–2 menit. Naikkan angka `?v=` di `index.html` agar browser tidak memakai cache lama.
+Ubah berkas → commit ke branch `main` → GitHub Pages memperbarui situs dalam 1–2 menit. Alamat: https://goal-trackers.github.io — naikkan angka `?v=` di `index.html` agar browser tidak memakai cache lama.
