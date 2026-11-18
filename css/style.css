@@ -707,3 +707,7 @@ button.pecahan-item:active { transform: scale(.98); }
 .splash-logo .logo-svg { width: 46px; height: 46px; }
 [data-theme="dark"] .brand-mark, [data-theme="dark"] .splash-logo { background: #FFF1F1; }
 .nav-logo { width: 1.25em; height: 1.25em; display: inline-block; vertical-align: -0.2em; }
+.install-bar { position: fixed; left: 12px; right: 12px; top: calc(env(safe-area-inset-top) + 10px); z-index: 90; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 18px; background: #111; color: #fff; box-shadow: 0 12px 30px rgba(0,0,0,.3); max-width: 520px; margin: 0 auto; }
+.install-bar img { border-radius: 10px; flex: none; }
+.install-bar .tiny { color: rgba(255,255,255,.75); }
+.install-bar[hidden] { display: none; }
