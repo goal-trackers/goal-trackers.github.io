@@ -568,6 +568,6 @@ function keepRows(root, fn) {
     if (pos[i] !== undefined) e.scrollLeft = pos[i];
     const on = e.querySelector('.on, [aria-selected="true"]');
     if (on) { const a = on.getBoundingClientRect(), b = e.getBoundingClientRect();
-      if (a.left < b.left || a.right > b.right) on.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
+      if (a.left < b.left || a.right > b.right) e.scrollBy({ left: (a.left + a.width / 2) - (b.left + b.width / 2), behavior: 'smooth' }); }   // geser horizontal saja, halaman tidak ikut bergulir
   });
 }

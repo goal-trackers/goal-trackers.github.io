@@ -403,7 +403,7 @@ Object.assign(Actions, {
     S.ui.hartaJenis = d.jenis; S.ui.hartaGram = 'all'; S.ui.hartaSeri = 'all'; keepScroll(renderFinance);
     const r2 = document.querySelector('#page-finance .jenis-scroll'); if (!r2) return;
     r2.scrollLeft = x;
-    const on = r2.querySelector('.chip-btn.on'); if (on) on.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    const on = r2.querySelector('.chip-btn.on'); if (on) { const a = on.getBoundingClientRect(), b = r2.getBoundingClientRect(); r2.scrollBy({ left: (a.left + a.width / 2) - (b.left + b.width / 2), behavior: 'smooth' }); }
   },
   hartaSeri: d => { S.ui.hartaSeri = d.seri; if (!hartaComboAda()) S.ui.hartaGram = 'all'; keepScroll(renderFinance); const w = document.querySelector('#page-finance .harta-scroll'); if (w) w.scrollTop = 0; },
   hartaGram: d => {
