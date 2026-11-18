@@ -744,3 +744,5 @@ button.pecahan-item:active { transform: scale(.98); }
 .plan-acts { display: flex; flex-wrap: wrap; gap: 8px; }
 .plan-acts .btn { flex: 1 1 auto; white-space: nowrap; padding-left: 10px; padding-right: 10px; justify-content: center; }
 .plan-acts .btn:first-child { flex-basis: 100%; }
+.harta-item-pic { width: 60px; min-height: 60px; display: grid; place-items: center; flex: none; }
+.harta-item .kv small + b + small { display: block; font-size: 12px; font-weight: 700; margin-top: 2px; }

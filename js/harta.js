@@ -177,6 +177,31 @@ function hartaTableHtml(jenis, items) {
   return `<div class="table-wrap harta-scroll"><table class="tbl harta-tbl"><thead><tr>${head}</tr></thead><tbody>${body}</tbody><tfoot><tr>${foot}</tr></tfoot></table></div>`;
 }
 
+/** Kartu satu harta (tampilan Kartu & Peta perjalanan) */
+function hartaItemCard(h) {
+  const t = HARTA[h.jenis] || HARTA.Lainnya, n = hartaNilai(h), beli = Number(h.harga_beli) || 0;
+  const d = beli && (n.pasar || n.susut) ? n.v - beli : null;
+  return `<div class="card harta-item">
+    <div class="d-flex align-items-center gap-3">
+      <div class="harta-item-pic">${hartaThumb(h, h.jenis === 'Emas' || h.jenis === 'Perak' ? 46 : 50)}</div>
+      <div class="flex-grow-1" style="min-width:0">
+        <div class="fw-bold text-truncate" style="font-size:16px">${esc(h.nama)}</div>
+        <div class="harta-total" style="font-size:20px">${fmtGram(h.jumlah)} ${esc(h.satuan)}</div>
+        <div class="tiny muted">${h.tgl_beli ? 'Beli ' + fmtDate(h.tgl_beli) : 'Tanggal beli -'}${h.tgl_beli && n.susut ? ' · usia ' + fmtUsia(n.usia) : ''}</div>
+      </div>
+    </div>
+    <div class="kv mt-3">
+      <div><small>Harga beli</small><b>${beli ? fmtShort(beli, 'Rp') : '-'}</b></div>
+      <div><small>${n.susut ? 'Taksiran jual' : h.jenis === 'Emas' ? 'Taksiran buyback' : 'Taksiran'}</small><b>${n.pasar || n.susut ? fmtShort(n.v, 'Rp') : '-'}</b>${d !== null ? `<small style="color:${d >= 0 ? 'var(--green-ink,#1B7F3A)' : 'var(--red-ink)'}">${d >= 0 ? '+' : '−'}${fmtShort(Math.abs(d), 'Rp')}</small>` : ''}</div>
+    </div>
+    <div class="d-flex align-items-center gap-2 mt-3">
+      <span class="tiny muted flex-grow-1 text-truncate">${esc(ownerName(h.pemilik_id))}${h.lokasi ? ' · ' + esc(h.lokasi) : ''}</span>
+      <button class="icon-btn sm" data-action="editHarta" data-id="${h.harta_id}" aria-label="Edit ${esc(h.nama)}"><i class="bi bi-pencil"></i></button>
+      <button class="icon-btn sm" data-action="delHarta" data-id="${h.harta_id}" aria-label="Hapus ${esc(h.nama)}"><i class="bi bi-trash3"></i></button>
+    </div>
+  </div>`;
+}
+
 // ── Tab "Harta" di Pusat Finansial: pilih jenis → tabel kolom harta jenis itu ──
 function hartaPriceBox(k) {
   const t = HARTA[k], hp = hargaPasar(k), tgl = S.settings['harga_' + k + '_tgl'];
@@ -249,8 +274,12 @@ function finHartaHtml() {
       </div>
       ${hartaPriceBox(k)}
     </div>`;
-  const table = items.length ? `<div class="card mt-3">${sFilter}${gFilter}${shown.length ? hartaTableHtml(k, shown) : '<p class="muted my-3">Tidak ada catatan yang cocok dengan filter ini.</p>'}${k === 'Emas' ? '<p class="tiny muted mt-2 mb-0"><i class="bi bi-info-circle"></i> Taksiran = berat × harga buyback hari ini, sebelum PPh 22 (penjualan > Rp 10 jt dipotong 1,5% dengan NPWP / 3% tanpa NPWP). Harga buyback Antam sama di semua butik, termasuk Balikpapan.</p>' : ''}</div>`
-    : `<div class="card mt-3">${emptyHtml(t.icon, `Belum ada ${k.toLowerCase()} tercatat.`, `<button class="btn btn-dark btn-sm" data-action="newHarta" data-jenis="${k}">Catat ${k.toLowerCase()} pertama</button>`)}</div>`;
+  const note = k === 'Emas' ? '<p class="tiny muted mt-2 mb-0"><i class="bi bi-info-circle"></i> Taksiran = berat × harga buyback hari ini, sebelum PPh 22 (penjualan > Rp 10 jt dipotong 1,5% dengan NPWP / 3% tanpa NPWP). Harga buyback Antam sama di semua butik, termasuk Balikpapan.</p>' : '';
+  const kosong = '<p class="muted my-3">Tidak ada catatan yang cocok dengan filter ini.</p>';
+  let table;
+  if (!items.length) table = `<div class="card mt-3">${emptyHtml(t.icon, `Belum ada ${k.toLowerCase()} tercatat.`, `<button class="btn btn-dark btn-sm" data-action="newHarta" data-jenis="${k}">Catat ${k.toLowerCase()} pertama</button>`)}</div>`;
+  else if (finView() === 'list') table = `<div class="goals-layout mt-3">${viewRailHtml()}<div style="min-width:0"><div class="card">${sFilter}${gFilter}${shown.length ? hartaTableHtml(k, shown) : kosong}${note}</div></div></div>`;
+  else table = `<div class="goals-layout mt-3">${viewRailHtml()}<div style="min-width:0">${sFilter || gFilter ? `<div class="card mb-3">${sFilter}${gFilter}</div>` : ''}${shown.length ? finViewBody(shown.map(hartaItemCard)) : `<div class="card">${kosong}</div>`}${note ? `<div class="mt-2">${note}</div>` : ''}</div></div>`;
   const soldHtml = soldK.length ? `<details class="card mt-3"><summary class="fw-bold">Riwayat ${k.toLowerCase()} dijual (${soldK.length})</summary>
     <div class="table-wrap mt-2"><table class="tbl harta-tbl"><thead><tr><th></th><th>Nama</th><th class="num">Jumlah</th><th>Tgl jual</th><th class="num">Harga jual</th><th class="num">Modal</th><th></th></tr></thead><tbody>
     ${soldK.map(h => `<tr><td>${hartaThumb(h, 30)}</td><td><b>${esc(h.nama)}</b></td><td class="num">${fmtGram(h.jumlah)} ${esc(h.satuan)}</td><td>${h.tgl_jual ? fmtDate(h.tgl_jual) : '-'}</td><td class="num">${Number(h.harga_jual) ? fmtVal(h.harga_jual, 'Rp') : '-'}</td><td class="num">${Number(h.harga_beli) ? fmtVal(h.harga_beli, 'Rp') : '-'}</td>

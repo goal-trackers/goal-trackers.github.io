@@ -237,11 +237,17 @@ function renderFinance() {
   const _hn = document.querySelector('#page-finance .harta-scroll');
   if (_hn && _hp && _hp[2] === S.ui.hartaJenis) { _hn.scrollTop = _hp[0]; _hn.scrollLeft = _hp[1]; }
 }
-const finView = () => S.ui.finView || lsGet('gt_finview', 'grid');
-/** Tampilan rencana tabungan: peta perjalanan / daftar / kartu (seperti halaman Goals) */
-function finPlansView(list, cards) {
+/** Tampilan per tab (disimpan terpisah): Harta bawaan Daftar (tabel), lainnya Kartu */
+const finView = () => { const t = S.ui.finTab || 'tabungan'; S.ui.finViews = S.ui.finViews || {};
+  return S.ui.finViews[t] || lsGet('gt_finview_' + t, t === 'harta' ? 'list' : 'grid'); };
+/** Pilihan tampilan (peta perjalanan / daftar / kartu) — dipakai semua tab Finansial */
+function viewRailHtml() {
+  return `<div class="view-rail" role="group" aria-label="Pilih tampilan">${[['journey', 'bi-bezier2', 'Peta perjalanan'], ['list', 'bi-list-ul', 'Daftar'], ['grid', 'bi-grid', 'Kartu']]
+    .map(([k, i, l]) => `<button class="${finView() === k ? 'on' : ''}" data-action="finView" data-view="${k}" aria-label="${l}" title="${l}" aria-pressed="${finView() === k}"><i class="bi ${i}"></i></button>`).join('')}</div>`;
+}
+function finViewBody(cards, listHtml) {
   const v = finView();
-  if (v === 'list') return `<div class="glist">${list.map(rowItem).join('')}</div>`;
+  if (v === 'list') return listHtml;
   if (v === 'journey') {
     const item = c => `<div class="j-item">${c}</div>`;
     if (mqWide.matches) {
@@ -252,6 +258,14 @@ function finPlansView(list, cards) {
   }
   return `<div class="ggrid">${cards.join('')}</div>`;
 }
+const finLayout = (cards, listHtml) => `<div class="goals-layout">${viewRailHtml()}<div style="min-width:0">${finViewBody(cards, listHtml)}</div></div>`;
+/** Baris ringkas untuk tampilan Daftar */
+const finRow = o => `<button class="row-item" ${o.act}>
+    <span class="ic tint" style="--c:${o.c}">${o.ic}</span>
+    <span><b>${esc(o.title)}</b><span class="sub">${o.badge || ''}${o.sub}</span>
+      <span class="pbar sm mt-2"><span style="width:${Math.min(100, o.pct)}%"></span></span></span>
+    <span class="pct">${o.right}</span>
+  </button>`;
 function finSavingsHtml(f) {
   const list = sortGoals(f.goals, 'tenggat');
   const cards = list.map(g => {
@@ -287,11 +301,7 @@ function finSavingsHtml(f) {
       ${Object.keys(TPL).map(k => `<button class="chip-btn" data-action="newGoal" data-tpl="${k}">${TPL[k].emoji} ${TPL[k].label}</button>`).join('')}
       <button class="chip-btn" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>
     </div>
-    ${list.length ? `<div class="goals-layout">
-      <div class="view-rail" role="group" aria-label="Pilih tampilan">${[['journey', 'bi-bezier2', 'Peta perjalanan'], ['list', 'bi-list-ul', 'Daftar'], ['grid', 'bi-grid', 'Kartu']]
-        .map(([k, i, l]) => `<button class="${finView() === k ? 'on' : ''}" data-action="finView" data-view="${k}" aria-label="${l}" title="${l}" aria-pressed="${finView() === k}"><i class="bi ${i}"></i></button>`).join('')}</div>
-      <div>${finPlansView(list, cardArr)}</div>
-    </div>` : `<div class="card">${emptyHtml('bi-piggy-bank', 'Belum ada rencana tabungan. Pilih template di atas untuk mulai.')}</div>`}
+    ${list.length ? finLayout(cardArr, `<div class="glist">${list.map(rowItem).join('')}</div>`) : `<div class="card">${emptyHtml('bi-piggy-bank', 'Belum ada rencana tabungan. Pilih template di atas untuk mulai.')}</div>`}
     <div class="card mt-3"><h3>Tren Tabungan 12 Bulan <span class="muted tiny">batang = setoran per bulan · garis = total terkumpul</span></h3><div class="chart-box"><canvas id="chFin" aria-label="Grafik tren tabungan per bulan" role="img"></canvas></div></div>`;
 }
 // ── TABUNGAN UTAMA: rekening penampung kupon / imbalan investasi (SR, SBN, ORI, deposito, dll) ──
@@ -381,11 +391,14 @@ function finAssetsHtml() {
       <div class="d-flex gap-2"><button class="btn btn-soft btn-sm" data-action="editAsset" data-id="${a.aset_id}"><i class="bi bi-pencil"></i> Edit</button>
         <button class="btn btn-soft btn-sm" data-action="delAsset" data-id="${a.aset_id}"><i class="bi bi-trash3"></i> Hapus</button></div>
     </div>`;
-  }).join('');
+  });
+  const rowsA = `<div class="glist">${list.map(a => { const i = assetInfo(a); return finRow({ act: `data-action="editAsset" data-id="${a.aset_id}"`, ic: '🏦', c: '#D5F0F7', title: a.nama,
+    badge: a.status !== 'Aktif' ? `<span class="badge-s s-done" style="padding:2px 8px">${esc(a.status)}</span>` : '<span class="badge-s s-active" style="padding:2px 8px">Aktif</span>',
+    sub: `${esc(a.jenis)} · ${fmtShort(a.nominal, 'Rp')} · kupon ${fmtShort(i.net, 'Rp')}/bln · ${i.k}/${i.n} bln`, pct: i.pct, right: Math.round(i.pct) + '%' }); }).join('')}</div>`;
   return `${utamaCardHtml()}<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
       <p class="tiny muted mb-0" style="max-width:560px">Catat SBN, Sukuk Ritel, ORI, ST, deposito, dll. Kupon bersih tiap bulan otomatis masuk ke tabungan pilihan (diproses pukul 07.00 WITA pada tanggal kupon).</p>
       <button class="btn btn-dark btn-sm" data-action="newAsset"><i class="bi bi-plus-lg"></i> Tambah Investasi</button></div>
-    ${list.length ? `<div class="ggrid">${cards}</div>` : `<div class="card">${emptyHtml('bi-bank', 'Belum ada investasi tercatat.', '<button class="btn btn-dark btn-sm" data-action="newAsset">Tambah investasi pertama</button>')}</div>`}`;
+    ${list.length ? finLayout(cards, rowsA) : `<div class="card">${emptyHtml('bi-bank', 'Belum ada investasi tercatat.', '<button class="btn btn-dark btn-sm" data-action="newAsset">Tambah investasi pertama</button>')}</div>`}`;
 }
 function finLoansHtml() {
   const list = S.loans.slice().sort((a, b) => (loanInfo(a).done ? 1 : 0) - (loanInfo(b).done ? 1 : 0));
@@ -411,11 +424,14 @@ function finLoansHtml() {
         ${!i.done ? `<button class="btn btn-mint btn-sm" data-action="loanLunas" data-id="${l.pinjaman_id}"><i class="bi bi-check2-circle"></i> Tandai lunas</button>` : ''}
         <button class="btn btn-soft btn-sm" data-action="delLoan" data-id="${l.pinjaman_id}"><i class="bi bi-trash3"></i> Hapus</button></div>
     </div>`;
-  }).join('');
+  });
+  const rowsL = `<div class="glist">${list.map(l => { const i = loanInfo(l); return finRow({ act: `data-action="editLoan" data-id="${l.pinjaman_id}"`, ic: '💳', c: '#E8D3F5', title: l.nama,
+    badge: i.done ? '<span class="badge-s s-done" style="padding:2px 8px">Lunas</span>' : '<span class="badge-s s-active" style="padding:2px 8px">Berjalan</span>',
+    sub: `${esc(l.pemberi)} · ${fmtShort(i.c, 'Rp')}/bln · sisa ${fmtShort(i.sisaBayar, 'Rp')}`, pct: i.pct, right: i.k + '/' + i.n }); }).join('')}</div>`;
   return `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
       <p class="tiny muted mb-0" style="max-width:560px">Cicilan yang dipotong otomatis dari gaji dihitung berdasarkan tanggal potong. Notifikasi muncul setiap kali cicilan terpotong.</p>
       <button class="btn btn-dark btn-sm" data-action="newLoan"><i class="bi bi-plus-lg"></i> Tambah Pinjaman</button></div>
-    ${list.length ? `<div class="ggrid">${cards}</div>` : `<div class="card">${emptyHtml('bi-credit-card', 'Belum ada pinjaman tercatat.', '<button class="btn btn-dark btn-sm" data-action="newLoan">Tambah pinjaman</button>')}</div>`}`;
+    ${list.length ? finLayout(cards, rowsL) : `<div class="card">${emptyHtml('bi-credit-card', 'Belum ada pinjaman tercatat.', '<button class="btn btn-dark btn-sm" data-action="newLoan">Tambah pinjaman</button>')}</div>`}`;
 }
 
 // ============================================================
@@ -586,7 +602,7 @@ function loanRowsExport() {
 // ── Daftarkan aksi, form & input modul keuangan ──
 Object.assign(Actions, {
   finTab: d => { S.ui.finTab = d.tab; renderFinance(); },
-  finView: d => { S.ui.finView = d.view; lsSet('gt_finview', d.view); renderFinance(); },
+  finView: d => { const t = S.ui.finTab || 'tabungan'; S.ui.finViews = S.ui.finViews || {}; S.ui.finViews[t] = d.view; lsSet('gt_finview_' + t, d.view); renderFinance(); },
   tplPick: d => tplPick(d.tpl || ''),
   newAsset: () => openAssetForm(),
   utamaBuat: () => {
