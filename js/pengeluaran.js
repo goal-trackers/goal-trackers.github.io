@@ -11,7 +11,9 @@ const PKAT = {
   'Lainnya':        { e: '📌', c: '#E6E8EE' }
 };
 const pakaiOf = gid => (S.pengeluaran || []).filter(x => x.goal_id === gid);
-const punyaPengeluaran = g => g && g.tipe_target === 'Finansial' && (g.template === 'liburan' || pakaiOf(g.goal_id).length > 0);
+/** Semua rencana finansial bisa punya catatan pengeluaran (kecuali Tabungan Utama). */
+const bisaPengeluaran = g => g && g.tipe_target === 'Finansial' && !parseMeta(g.meta).utama;
+const punyaPengeluaran = g => bisaPengeluaran(g) && (g.template === 'liburan' || pakaiOf(g.goal_id).length > 0);
 function anggaranInfo(g) {
   const list = pakaiOf(g.goal_id);
   const anggaran = Number(g.nilai_saat_ini) || 0;

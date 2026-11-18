@@ -741,3 +741,6 @@ button.pecahan-item:active { transform: scale(.98); }
 .filter-row .jenis-scroll { margin-bottom: 0; }
 @media (max-width: 560px) { .filter-row { gap: 4px; } }
 .filter-row > .chips { align-self: stretch; max-width: 100%; min-width: 0; }
+.plan-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.plan-acts .btn { flex: 1 1 auto; white-space: nowrap; padding-left: 10px; padding-right: 10px; justify-content: center; }
+.plan-acts .btn:first-child { flex-basis: 100%; }

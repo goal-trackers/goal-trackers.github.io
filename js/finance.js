@@ -257,8 +257,12 @@ function finSavingsHtml(f) {
         <div><small>Sisa</small><b>${fmtShort(Math.max(0, g.nilai_target - g.nilai_saat_ini), 'Rp')}</b></div>
         <div><small>${done ? (needsExecDate(g) ? 'Pelaksanaan' : 'Status') : 'Saran setoran'}</small><b>${done ? (needsExecDate(g) ? (g.tgl_pelaksanaan ? fmtDate(g.tgl_pelaksanaan) : 'Belum ditetapkan') : 'Tercapai 🎉') : fmtShort(Math.ceil(monthlyNeed(g)), 'Rp') + '/bln'}</b></div>
       </div>
-      ${punyaPengeluaran(g) ? (() => { const a = anggaranInfo(g), lb = a.sisa < 0; return `<div class="kv mt-2"><div><small>Terpakai</small><b>${fmtShort(a.pakai, 'Rp')}</b></div><div><small>${lb ? 'Kelebihan' : 'Sisa anggaran'}</small><b style="color:${lb ? 'var(--red-ink)' : 'var(--green-ink,#1B7F3A)'}">${lb ? '−' : ''}${fmtShort(Math.abs(a.sisa), 'Rp')}</b></div></div>
-        ${canEdit(g) ? `<div class="d-flex gap-2 mt-3"><button class="btn btn-dark btn-sm flex-grow-1" data-action="newPengeluaran" data-id="${g.goal_id}"><i class="bi bi-receipt"></i> Catat pengeluaran</button><button class="btn btn-soft btn-sm" data-action="openGoal" data-id="${g.goal_id}">Rincian</button></div>` : ''}`; })() : ''}
+      ${punyaPengeluaran(g) ? (() => { const a = anggaranInfo(g), lb = a.sisa < 0; return `<div class="kv mt-2"><div><small>Terpakai</small><b>${fmtShort(a.pakai, 'Rp')}</b></div><div><small>${lb ? 'Kelebihan' : 'Sisa anggaran'}</small><b style="color:${lb ? 'var(--red-ink)' : 'var(--green-ink,#1B7F3A)'}">${lb ? '−' : ''}${fmtShort(Math.abs(a.sisa), 'Rp')}</b></div></div>`; })() : ''}
+      ${canEdit(g) ? `<div class="plan-acts mt-3">
+        ${bisaPengeluaran(g) ? `<button class="btn btn-soft btn-sm" data-action="newPengeluaran" data-id="${g.goal_id}"><i class="bi bi-receipt"></i> Catat pengeluaran</button>` : ''}
+        <button class="btn btn-soft btn-sm" data-action="editGoal" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>
+        <button class="btn btn-soft btn-sm" data-action="openGoal" data-id="${g.goal_id}"><i class="bi bi-list-ul"></i> Rincian</button>
+      </div>` : ''}
       ${done && needsExecDate(g) && !g.tgl_pelaksanaan && canEdit(g) ? `<button class="btn btn-dark btn-sm w-100 mt-3" data-action="execDate" data-id="${g.goal_id}"><i class="bi bi-calendar-plus"></i> Tetapkan tanggal pelaksanaan</button>` : ''}
       ${canLog(g) && !done ? `<button class="btn btn-mint btn-sm w-100 mt-3" data-action="logProgress" data-id="${g.goal_id}"><i class="bi bi-plus-lg"></i> Setor</button>` : ''}
     </div>`;
