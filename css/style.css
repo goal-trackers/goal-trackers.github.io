@@ -719,3 +719,8 @@ button.pecahan-item:active { transform: scale(.98); }
   -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
 .jenis-scroll .chip-btn { flex: none; white-space: nowrap; scroll-snap-align: start; }
 .jenis-scroll::after { content: ''; flex: 0 0 24px; }
+/* Ikon Goals di navigasi: samakan ukuran & ketebalan dengan ikon Bootstrap lain */
+.bottom-nav button .nav-logo { width: 23px; height: 23px; margin: 3.5px 0; stroke-width: 4.2; }
+.bottom-nav button.active .nav-logo { color: var(--mint); }
+[data-theme="dark"] .bottom-nav button.active .nav-logo { color: #CFF2D6; }
+.tn .nav-logo { width: 18px; height: 18px; stroke-width: 4.4; vertical-align: -3px; }
