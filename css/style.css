@@ -660,3 +660,16 @@ label.chip-btn:has(input:focus-visible) { box-shadow: var(--focus); }
 .harta-slider .slide-btn { width: 36px; height: 36px; font-size: 15px; }
 .harta-slider .slide-btn.prev { left: -14px; } .harta-slider .slide-btn.next { right: -14px; }
 @media (min-width: 900px) { .harta-slider .hscroll { grid-auto-columns: minmax(260px, 92%); } }
+.price-box { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 14px; padding: 12px 14px; border-radius: 16px; background: var(--soft); }
+.price-box > div:first-child { display: grid; gap: 1px; }
+.price-box b { font-size: 18px; }
+.harta-emoji { width: 40px; height: 40px; border-radius: 12px; display: inline-grid; place-items: center; font-size: 22px; }
+.bar-svg { display: block; filter: drop-shadow(0 2px 3px rgba(120,80,0,.25)); }
+.harta-ic .bar-svg { margin: auto; }
+table.harta-tbl { min-width: 860px; }
+.harta-tbl td { vertical-align: middle; }
+.harta-tbl th.num { text-align: right; }
+.harta-tbl tfoot td { border-bottom: 0; border-top: 2px solid var(--line); }
+.harta-tbl td:first-child { width: 52px; }
+.chip-btn .n { font-size: 11px; background: var(--soft); border-radius: 999px; padding: 1px 7px; }
+.chip-btn.on .n { background: rgba(255,255,255,.2); }

@@ -53,65 +53,135 @@ function hartaExtraHtml() {
   return `<div class="fin-row tiny"><span class="muted">Harta</span><strong>${keys.slice(0, 3).map(k => HARTA[k].emoji + ' ' + qtyText(sum[k].qty)).join(' · ')}</strong></div>`;
 }
 
-// ── Tab "Harta" di Pusat Finansial ──
+// ── Ilustrasi batangan emas/perak (bukan foto/logo merek), ukuran mengikuti berat ──
+let _barSeq = 0;
+const fmtGram = g => fmtN(Math.round(Number(g) * 1000) / 1000);
+function barSvg(gram, metal, w) {
+  const id = 'gb' + (++_barSeq), silver = metal === 'Perak';
+  const c = silver ? ['#FFFFFF', '#E3E6EC', '#9CA3AF', '#F1F3F6', '#7B8290'] : ['#FFF6C9', '#F6CF55', '#C38A1C', '#F9DE7E', '#8E5E12'];
+  const ink = silver ? '#4B5260' : '#6B4508', g = Number(gram) || 0;
+  const big = g >= 100;                                   // ≥100 gr: batangan melintang
+  const W = big ? 120 : 64, H = big ? 70 : 96;
+  const label = fmtGram(g) + (g >= 1000 ? '' : '');
+  const fs = String(label).length > 4 ? 13 : 17;
+  return `<svg class="bar-svg" viewBox="0 0 ${W} ${H}" width="${w || (big ? 64 : 40)}" role="img" aria-label="Batangan ${silver ? 'perak' : 'emas'} ${label} gram">
+    <defs>
+      <linearGradient id="${id}a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c[0]}"/><stop offset=".28" stop-color="${c[1]}"/><stop offset=".55" stop-color="${c[2]}"/><stop offset=".78" stop-color="${c[3]}"/><stop offset="1" stop-color="${c[4]}"/></linearGradient>
+      <linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c[3]}"/><stop offset=".5" stop-color="${c[1]}"/><stop offset="1" stop-color="${c[2]}"/></linearGradient>
+      <linearGradient id="${id}s" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    </defs>
+    <rect x="1.5" y="1.5" width="${W - 3}" height="${H - 3}" rx="${big ? 10 : 8}" fill="url(#${id}a)" stroke="${c[4]}" stroke-width="1.5"/>
+    <rect x="7" y="7" width="${W - 14}" height="${H - 14}" rx="${big ? 6 : 5}" fill="url(#${id}b)" stroke="${c[0]}" stroke-opacity=".7"/>
+    <rect x="7" y="7" width="${(W - 14) * .45}" height="${H - 14}" rx="5" fill="url(#${id}s)" transform="skewX(-12) translate(${big ? 14 : 10} 0)"/>
+    ${big
+      ? `<text x="${W / 2}" y="${H / 2 - 2}" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="20" fill="${ink}">${label} g</text>
+         <text x="${W / 2}" y="${H / 2 + 14}" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="8" letter-spacing="1" fill="${ink}" opacity=".85">FINE ${silver ? 'SILVER 999' : 'GOLD 999.9'}</text>`
+      : `<text x="${W / 2}" y="${H * .30}" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="6.5" letter-spacing=".8" fill="${ink}" opacity=".85">FINE ${silver ? 'SILVER' : 'GOLD'}</text>
+         <text x="${W / 2}" y="${H * .56}" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="${fs}" fill="${ink}">${label}</text>
+         <text x="${W / 2}" y="${H * .69}" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="8" fill="${ink}">gram</text>
+         <text x="${W / 2}" y="${H * .84}" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="7" letter-spacing=".5" fill="${ink}" opacity=".85">${silver ? '999' : '999.9'}</text>`}
+  </svg>`;
+}
+function hartaThumb(h, w) {
+  if ((h.jenis === 'Emas' || h.jenis === 'Perak') && (h.satuan === 'gram' || h.satuan === 'kg')) return barSvg(h.satuan === 'kg' ? Number(h.jumlah) * 1000 : h.jumlah, h.jenis, w);
+  const t = HARTA[h.jenis] || HARTA.Lainnya;
+  return `<span class="harta-emoji tint" style="--c:${t.c}">${t.emoji}</span>`;
+}
+
+// ── Kolom tabel per jenis harta ──
+function hartaCols(jenis) {
+  const rp = v => v ? fmtVal(Math.round(v), 'Rp') : '<span class="muted">-</span>';
+  const beli = h => Number(h.harga_beli) || 0;
+  const per = h => beli(h) && Number(h.jumlah) ? beli(h) / Number(h.jumlah) : 0;
+  const taks = h => hartaNilai(h);
+  const gl = h => { const n = taks(h); if (!beli(h) || (!n.pasar && !n.susut)) return '<span class="muted">-</span>'; const d = n.v - beli(h), pc = d / beli(h) * 100;
+    return `<span style="color:${d >= 0 ? 'var(--green-ink,#1B7F3A)' : 'var(--red-ink)'}">${d >= 0 ? '+' : '−'}${fmtShort(Math.abs(d), 'Rp')}<br><small>${d >= 0 ? '+' : '−'}${fmtN(Math.round(Math.abs(pc) * 10) / 10)}%</small></span>`; };
+  const nama = { h: 'Nama', td: h => `<b>${esc(h.nama)}</b>${h.catatan ? `<div class="tiny muted">${esc(h.catatan)}</div>` : ''}` };
+  const tgl = { h: 'Tgl beli', td: h => h.tgl_beli ? fmtDate(h.tgl_beli) : '-' };
+  const hb = { h: 'Harga beli', num: 1, td: h => rp(beli(h)), sum: h => beli(h) };
+  const owner = { h: 'Atas nama', td: h => esc(ownerName(h.pemilik_id)) };
+  const lok = lbl => ({ h: lbl, td: h => h.lokasi ? esc(h.lokasi) : '<span class="muted">-</span>' });
+  const qty = lbl => ({ h: lbl, num: 1, td: h => `<b>${fmtGram(h.jumlah)}</b> ${esc(h.satuan)}`, sumQty: true });
+  const aksi = { h: '', td: h => `<div class="d-flex gap-1 justify-content-end"><button class="icon-btn sm" data-action="editHarta" data-id="${h.harta_id}" aria-label="Edit ${esc(h.nama)}"><i class="bi bi-pencil"></i></button><button class="icon-btn sm" data-action="delHarta" data-id="${h.harta_id}" aria-label="Hapus ${esc(h.nama)}"><i class="bi bi-trash3"></i></button></div>` };
+  if (jenis === 'Emas' || jenis === 'Perak') return [
+    { h: '', td: h => hartaThumb(h) }, nama, qty('Berat'), tgl, hb,
+    { h: 'Beli /gr', num: 1, td: h => rp(per(h)) },
+    { h: jenis === 'Emas' ? 'Taksiran buyback' : 'Taksiran', num: 1, td: h => taks(h).pasar ? `<b>${rp(taks(h).v)}</b>` : '<span class="muted">-</span>', sum: h => taks(h).pasar ? taks(h).v : 0 },
+    { h: 'Untung/rugi', num: 1, td: gl }, owner, lok('Tempat simpan'), aksi];
+  if (jenis === 'Tanah') return [
+    { h: '', td: h => hartaThumb(h) }, nama, qty('Luas'), tgl, hb, { h: 'Beli /m²', num: 1, td: h => rp(per(h)) },
+    { h: 'Taksiran', num: 1, td: h => taks(h).pasar ? `<b>${rp(taks(h).v)}</b>` : '<span class="muted">-</span>', sum: h => taks(h).pasar ? taks(h).v : 0 },
+    { h: 'Untung/rugi', num: 1, td: gl }, owner, lok('Lokasi'), aksi];
+  if (jenis === 'Kendaraan') return [
+    { h: '', td: h => hartaThumb(h) }, nama, tgl, { h: 'Usia', td: h => h.tgl_beli ? fmtUsia(usiaTahun(h.tgl_beli)) : '-' }, hb,
+    { h: 'Taksiran jual', num: 1, td: h => taks(h).susut ? `<b>±${rp(taks(h).v)}</b>` : '<span class="muted">-</span>', sum: h => taks(h).susut ? taks(h).v : 0 },
+    { h: 'Turun', num: 1, td: gl }, owner, lok('Plat / garasi'), aksi];
+  return [{ h: '', td: h => hartaThumb(h) }, nama, qty('Jumlah'), tgl, hb, owner, lok('Lokasi'), aksi];
+}
+function hartaTableHtml(jenis, items) {
+  const cols = hartaCols(jenis);
+  const head = cols.map(c => `<th${c.num ? ' class="num"' : ''}>${c.h}</th>`).join('');
+  const body = items.map(h => `<tr>${cols.map(c => `<td${c.num ? ' class="num"' : ''}>${c.td(h)}</td>`).join('')}</tr>`).join('');
+  const qtyT = qtyText(hartaSummary(items)[jenis] ? hartaSummary(items)[jenis].qty : {});
+  const foot = cols.map((c, i) => {
+    if (i === 1) return `<td><b>Total (${items.length})</b></td>`;
+    if (c.sumQty) return `<td class="num"><b>${qtyT}</b></td>`;
+    if (c.sum) { const v = items.reduce((s, h) => s + c.sum(h), 0); return `<td class="num"><b>${v ? fmtVal(Math.round(v), 'Rp') : '-'}</b></td>`; }
+    return '<td></td>';
+  }).join('');
+  return `<div class="table-wrap"><table class="tbl harta-tbl"><thead><tr>${head}</tr></thead><tbody>${body}</tbody><tfoot><tr>${foot}</tr></tfoot></table></div>`;
+}
+
+// ── Tab "Harta" di Pusat Finansial: pilih jenis → tabel kolom harta jenis itu ──
+function hartaPriceBox(k) {
+  const t = HARTA[k], hp = hargaPasar(k), tgl = S.settings['harga_' + k + '_tgl'];
+  if (t.susut) return `<div class="price-box"><div><small class="muted">Penyusutan</small><b>${fmtN(susutRate(k))}% / tahun</b><small class="muted">${S.settings['harga_' + k] === undefined || S.settings['harga_' + k] === '' ? 'nilai bawaan' : 'diatur manual'}</small></div>
+    <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-sliders"></i> Ubah</button></div>`;
+  if (!t.harga) return '';
+  if (k === 'Emas') {
+    const auto = S.settings.harga_Emas_src === 'antam';
+    return `<div class="price-box"><div><small class="muted">Harga buyback Antam (Logam Mulia)</small><b>${hp ? fmtVal(hp, 'Rp') + ' /gr' : 'Belum ada'}</b>
+      <small class="muted">${hp ? (auto ? '<i class="bi bi-arrow-repeat"></i> otomatis · ' : '<i class="bi bi-pencil"></i> manual · ') + (tgl ? fmtDate(tgl) : '') : 'Tekan "Perbarui" untuk mengambil harga hari ini'}</small></div>
+      <div class="d-flex gap-2 flex-wrap"><button class="btn btn-dark btn-sm" data-action="hartaRefreshEmas"><i class="bi bi-arrow-clockwise"></i> Perbarui</button>
+      <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="Emas">Atur manual</button></div></div>`;
+  }
+  return `<div class="price-box"><div><small class="muted">Harga ${k.toLowerCase()} per ${t.satuan}</small><b>${hp ? fmtVal(hp, 'Rp') : 'Belum diatur'}</b><small class="muted">${hp && tgl ? 'diatur ' + fmtDate(tgl) : 'untuk taksiran nilai'}</small></div>
+    <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-tag"></i> ${hp ? 'Ubah' : 'Atur'}</button></div>`;
+}
 function finHartaHtml() {
   const owned = hartaOwned();
   const sold = (S.harta || []).filter(h => h.status === 'Dijual');
   const sum = hartaSummary(owned);
   const total = Object.keys(sum).reduce((s, k) => s + sum[k].nilai, 0);
-  const quick = Object.keys(HARTA).map(k => `<button class="chip-btn" data-action="newHarta" data-jenis="${k}">${HARTA[k].emoji} ${k === 'Emas' || k === 'Tanah' || k === 'Perak' ? 'Beli ' + k.toLowerCase() : k}</button>`).join('');
-
-  const groups = Object.keys(HARTA).filter(k => sum[k]).map(k => {
-    const t = HARTA[k], s = sum[k];
-    const items = owned.filter(h => h.jenis === k).sort((a, b) => String(b.tgl_beli).localeCompare(String(a.tgl_beli)));
-    const hp = hargaPasar(k);
-    const gain = s.modal > 0 && hp > 0 ? (s.nilai - s.modal) / s.modal * 100 : null;
-    const rows = items.map(h => {
-      const per = Number(h.harga_beli) > 0 && Number(h.jumlah) > 0 ? Number(h.harga_beli) / Number(h.jumlah) : 0;
-      return `<div class="harta-row">
-        <div class="harta-qty tint" style="--c:${t.c}"><b>${fmtN(Math.round(Number(h.jumlah) * 1000) / 1000)}</b><small>${esc(h.satuan)}</small></div>
-        <div class="flex-grow-1" style="min-width:0">
-          <div class="fw-bold text-truncate">${esc(h.nama)}</div>
-          <div class="tiny muted">${h.tgl_beli ? 'Beli ' + fmtDate(h.tgl_beli) : 'Tanggal beli -'}${Number(h.harga_beli) ? ' · ' + fmtShort(h.harga_beli, 'Rp') + (per ? ' (' + fmtShort(per, 'Rp') + '/' + esc(h.satuan) + ')' : '') : ''}</div>
-          <div class="tiny muted text-truncate">${esc(ownerName(h.pemilik_id))}${h.lokasi ? ' · ' + esc(h.lokasi) : ''}</div>
-          ${(() => { const n = hartaNilai(h); return n.susut ? `<div class="tiny mt-1"><span class="muted">Taksiran jual sekarang</span> <b>±${fmtShort(n.v, 'Rp')}</b> <span class="muted">· usia ${fmtUsia(n.usia)}</span></div>` : ''; })()}
-        </div>
-        <div class="d-flex gap-1">
-          <button class="icon-btn sm" data-action="editHarta" data-id="${h.harta_id}" aria-label="Edit ${esc(h.nama)}"><i class="bi bi-pencil"></i></button>
-          <button class="icon-btn sm" data-action="delHarta" data-id="${h.harta_id}" aria-label="Hapus ${esc(h.nama)}"><i class="bi bi-trash3"></i></button>
-        </div>
-      </div>`;
-    }).join('');
-    return `<div class="card harta-card">
+  if (!HARTA[S.ui.hartaJenis]) S.ui.hartaJenis = Object.keys(HARTA).find(k => sum[k]) || 'Emas';
+  const k = S.ui.hartaJenis, t = HARTA[k], s = sum[k];
+  const tabs = Object.keys(HARTA).map(j => `<button class="chip-btn ${j === k ? 'on' : ''}" data-action="hartaPilih" data-jenis="${j}" aria-pressed="${j === k}">${HARTA[j].emoji} ${j}${sum[j] ? ` <span class="n">${sum[j].n}</span>` : ''}</button>`).join('');
+  const items = owned.filter(h => h.jenis === k).sort((a, b) => String(b.tgl_beli).localeCompare(String(a.tgl_beli)));
+  const soldK = sold.filter(h => h.jenis === k);
+  const modalTxt = s && s.modal ? 'modal ' + fmtShort(s.modal, 'Rp') : '';
+  const head = `<div class="card harta-head-card">
       <div class="harta-head">
-        <div class="harta-ic tint" style="--c:${t.c}" aria-hidden="true">${t.emoji}</div>
+        <div class="harta-ic tint" style="--c:${t.c}" aria-hidden="true">${k === 'Emas' || k === 'Perak' ? barSvg(s ? (s.qty.gram || 0) + (s.qty.kg || 0) * 1000 : 0, k, 46) : t.emoji}</div>
         <div class="flex-grow-1" style="min-width:0">
-          <div class="tiny muted fw-bold">${esc(k)} · ${s.n} catatan</div>
-          <div class="harta-total">${qtyText(s.qty)}</div>
-          <div class="tiny muted">${t.susut ? (s.modal > 0 ? 'Taksiran jual ' + fmtShort(s.nilai, 'Rp') + ' · modal ' + fmtShort(s.modal, 'Rp') + ` · <b style="color:var(--red-ink)">−${fmtN(Math.round((1 - s.nilai / s.modal) * 1000) / 10)}%</b>` : 'Isi harga & tanggal beli untuk taksiran') : hp > 0 ? 'Taksiran ' + fmtShort(s.nilai, 'Rp') + ' @ ' + fmtShort(hp, 'Rp') + '/' + t.satuan + (gain !== null ? ` · <b style="color:${gain >= 0 ? 'var(--green-ink, #1B7F3A)' : 'var(--red-ink)'}">${gain >= 0 ? '+' : ''}${fmtN(Math.round(gain * 10) / 10)}%</b>` : '') : 'Modal beli ' + fmtShort(s.modal, 'Rp')}</div>
+          <div class="tiny muted fw-bold">${esc(k)} yang dimiliki · ${s ? s.n : 0} catatan</div>
+          <div class="harta-total">${s ? qtyText(s.qty) : '0 ' + t.satuan}</div>
+          <div class="tiny muted">${s ? 'Taksiran ' + fmtShort(s.nilai, 'Rp') + (modalTxt ? ' · ' + modalTxt : '') : 'Belum ada catatan'}</div>
         </div>
         <button class="btn btn-dark btn-sm harta-add" data-action="newHarta" data-jenis="${k}"><i class="bi bi-plus-lg"></i> Tambah ${esc(k.toLowerCase())}</button>
       </div>
-      ${t.susut ? `<button class="link-btn p-0 tiny" style="min-height:32px" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-graph-down-arrow"></i> Penyusutan ${fmtN(susutRate(k))}%/tahun${S.settings['harga_' + k] === undefined || S.settings['harga_' + k] === '' ? ' (bawaan)' : ''} · ubah</button>` : ''}
-      ${t.harga ? `<button class="link-btn p-0 tiny" style="min-height:32px" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-tag"></i> ${hp > 0 ? 'Ubah harga ' + k.toLowerCase() + ' per ' + t.satuan + ' (diatur ' + (S.settings['harga_' + k + '_tgl'] ? fmtDate(S.settings['harga_' + k + '_tgl']) : '-') + ')' : 'Atur harga ' + k.toLowerCase() + ' per ' + t.satuan + ' untuk taksiran nilai'}</button>` : ''}
-      ${items.length > 1 ? `<div class="slider harta-slider mt-2"><button type="button" class="slide-btn prev" data-slide="-1" aria-label="Geser ke kiri"><i class="bi bi-chevron-left"></i></button><div class="hscroll harta-list">${rows}</div><button type="button" class="slide-btn next" data-slide="1" aria-label="Geser ke kanan"><i class="bi bi-chevron-right"></i></button></div>` : `<div class="harta-list mt-2">${rows}</div>`}
+      ${hartaPriceBox(k)}
     </div>`;
-  }).join('');
-
-  const soldHtml = sold.length ? `<details class="card mt-3"><summary class="fw-bold">Riwayat dijual (${sold.length})</summary>
-    <div class="harta-list mt-2">${sold.map(h => `<div class="harta-row">
-      <div class="harta-qty" style="background:var(--soft)"><b>${fmtN(Number(h.jumlah))}</b><small>${esc(h.satuan)}</small></div>
-      <div class="flex-grow-1" style="min-width:0"><div class="fw-bold text-truncate">${HARTA[h.jenis] ? HARTA[h.jenis].emoji : ''} ${esc(h.nama)}</div>
-        <div class="tiny muted">Dijual ${h.tgl_jual ? fmtDate(h.tgl_jual) : ''}${Number(h.harga_jual) ? ' · ' + fmtShort(h.harga_jual, 'Rp') : ''}${Number(h.harga_beli) ? ' · modal ' + fmtShort(h.harga_beli, 'Rp') : ''}</div></div>
-      <button class="icon-btn sm" data-action="editHarta" data-id="${h.harta_id}" aria-label="Edit"><i class="bi bi-pencil"></i></button></div>`).join('')}</div></details>` : '';
-
+  const table = items.length ? `<div class="card mt-3">${hartaTableHtml(k, items)}${k === 'Emas' ? '<p class="tiny muted mt-2 mb-0"><i class="bi bi-info-circle"></i> Taksiran = berat × harga buyback hari ini, sebelum PPh 22 (penjualan > Rp 10 jt dipotong 1,5% dengan NPWP / 3% tanpa NPWP). Harga buyback Antam sama di semua butik, termasuk Balikpapan.</p>' : ''}</div>`
+    : `<div class="card mt-3">${emptyHtml(t.icon, `Belum ada ${k.toLowerCase()} tercatat.`, `<button class="btn btn-dark btn-sm" data-action="newHarta" data-jenis="${k}">Catat ${k.toLowerCase()} pertama</button>`)}</div>`;
+  const soldHtml = soldK.length ? `<details class="card mt-3"><summary class="fw-bold">Riwayat ${k.toLowerCase()} dijual (${soldK.length})</summary>
+    <div class="table-wrap mt-2"><table class="tbl harta-tbl"><thead><tr><th></th><th>Nama</th><th class="num">Jumlah</th><th>Tgl jual</th><th class="num">Harga jual</th><th class="num">Modal</th><th></th></tr></thead><tbody>
+    ${soldK.map(h => `<tr><td>${hartaThumb(h, 30)}</td><td><b>${esc(h.nama)}</b></td><td class="num">${fmtGram(h.jumlah)} ${esc(h.satuan)}</td><td>${h.tgl_jual ? fmtDate(h.tgl_jual) : '-'}</td><td class="num">${Number(h.harga_jual) ? fmtVal(h.harga_jual, 'Rp') : '-'}</td><td class="num">${Number(h.harga_beli) ? fmtVal(h.harga_beli, 'Rp') : '-'}</td>
+      <td><button class="icon-btn sm" data-action="editHarta" data-id="${h.harta_id}" aria-label="Edit"><i class="bi bi-pencil"></i></button></td></tr>`).join('')}</tbody></table></div></details>` : '';
   return `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-      <p class="tiny muted mb-0" style="max-width:560px">Catat emas, tanah, rumah, kendaraan & harta lain. Setiap kali beli lagi, tambahkan catatan baru — totalnya (mis. emas 15 gram) dihitung otomatis.</p>
-      <button class="btn btn-dark btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Tambah Harta</button></div>
-    <div class="chips chips-wrap mb-3">${quick}</div>
-    ${owned.length ? `<div class="stat-line mb-3"><span class="muted tiny">Taksiran total harta</span> <b>${fmtShort(total, 'Rp')}</b></div><div class="ggrid">${groups}</div>`
-      : `<div class="card">${emptyHtml('bi-gem', 'Belum ada harta tercatat.', '<button class="btn btn-dark btn-sm" data-action="newHarta" data-jenis="Emas">Catat emas pertama</button>')}</div>`}
-    ${soldHtml}`;
+      <p class="tiny muted mb-0">Taksiran total semua harta <b style="color:var(--text);font-size:16px">${fmtShort(total, 'Rp')}</b></p>
+      <button class="btn btn-soft btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button></div>
+    <div class="chips chips-wrap mb-3" role="tablist" aria-label="Jenis harta">${tabs}</div>
+    ${head}${table}${soldHtml}`;
 }
 
 // ── Form tambah / edit harta ──
@@ -167,7 +237,9 @@ function hartaPreview(f) {
   const hp = hargaPasar(h.jenis);
   if (HARTA[h.jenis].susut && h.harga_beli > 0 && h.tgl_beli) { const n = hartaNilai(h); parts.push(`taksiran jual sekarang ±${fmtShort(n.v, 'Rp')} (usia ${fmtUsia(n.usia)}, susut ${fmtN(n.rate)}%/thn)`); }
   if (HARTA[h.jenis].harga && h.jumlah > 0 && hp > 0 && h.satuan === HARTA[h.jenis].satuan) parts.push(`taksiran sekarang ${fmtShort(h.jumlah * hp, 'Rp')}`);
-  el.textContent = parts.length ? parts.join(' · ') : 'Isi jumlah (mis. 5 gram, 200 m²) untuk melihat total.';
+  const txt = esc(parts.length ? parts.join(' · ') : 'Isi jumlah (mis. 5 gram, 200 m²) untuk melihat total.');
+  el.innerHTML = (h.jenis === 'Emas' || h.jenis === 'Perak') && h.jumlah > 0 && (h.satuan === 'gram' || h.satuan === 'kg')
+    ? `<span class="d-flex align-items-center gap-3">${hartaThumb(h, 44)}<span>${txt}</span></span>` : txt;
 }
 function submitHarta(f) {
   const h = hartaFromForm(f);
@@ -176,7 +248,7 @@ function submitHarta(f) {
   const ex = S.harta.find(x => x.harta_id === h.harta_id);
   if (ex) Object.assign(ex, h, { diubah_pada: nowIso() });
   else S.harta.push(Object.assign({ dibuat_oleh: S.me.user_id, dibuat_pada: nowIso(), diubah_pada: nowIso() }, h));
-  saveSnapshot(); closeSheet(); S.ui.finTab = 'harta'; navigateTo('finance', { noHistory: S.ui.page === 'finance' });
+  saveSnapshot(); closeSheet(); S.ui.finTab = 'harta'; S.ui.hartaJenis = h.jenis; navigateTo('finance', { noHistory: S.ui.page === 'finance' });
   const tot = hartaSummary(hartaOwned())[h.jenis];
   toast(ex ? 'Harta diperbarui' : `${HARTA[h.jenis].emoji} Tercatat! Total ${h.jenis.toLowerCase()}: ${tot ? qtyText(tot.qty) : '-'}`);
   Outbox.push('saveHarta', [h]);
@@ -223,6 +295,7 @@ function submitHarga(f) {
   }
   S.settings['harga_' + jenis] = v ? String(v) : '';
   S.settings['harga_' + jenis + '_tgl'] = v ? today() : '';
+  if (jenis === 'Emas') S.settings.harga_Emas_src = v ? 'manual' : '';
   saveSnapshot(); closeSheet(); S.ui.finTab = 'harta'; renderFinance();
   toast(v ? `Harga ${jenis.toLowerCase()} ${fmtShort(v, 'Rp')}/${HARTA[jenis].satuan} disimpan` : 'Harga dihapus');
   Outbox.push('saveHargaHarta', [jenis, v || '']);
@@ -242,6 +315,12 @@ Object.assign(Actions, {
   newHarta: d => openHartaForm(null, d.jenis),
   editHarta: d => openHartaForm(d.id),
   hartaHarga: d => openHargaForm(d.jenis),
+  hartaPilih: d => { S.ui.hartaJenis = d.jenis; renderFinance(); },
+  hartaRefreshEmas: (d, el) => {
+    setBusy(el, true);
+    api('refreshHargaEmas', S.token).then(p => { applyPayload(p); toast('Harga buyback emas: ' + fmtVal(hargaPasar('Emas'), 'Rp') + '/gr (' + fmtDate(S.settings.harga_Emas_tgl) + ')'); })
+      .catch(e => { setBusy(el, false); toast(e.message || 'Gagal mengambil harga emas.', 'error'); });
+  },
   delHarta: d => confirmBox({ title: 'Hapus catatan harta ini?', text: 'Kalau hartanya dijual, sebaiknya Edit → status "Dijual" agar riwayatnya tetap ada.', ok: 'Hapus', danger: true }, () => {
     S.harta = (S.harta || []).filter(x => x.harta_id !== d.id); saveSnapshot(); renderAll(); toast('Catatan harta dihapus'); Outbox.push('deleteHarta', [d.id]);
   })
