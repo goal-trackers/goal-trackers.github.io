@@ -857,3 +857,7 @@ button.stat:not(.tint) { background: var(--card); }
 @media (min-width: 992px) { .ggrid { column-width: 290px; } }
 .ggrid > .m-item { margin: 0; padding: 14px 0 8px; }
 .ggrid > .m-item > * { margin: 0; }
+
+/* Beranda: kartu Goal Bersama setinggi isinya (tidak dipaksa sejajar) */
+.slider .hscroll { align-items: start; }
+.slider .hscroll > .gcard { height: auto; align-self: start; }
