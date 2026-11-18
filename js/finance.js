@@ -264,7 +264,13 @@ const ASSET_BADGE = {
   SBR: ['#A15C07', '#FEF3E2', 'SAVINGS BOND'], SBN: ['#1D4ED8', '#E6EEFD', 'SURAT NEGARA'], Deposito: ['#6D28D9', '#F0E9FD', 'DEPOSITO'],
   Obligasi: ['#334155', '#EEF1F5', 'OBLIGASI'], Lainnya: ['#475569', '#EEF1F5', 'INVESTASI']
 };
+/** Ikon gambar per jenis (diunggah pengguna). Jenis lain memakai lencana gambar sendiri. */
+const ASSET_IMG = { ST: 'img/ins-st.png' };
 function assetBadgeSvg(a, size) {
+  if (ASSET_IMG[a.jenis]) {
+    const w = size || 44, seri = (String(a.nama).match(/\d{2,4}/) || [''])[0];
+    return `<span class="asset-img" style="width:${w}px;height:${w}px"><img src="${ASSET_IMG[a.jenis]}" alt="${esc(a.jenis)}" width="${w}" height="${w}">${seri ? `<i>${esc(seri)}</i>` : ''}</span>`;
+  }
   const [fg, bg, cap] = ASSET_BADGE[a.jenis] || ASSET_BADGE.Lainnya;
   const kode = a.jenis.length <= 3 ? a.jenis : a.jenis.slice(0, 3).toUpperCase();
   const seri = (String(a.nama).match(/\d{2,4}/) || [''])[0];
