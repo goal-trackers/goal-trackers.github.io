@@ -683,3 +683,6 @@ table.harta-tbl { min-width: 860px; }
 .pc-top { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .pecahan-item .tiny { white-space: nowrap; }
 @media (max-width: 560px) { .pecahan-grid { grid-template-columns: 1fr 1fr; } .pecahan-item { padding: 8px; gap: 8px; } }
+button.pecahan-item { font: inherit; color: inherit; text-align: left; cursor: pointer; width: 100%; transition: border-color .15s ease, transform .15s ease; }
+button.pecahan-item:hover { border-color: var(--text); }
+button.pecahan-item:active { transform: scale(.98); }

@@ -4,6 +4,7 @@
 const HARTA = {
   Emas:      { satuan: 'gram', emoji: '🪙', icon: 'bi-coin',          c: '#FBEBB5', harga: true,  contoh: 'mis. Antam 5 gr',            simpan: 'mis. Brankas rumah / Pegadaian' },
   Perak:     { satuan: 'gram', emoji: '🥈', icon: 'bi-coin',          c: '#E6E8EE', harga: true,  contoh: 'mis. Perak batangan 100 gr', simpan: 'mis. Brankas rumah' },
+  Dinar:     { satuan: 'keping', emoji: '🟡', icon: 'bi-coin',        c: '#F6E3A1', harga: true,  contoh: 'mis. Dinar 22K 4,25 gr',     simpan: 'mis. Brankas rumah' },
   Tanah:     { satuan: 'm²',   emoji: '🌳', icon: 'bi-tree',          c: '#CFF2D6', harga: true,  contoh: 'mis. Tanah kavling Batu',    simpan: 'mis. Jl. Mawar No. 3, Batu' },
   Rumah:     { satuan: 'unit', emoji: '🏠', icon: 'bi-house-door',    c: '#FFE1C7', harga: false, contoh: 'mis. Rumah Perum Griya',     simpan: 'Alamat' },
   Kendaraan: { satuan: 'unit', emoji: '🚗', icon: 'bi-car-front',     c: '#D5F0F7', harga: false, susut: 5, contoh: 'mis. Motor Vario 2023',      simpan: 'mis. Plat nomor / garasi' },
@@ -30,8 +31,13 @@ function hartaNilai(h) {
   }
   const hp = hargaPasar(h.jenis);
   if (t.harga && hp > 0 && h.satuan === t.satuan) return { v: Number(h.jumlah) * hp, pasar: true };
+  if (h.jenis === 'Dinar' && h.satuan === 'keping' && dinarEstimasi() > 0) return { v: Number(h.jumlah) * dinarEstimasi(), pasar: true, estimasi: true };
   return { v: beli, pasar: false };
 }
+/** 1 dinar = 4,25 gr emas 22K (kadar 91,7%). Taksiran dari harga buyback emas Antam bila harga dinar belum diatur. */
+const DINAR_GRAM = 4.25, DINAR_KADAR = 0.917;
+const dinarEstimasi = () => hargaPasar('Emas') * DINAR_GRAM * DINAR_KADAR;
+const hargaDinar = () => hargaPasar('Dinar') || dinarEstimasi();
 const fmtUsia = th => fmtN(Math.round(th * 10) / 10) + ' thn';
 /** Total per jenis: { jumlah per satuan, nilai, modal, banyak } */
 function hartaSummary(list) {
@@ -82,7 +88,21 @@ function barSvg(gram, metal, w) {
          <text x="${W / 2}" y="${H * .84}" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="7" letter-spacing=".5" fill="${ink}" opacity=".85">${silver ? '999' : '999.9'}</text>`}
   </svg>`;
 }
+function coinSvg(n, w) {
+  const id = 'dn' + (++_barSeq);
+  return `<svg class="bar-svg" viewBox="0 0 80 80" width="${w || 40}" role="img" aria-label="Koin dinar ${fmtGram(n)} keping">
+    <defs><radialGradient id="${id}a" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFF6C9"/><stop offset=".45" stop-color="#F2C94C"/><stop offset=".85" stop-color="#C38A1C"/><stop offset="1" stop-color="#8E5E12"/></radialGradient>
+      <linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F9DE7E"/><stop offset="1" stop-color="#B07A16"/></linearGradient></defs>
+    <circle cx="40" cy="40" r="38" fill="url(#${id}b)" stroke="#8E5E12" stroke-width="1.5"/>
+    <circle cx="40" cy="40" r="32" fill="url(#${id}a)"/>
+    <circle cx="40" cy="40" r="27" fill="none" stroke="#8E5E12" stroke-opacity=".55" stroke-dasharray="2 2.4"/>
+    <text x="40" y="36" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="17" fill="#6B4508">${Number(n) === 0.5 ? '½' : '1'}</text>
+    <text x="40" y="50" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="9" letter-spacing="1" fill="#6B4508">DINAR</text>
+    <text x="40" y="60" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="6" fill="#6B4508" opacity=".8">22K</text>
+  </svg>`;
+}
 function hartaThumb(h, w) {
+  if (h.jenis === 'Dinar') return coinSvg(Number(h.jumlah) === 0.5 ? 0.5 : 1, w);
   if ((h.jenis === 'Emas' || h.jenis === 'Perak') && (h.satuan === 'gram' || h.satuan === 'kg')) return barSvg(h.satuan === 'kg' ? Number(h.jumlah) * 1000 : h.jumlah, h.jenis, w);
   const t = HARTA[h.jenis] || HARTA.Lainnya;
   return `<span class="harta-emoji tint" style="--c:${t.c}">${t.emoji}</span>`;
@@ -107,6 +127,10 @@ function hartaCols(jenis) {
     { h: '', td: h => hartaThumb(h) }, nama, qty('Berat'), tgl, hb,
     { h: 'Beli /gr', num: 1, td: h => rp(per(h)) },
     { h: jenis === 'Emas' ? 'Taksiran buyback' : 'Taksiran', num: 1, td: h => taks(h).pasar ? `<b>${rp(taks(h).v)}</b>` : '<span class="muted">-</span>', sum: h => taks(h).pasar ? taks(h).v : 0 },
+    { h: 'Untung/rugi', num: 1, td: gl }, owner, lok('Tempat simpan'), aksi];
+  if (jenis === 'Dinar') return [
+    { h: '', td: h => hartaThumb(h) }, nama, qty('Jumlah'), tgl, hb, { h: 'Beli /keping', num: 1, td: h => rp(per(h)) },
+    { h: 'Taksiran', num: 1, td: h => taks(h).pasar ? `<b>${rp(taks(h).v)}</b>` : '<span class="muted">-</span>', sum: h => taks(h).pasar ? taks(h).v : 0 },
     { h: 'Untung/rugi', num: 1, td: gl }, owner, lok('Tempat simpan'), aksi];
   if (jenis === 'Tanah') return [
     { h: '', td: h => hartaThumb(h) }, nama, qty('Luas'), tgl, hb, { h: 'Beli /m²', num: 1, td: h => rp(per(h)) },
@@ -145,6 +169,12 @@ function hartaPriceBox(k) {
       <div class="d-flex gap-2 flex-wrap"><button class="btn btn-dark btn-sm" data-action="hartaRefreshEmas"><i class="bi bi-arrow-clockwise"></i> Perbarui</button>
       <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="Emas">Atur manual</button></div></div>`;
   }
+  if (k === 'Dinar') {
+    const est = dinarEstimasi();
+    return `<div class="price-box"><div><small class="muted">Harga dinar per keping</small><b>${hargaDinar() ? fmtVal(Math.round(hargaDinar()), 'Rp') : 'Belum ada'}</b>
+      <small class="muted">${hp ? 'diatur manual' + (tgl ? ' · ' + fmtDate(tgl) : '') : est ? '≈ buyback emas Antam × 4,25 gr × 91,7% (22K)' : 'Atur harga, atau perbarui harga emas di tab Emas'}</small></div>
+      <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="Dinar"><i class="bi bi-tag"></i> ${hp ? 'Ubah' : 'Atur manual'}</button></div>`;
+  }
   return `<div class="price-box"><div><small class="muted">Harga ${k.toLowerCase()} per ${t.satuan}</small><b>${hp ? fmtVal(hp, 'Rp') : 'Belum diatur'}</b><small class="muted">${hp && tgl ? 'diatur ' + fmtDate(tgl) : 'untuk taksiran nilai'}</small></div>
     <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-tag"></i> ${hp ? 'Ubah' : 'Atur'}</button></div>`;
 }
@@ -161,11 +191,11 @@ function hartaPecahanHtml(k, items) {
   if (!ws.length) return '';
   const hp = hargaPasar(k);
   return `<div class="pecahan"><div class="tiny muted fw-bold mb-2">Rincian per pecahan</div><div class="pecahan-grid">${ws.map(w => `
-    <div class="pecahan-item" title="${fmtGram(w)} gram × ${g[w]} keping = ${fmtGram(w * g[w])} gram">
+    <button type="button" class="pecahan-item" data-action="hartaGram" data-gram="${w}" title="${fmtGram(w)} gram × ${g[w]} keping = ${fmtGram(w * g[w])} gram">
       ${barSvg(w, k, w >= 100 ? 44 : 26)}
       <div style="min-width:0"><div class="pc-top"><b>${fmtGram(w)} gr</b><span class="pc-x">× ${g[w]} ea</span></div>
         <div class="tiny muted">${fmtGram(w * g[w])} gr${hp && k === 'Emas' ? ' · ' + fmtShort(w * g[w] * hp, 'Rp') : ''}</div></div>
-    </div>`).join('')}</div></div>`;
+    </button>`).join('')}</div></div>`;
 }
 function finHartaHtml() {
   const owned = hartaOwned();
@@ -176,11 +206,23 @@ function finHartaHtml() {
   const k = S.ui.hartaJenis, t = HARTA[k], s = sum[k];
   const tabs = Object.keys(HARTA).map(j => `<button class="chip-btn ${j === k ? 'on' : ''}" data-action="hartaPilih" data-jenis="${j}" aria-pressed="${j === k}">${HARTA[j].emoji} ${j}${sum[j] ? ` <span class="n">${sum[j].n}</span>` : ''}</button>`).join('');
   const items = owned.filter(h => h.jenis === k).sort((a, b) => String(b.tgl_beli).localeCompare(String(a.tgl_beli)));
+  const isBar = k === 'Emas' || k === 'Perak';
+  const wOf = h => Math.round((h.satuan === 'kg' ? Number(h.jumlah) * 1000 : Number(h.jumlah)) * 1000) / 1000;
+  const wCount = {};
+  if (isBar) items.forEach(h => { if (h.satuan === 'gram' || h.satuan === 'kg') { const w = wOf(h); wCount[w] = (wCount[w] || 0) + 1; } });
+  const wList = Object.keys(wCount).map(Number).sort((a, b) => a - b);
+  if (S.ui.hartaGram !== 'all' && !wList.includes(Number(S.ui.hartaGram))) S.ui.hartaGram = 'all';
+  const gSel = S.ui.hartaGram || 'all';
+  const shown = isBar && gSel !== 'all' ? items.filter(h => (h.satuan === 'gram' || h.satuan === 'kg') && wOf(h) === Number(gSel)) : items;
+  const gFilter = isBar && wList.length > 1 ? `<div class="chips chips-wrap mb-3 gram-filter" role="tablist" aria-label="Filter berat">
+      <button class="chip-btn ${gSel === 'all' ? 'on' : ''}" data-action="hartaGram" data-gram="all" aria-pressed="${gSel === 'all'}">Semua <span class="n">${items.length}</span></button>
+      ${wList.map(w => `<button class="chip-btn ${String(gSel) === String(w) ? 'on' : ''}" data-action="hartaGram" data-gram="${w}" aria-pressed="${String(gSel) === String(w)}">${fmtGram(w)} gr <span class="n">${wCount[w]}</span></button>`).join('')}
+    </div>` : '';
   const soldK = sold.filter(h => h.jenis === k);
   const modalTxt = s && s.modal ? 'modal ' + fmtShort(s.modal, 'Rp') : '';
   const head = `<div class="card harta-head-card">
       <div class="harta-head">
-        <div class="harta-ic tint" style="--c:${t.c}" aria-hidden="true">${k === 'Emas' || k === 'Perak' ? barSvg(s ? (s.qty.gram || 0) + (s.qty.kg || 0) * 1000 : 0, k, 46) : t.emoji}</div>
+        <div class="harta-ic tint" style="--c:${t.c}" aria-hidden="true">${k === 'Emas' || k === 'Perak' ? barSvg(s ? (s.qty.gram || 0) + (s.qty.kg || 0) * 1000 : 0, k, 46) : k === 'Dinar' ? coinSvg(1, 44) : t.emoji}</div>
         <div class="flex-grow-1" style="min-width:0">
           <div class="tiny muted fw-bold">${esc(k)} yang dimiliki · ${s ? s.n : 0} catatan</div>
           <div class="harta-total">${s ? qtyText(s.qty) : '0 ' + t.satuan}</div>
@@ -191,7 +233,7 @@ function finHartaHtml() {
       ${hartaPecahanHtml(k, items)}
       ${hartaPriceBox(k)}
     </div>`;
-  const table = items.length ? `<div class="card mt-3">${hartaTableHtml(k, items)}${k === 'Emas' ? '<p class="tiny muted mt-2 mb-0"><i class="bi bi-info-circle"></i> Taksiran = berat × harga buyback hari ini, sebelum PPh 22 (penjualan > Rp 10 jt dipotong 1,5% dengan NPWP / 3% tanpa NPWP). Harga buyback Antam sama di semua butik, termasuk Balikpapan.</p>' : ''}</div>`
+  const table = items.length ? `<div class="card mt-3">${gFilter}${hartaTableHtml(k, shown)}${k === 'Emas' ? '<p class="tiny muted mt-2 mb-0"><i class="bi bi-info-circle"></i> Taksiran = berat × harga buyback hari ini, sebelum PPh 22 (penjualan > Rp 10 jt dipotong 1,5% dengan NPWP / 3% tanpa NPWP). Harga buyback Antam sama di semua butik, termasuk Balikpapan.</p>' : ''}</div>`
     : `<div class="card mt-3">${emptyHtml(t.icon, `Belum ada ${k.toLowerCase()} tercatat.`, `<button class="btn btn-dark btn-sm" data-action="newHarta" data-jenis="${k}">Catat ${k.toLowerCase()} pertama</button>`)}</div>`;
   const soldHtml = soldK.length ? `<details class="card mt-3"><summary class="fw-bold">Riwayat ${k.toLowerCase()} dijual (${soldK.length})</summary>
     <div class="table-wrap mt-2"><table class="tbl harta-tbl"><thead><tr><th></th><th>Nama</th><th class="num">Jumlah</th><th>Tgl jual</th><th class="num">Harga jual</th><th class="num">Modal</th><th></th></tr></thead><tbody>
@@ -256,9 +298,10 @@ function hartaPreview(f) {
   if (h.jumlah > 0 && h.harga_beli > 0) parts.push(`harga beli ${fmtVal(Math.round(h.harga_beli / h.jumlah), 'Rp')}/${h.satuan}`);
   const hp = hargaPasar(h.jenis);
   if (HARTA[h.jenis].susut && h.harga_beli > 0 && h.tgl_beli) { const n = hartaNilai(h); parts.push(`taksiran jual sekarang ±${fmtShort(n.v, 'Rp')} (usia ${fmtUsia(n.usia)}, susut ${fmtN(n.rate)}%/thn)`); }
+  if (h.jenis === 'Dinar' && h.jumlah > 0 && !hp && dinarEstimasi()) parts.push(`taksiran ±${fmtShort(h.jumlah * dinarEstimasi(), 'Rp')} (dari harga buyback emas)`);
   if (HARTA[h.jenis].harga && h.jumlah > 0 && hp > 0 && h.satuan === HARTA[h.jenis].satuan) parts.push(`taksiran sekarang ${fmtShort(h.jumlah * hp, 'Rp')}`);
   const txt = esc(parts.length ? parts.join(' · ') : 'Isi jumlah (mis. 5 gram, 200 m²) untuk melihat total.');
-  el.innerHTML = (h.jenis === 'Emas' || h.jenis === 'Perak') && h.jumlah > 0 && (h.satuan === 'gram' || h.satuan === 'kg')
+  el.innerHTML = ((h.jenis === 'Emas' || h.jenis === 'Perak') && (h.satuan === 'gram' || h.satuan === 'kg') || h.jenis === 'Dinar') && h.jumlah > 0
     ? `<span class="d-flex align-items-center gap-3">${hartaThumb(h, 44)}<span>${txt}</span></span>` : txt;
 }
 function submitHarta(f) {
@@ -335,7 +378,11 @@ Object.assign(Actions, {
   newHarta: d => openHartaForm(null, d.jenis),
   editHarta: d => openHartaForm(d.id),
   hartaHarga: d => openHargaForm(d.jenis),
-  hartaPilih: d => { S.ui.hartaJenis = d.jenis; renderFinance(); },
+  hartaPilih: d => { S.ui.hartaJenis = d.jenis; S.ui.hartaGram = 'all'; renderFinance(); },
+  hartaGram: d => {
+    S.ui.hartaGram = d.gram === 'all' ? 'all' : Number(d.gram); renderFinance();
+    const f = document.querySelector('#page-finance .gram-filter'); if (f && d.gram !== 'all') f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  },
   hartaRefreshEmas: (d, el) => {
     setBusy(el, true);
     api('refreshHargaEmas', S.token).then(p => { applyPayload(p); toast('Harga buyback emas: ' + fmtVal(hargaPasar('Emas'), 'Rp') + '/gr (' + fmtDate(S.settings.harga_Emas_tgl) + ')'); })
