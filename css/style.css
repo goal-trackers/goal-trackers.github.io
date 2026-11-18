@@ -769,3 +769,5 @@ button.pecahan-item:active { transform: scale(.98); }
 [data-theme="dark"] .verdict.good { background: #24452F; color: #C9F5D6; }
 [data-theme="dark"] .verdict.bad { background: #4A2522; color: #FFD3CD; }
 [data-theme="dark"] .price-box, [data-theme="dark"] .harta-row, [data-theme="dark"] .exp-row { background: #262626; }
+.avatar.has-foto { padding: 0; overflow: hidden; background: var(--c); }
+.avatar.has-foto img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit; }

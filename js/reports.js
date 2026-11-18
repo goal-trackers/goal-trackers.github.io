@@ -265,9 +265,13 @@ function renderSettings() {
     <div class="set-grid">
       <div class="card"><h3>Profil Saya</h3>
         <form data-form="profile">
-          <div class="d-flex align-items-center gap-3 mb-3">${avatarHtml(me, 'lg')}<div><b>${esc(me.nama)}</b><div class="tiny muted">${esc(me.email)} · ${esc(me.peran)}</div></div></div>
+          <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">${avatarHtml(me, 'lg')}<div class="flex-grow-1"><b>${esc(me.nama)}</b><div class="tiny muted">${esc(me.email)} · ${esc(me.peran)}</div>
+            <div class="d-flex gap-2 mt-2 flex-wrap">
+              <label class="btn btn-soft btn-sm mb-0" style="cursor:pointer"><i class="bi bi-camera"></i> ${me.foto ? 'Ganti foto' : 'Unggah foto'}<input type="file" accept="image/*" class="visually-hidden" data-change="profilePhoto"></label>
+              ${me.foto ? '<button type="button" class="btn btn-soft btn-sm text-danger" data-action="removeProfilePhoto"><i class="bi bi-trash3"></i> Hapus foto</button>' : ''}
+            </div></div></div>
           <label class="field"><span>Nama</span><input name="nama" value="${esc(me.nama)}" maxlength="40" required></label>
-          <div class="field"><span>Avatar</span><div class="emoji-pick">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${me.avatar === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div></div>
+          <div class="field"><span>Avatar emoji ${me.foto ? '<small>(dipakai jika foto dihapus)</small>' : ''}</span><div class="emoji-pick">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${me.avatar === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div></div>
           <div class="field"><span>Warna profil</span><div class="swatches">${PASTELS.map(c => `<label class="swatch" style="--c:${c}"><input type="radio" name="warna_profil" value="${c}" ${me.warna_profil === c ? 'checked' : ''} aria-label="Warna ${c}"></label>`).join('')}</div></div>
           <button class="btn btn-dark btn-sm" type="submit">Simpan profil</button>
         </form></div>

@@ -187,6 +187,30 @@ function submitProgress(form) {
     photo ? { data: photo.data, mime: photo.mime } : null
   ]);
 }
+/** Foto profil: potong persegi di tengah, perkecil ke 160 px (±10 KB) */
+function squareAvatar(file, size = 160, q = 0.82) {
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const side = Math.min(img.width, img.height), sx = (img.width - side) / 2, sy = (img.height - side) / 2;
+      const c = document.createElement('canvas'); c.width = c.height = size;
+      const ctx = c.getContext('2d'); ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      let out = c.toDataURL('image/jpeg', q);
+      if (out.length > 44000) out = c.toDataURL('image/jpeg', 0.6);
+      res(out);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Foto tidak bisa dibaca.')); };
+    img.src = url;
+  });
+}
+function setMyPhoto(v) {
+  S.me.foto = v;
+  const u = S.users.find(x => x.user_id === S.me.user_id); if (u) u.foto = v;
+  saveSnapshot(); renderAll();
+  Outbox.push('saveProfilePhoto', [v]);
+}
 function compressImage(file, max = 1280, q = 0.8) {
   return new Promise((res, rej) => {
     const img = new Image();
@@ -349,6 +373,7 @@ const Actions = {
     });
   },
   unitDel: d => { const list = units().filter(x => x !== d.unit); S.settings.satuan_kustom = list.join(','); saveSnapshot(); renderAll(); Outbox.push('saveUnits', [list]); },
+  removeProfilePhoto: () => confirmBox({ title: 'Hapus foto profil?', text: 'Avatar emoji akan dipakai kembali.', ok: 'Hapus', danger: true }, () => { setMyPhoto(''); toast('Foto profil dihapus'); }),
   editMember: d => {
     const u = userById(d.id), self = d.id === S.me.user_id;
     openSheet('Edit Anggota', `<form data-form="editMember" autocomplete="off" novalidate><input type="hidden" name="uid" value="${esc(d.id)}">
@@ -396,6 +421,13 @@ const Changes = {
   goalJenis: el => { $('#visField').hidden = el.value === 'Bersama'; },
   goalTipe: el => goalFormTipeChanged(el.form),
   progGoal: el => progressGoalChanged(el.form),
+  profilePhoto: async el => {
+    const f = el.files && el.files[0];
+    if (!f) return;
+    if (String(f.type).indexOf('image') !== 0) { toast('Pilih file gambar.', 'error'); return; }
+    try { setMyPhoto(await squareAvatar(f)); toast('Foto profil diperbarui 📸'); }
+    catch (e) { toast(e.message, 'error'); }
+  },
   photoPick: async el => {
     const f = el.files && el.files[0];
     if (!f) return;

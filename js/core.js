@@ -376,7 +376,10 @@ function renderHeader() {
   const me = S.me;
   const av = $('#meAvatar');
   av.style.setProperty('--c', me.warna_profil || '#CFF2D6');
-  av.textContent = me.avatar || me.nama.charAt(0).toUpperCase();
+  const foto = me.foto && /^data:image\//.test(me.foto) ? me.foto : '';
+  av.classList.toggle('has-foto', !!foto);
+  if (foto) { av.innerHTML = ''; const im = document.createElement('img'); im.src = foto; im.alt = me.nama; av.appendChild(im); }
+  else av.textContent = me.avatar || me.nama.charAt(0).toUpperCase();
   $('#meName').textContent = me.nama;
   $('#meEmail').textContent = me.email;
   const unread = S.notifications.filter(n => n.dibaca !== 'Ya').length;
@@ -421,6 +424,7 @@ function goalState(g) {
   return 'active';
 }
 function avatarHtml(u, cls = '') {
+  if (u.foto && /^data:image\//.test(u.foto)) return `<span class="avatar has-foto ${cls}" style="--c:${esc(u.warna_profil || '#CFF2D6')}" title="${esc(u.nama)}"><img src="${esc(u.foto)}" alt="${esc(u.nama)}"></span>`;
   return `<span class="avatar ${cls}" style="--c:${esc(u.warna_profil || '#CFF2D6')}" title="${esc(u.nama)}">${esc(u.avatar || (u.nama || '?').charAt(0).toUpperCase())}</span>`;
 }
 function ownerAvatars(g) {
