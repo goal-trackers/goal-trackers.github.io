@@ -108,6 +108,14 @@ function hartaThumb(h, w) {
   return `<span class="harta-emoji tint" style="--c:${t.c}">${t.emoji}</span>`;
 }
 
+/** Render ulang tanpa melompat ke atas: simpan posisi gulir halaman & tabel. */
+function keepScroll(fn) {
+  const y = window.scrollY, tw = document.querySelector('#page-finance .harta-tbl') ? document.querySelector('#page-finance .harta-tbl').parentElement.scrollLeft : 0;
+  fn();
+  window.scrollTo(0, y);
+  const w = document.querySelector('#page-finance .harta-tbl'); if (w) w.parentElement.scrollLeft = tw;
+}
+
 // ── Kolom tabel per jenis harta ──
 function hartaCols(jenis) {
   const rp = v => v ? fmtVal(Math.round(v), 'Rp') : '<span class="muted">-</span>';
@@ -178,25 +186,6 @@ function hartaPriceBox(k) {
   return `<div class="price-box"><div><small class="muted">Harga ${k.toLowerCase()} per ${t.satuan}</small><b>${hp ? fmtVal(hp, 'Rp') : 'Belum diatur'}</b><small class="muted">${hp && tgl ? 'diatur ' + fmtDate(tgl) : 'untuk taksiran nilai'}</small></div>
     <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-tag"></i> ${hp ? 'Ubah' : 'Atur'}</button></div>`;
 }
-/** Rincian per pecahan berat: mis. 1 gr × 10 ea, 3 gr × 2 ea (emas/perak). */
-function hartaPecahanHtml(k, items) {
-  if (k !== 'Emas' && k !== 'Perak') return '';
-  const g = {};
-  items.forEach(h => {
-    if (h.satuan !== 'gram' && h.satuan !== 'kg') return;
-    const w = Math.round((h.satuan === 'kg' ? Number(h.jumlah) * 1000 : Number(h.jumlah)) * 1000) / 1000;
-    g[w] = (g[w] || 0) + 1;
-  });
-  const ws = Object.keys(g).map(Number).sort((a, b) => a - b);
-  if (!ws.length) return '';
-  const hp = hargaPasar(k);
-  return `<div class="pecahan"><div class="tiny muted fw-bold mb-2">Rincian per pecahan</div><div class="pecahan-grid">${ws.map(w => `
-    <button type="button" class="pecahan-item" data-action="hartaGram" data-gram="${w}" title="${fmtGram(w)} gram × ${g[w]} keping = ${fmtGram(w * g[w])} gram">
-      ${barSvg(w, k, w >= 100 ? 44 : 26)}
-      <div style="min-width:0"><div class="pc-top"><b>${fmtGram(w)} gr</b><span class="pc-x">× ${g[w]} ea</span></div>
-        <div class="tiny muted">${fmtGram(w * g[w])} gr${hp && k === 'Emas' ? ' · ' + fmtShort(w * g[w] * hp, 'Rp') : ''}</div></div>
-    </button>`).join('')}</div></div>`;
-}
 function finHartaHtml() {
   const owned = hartaOwned();
   const sold = (S.harta || []).filter(h => h.status === 'Dijual');
@@ -230,7 +219,6 @@ function finHartaHtml() {
         </div>
         <button class="btn btn-dark btn-sm harta-add" data-action="newHarta" data-jenis="${k}"><i class="bi bi-plus-lg"></i> Tambah ${esc(k.toLowerCase())}</button>
       </div>
-      ${hartaPecahanHtml(k, items)}
       ${hartaPriceBox(k)}
     </div>`;
   const table = items.length ? `<div class="card mt-3">${gFilter}${hartaTableHtml(k, shown)}${k === 'Emas' ? '<p class="tiny muted mt-2 mb-0"><i class="bi bi-info-circle"></i> Taksiran = berat × harga buyback hari ini, sebelum PPh 22 (penjualan > Rp 10 jt dipotong 1,5% dengan NPWP / 3% tanpa NPWP). Harga buyback Antam sama di semua butik, termasuk Balikpapan.</p>' : ''}</div>`
@@ -311,7 +299,9 @@ function submitHarta(f) {
   const ex = S.harta.find(x => x.harta_id === h.harta_id);
   if (ex) Object.assign(ex, h, { diubah_pada: nowIso() });
   else S.harta.push(Object.assign({ dibuat_oleh: S.me.user_id, dibuat_pada: nowIso(), diubah_pada: nowIso() }, h));
-  saveSnapshot(); closeSheet(); S.ui.finTab = 'harta'; S.ui.hartaJenis = h.jenis; navigateTo('finance', { noHistory: S.ui.page === 'finance' });
+  saveSnapshot(); closeSheet(); S.ui.finTab = 'harta';
+  if (S.ui.page === 'finance') { if (S.ui.hartaJenis !== h.jenis) { S.ui.hartaJenis = h.jenis; S.ui.hartaGram = 'all'; } keepScroll(renderFinance); }
+  else { S.ui.hartaJenis = h.jenis; navigateTo('finance'); }
   const tot = hartaSummary(hartaOwned())[h.jenis];
   toast(ex ? 'Harta diperbarui' : `${HARTA[h.jenis].emoji} Tercatat! Total ${h.jenis.toLowerCase()}: ${tot ? qtyText(tot.qty) : '-'}`);
   Outbox.push('saveHarta', [h]);
@@ -351,7 +341,7 @@ function submitHarga(f) {
   const v = isSusut ? Math.min(90, Math.max(0, parseNum(f.harga.value))) : parseNum(f.harga.value, true);
   if (isSusut) {
     S.settings['harga_' + jenis] = String(v); S.settings['harga_' + jenis + '_tgl'] = today();
-    saveSnapshot(); closeSheet(); S.ui.finTab = 'harta'; renderFinance();
+    saveSnapshot(); closeSheet(); S.ui.finTab = 'harta'; keepScroll(renderFinance);
     toast(`Penyusutan ${jenis.toLowerCase()} ${fmtN(v)}%/tahun disimpan`);
     Outbox.push('saveHargaHarta', [jenis, v]);
     return;
@@ -359,7 +349,7 @@ function submitHarga(f) {
   S.settings['harga_' + jenis] = v ? String(v) : '';
   S.settings['harga_' + jenis + '_tgl'] = v ? today() : '';
   if (jenis === 'Emas') S.settings.harga_Emas_src = v ? 'manual' : '';
-  saveSnapshot(); closeSheet(); S.ui.finTab = 'harta'; renderFinance();
+  saveSnapshot(); closeSheet(); S.ui.finTab = 'harta'; keepScroll(renderFinance);
   toast(v ? `Harga ${jenis.toLowerCase()} ${fmtShort(v, 'Rp')}/${HARTA[jenis].satuan} disimpan` : 'Harga dihapus');
   Outbox.push('saveHargaHarta', [jenis, v || '']);
 }
@@ -378,18 +368,17 @@ Object.assign(Actions, {
   newHarta: d => openHartaForm(null, d.jenis),
   editHarta: d => openHartaForm(d.id),
   hartaHarga: d => openHargaForm(d.jenis),
-  hartaPilih: d => { S.ui.hartaJenis = d.jenis; S.ui.hartaGram = 'all'; renderFinance(); },
+  hartaPilih: d => { S.ui.hartaJenis = d.jenis; S.ui.hartaGram = 'all'; keepScroll(renderFinance); },
   hartaGram: d => {
-    S.ui.hartaGram = d.gram === 'all' ? 'all' : Number(d.gram); renderFinance();
-    const f = document.querySelector('#page-finance .gram-filter'); if (f && d.gram !== 'all') f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    S.ui.hartaGram = d.gram === 'all' ? 'all' : Number(d.gram); keepScroll(renderFinance);
   },
   hartaRefreshEmas: (d, el) => {
     setBusy(el, true);
-    api('refreshHargaEmas', S.token).then(p => { applyPayload(p); toast('Harga buyback emas: ' + fmtVal(hargaPasar('Emas'), 'Rp') + '/gr (' + fmtDate(S.settings.harga_Emas_tgl) + ')'); })
+    api('refreshHargaEmas', S.token).then(p => { keepScroll(() => applyPayload(p)); toast('Harga buyback emas: ' + fmtVal(hargaPasar('Emas'), 'Rp') + '/gr (' + fmtDate(S.settings.harga_Emas_tgl) + ')'); })
       .catch(e => { setBusy(el, false); const m = String(e.message || ''); toast(/UrlFetchApp|external_request|permission/i.test(m) ? 'Backend belum diberi izin akses internet. Di Apps Script, jalankan fungsi perbaruiHargaEmasSekarang sekali lalu klik Izinkan.' : (m || 'Gagal mengambil harga emas.'), 'error'); });
   },
   delHarta: d => confirmBox({ title: 'Hapus catatan harta ini?', text: 'Kalau hartanya dijual, sebaiknya Edit → status "Dijual" agar riwayatnya tetap ada.', ok: 'Hapus', danger: true }, () => {
-    S.harta = (S.harta || []).filter(x => x.harta_id !== d.id); saveSnapshot(); renderAll(); toast('Catatan harta dihapus'); Outbox.push('deleteHarta', [d.id]);
+    S.harta = (S.harta || []).filter(x => x.harta_id !== d.id); saveSnapshot(); keepScroll(renderAll); toast('Catatan harta dihapus'); Outbox.push('deleteHarta', [d.id]);
   })
 });
 Object.assign(Changes, {
