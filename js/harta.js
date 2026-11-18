@@ -319,7 +319,7 @@ Object.assign(Actions, {
   hartaRefreshEmas: (d, el) => {
     setBusy(el, true);
     api('refreshHargaEmas', S.token).then(p => { applyPayload(p); toast('Harga buyback emas: ' + fmtVal(hargaPasar('Emas'), 'Rp') + '/gr (' + fmtDate(S.settings.harga_Emas_tgl) + ')'); })
-      .catch(e => { setBusy(el, false); toast(e.message || 'Gagal mengambil harga emas.', 'error'); });
+      .catch(e => { setBusy(el, false); const m = String(e.message || ''); toast(/UrlFetchApp|external_request|permission/i.test(m) ? 'Backend belum diberi izin akses internet. Di Apps Script, jalankan fungsi perbaruiHargaEmasSekarang sekali lalu klik Izinkan.' : (m || 'Gagal mengambil harga emas.'), 'error'); });
   },
   delHarta: d => confirmBox({ title: 'Hapus catatan harta ini?', text: 'Kalau hartanya dijual, sebaiknya Edit → status "Dijual" agar riwayatnya tetap ada.', ok: 'Hapus', danger: true }, () => {
     S.harta = (S.harta || []).filter(x => x.harta_id !== d.id); saveSnapshot(); renderAll(); toast('Catatan harta dihapus'); Outbox.push('deleteHarta', [d.id]);
