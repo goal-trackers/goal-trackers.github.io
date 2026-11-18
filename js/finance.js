@@ -530,6 +530,52 @@ Object.assign(Forms, {
 // ── Mulai aplikasi (setelah semua modul dimuat) ──
 window.GT = { S, Outbox, navigateTo, renderAll };
 window.__GT_PARTS = (window.__GT_PARTS || []).concat('JS5');
+/* ---------- Slider kartu horizontal (Goal Bersama, dll) ---------- */
+function sliderSync(sc) {
+  const box = sc.closest('.slider'); if (!box) return;
+  const max = sc.scrollWidth - sc.clientWidth;
+  const pv = box.querySelector('.prev'), nx = box.querySelector('.next');
+  if (pv) pv.hidden = sc.scrollLeft <= 4;
+  if (nx) nx.hidden = sc.scrollLeft >= max - 4;
+  let dots = box.nextElementSibling && box.nextElementSibling.classList.contains('slide-dots') ? box.nextElementSibling : null;
+  const n = sc.children.length;
+  if (max <= 4 || n < 2) { if (dots) dots.remove(); return; }
+  if (!dots) { dots = document.createElement('div'); dots.className = 'slide-dots'; dots.setAttribute('aria-hidden', 'true'); box.after(dots); }
+  if (dots.children.length !== n) dots.innerHTML = '<span></span>'.repeat(n);
+  const step = sc.children[1].offsetLeft - sc.children[0].offsetLeft || 1;
+  const idx = sc.scrollLeft >= max - 4 ? n - 1 : Math.round(sc.scrollLeft / step);
+  [...dots.children].forEach((d, i) => d.classList.toggle('on', i === idx));
+}
+function slidersSyncAll() { document.querySelectorAll('.slider .hscroll').forEach(sliderSync); }
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-slide]'); if (!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const sc = b.closest('.slider').querySelector('.hscroll');
+  const card = sc.children[0]; const step = card ? card.getBoundingClientRect().width + 16 : sc.clientWidth * .8;
+  sc.scrollBy({ left: Number(b.dataset.slide) * step, behavior: 'smooth' });
+}, true);
+document.addEventListener('scroll', e => { if (e.target.classList && e.target.classList.contains('hscroll')) sliderSync(e.target); }, true);
+window.addEventListener('resize', slidersSyncAll);
+new MutationObserver(() => requestAnimationFrame(slidersSyncAll)).observe(document.body, { childList: true, subtree: true });
+/* Geser dengan mouse (drag) di laptop */
+(function () {
+  let sc = null, x0 = 0, s0 = 0, moved = false;
+  document.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    const t = e.target.closest('.slider .hscroll'); if (!t) return;
+    sc = t; x0 = e.clientX; s0 = t.scrollLeft; moved = false;
+  });
+  document.addEventListener('pointermove', e => {
+    if (!sc) return; const dx = e.clientX - x0;
+    if (!moved && Math.abs(dx) > 6) { moved = true; sc.classList.add('dragging'); }
+    if (moved) sc.scrollLeft = s0 - dx;
+  });
+  document.addEventListener('pointerup', () => {
+    if (!sc) return; const t = sc; sc = null;
+    if (moved) { t.classList.remove('dragging'); const blk = ev => { ev.stopPropagation(); ev.preventDefault(); }; document.addEventListener('click', blk, { capture: true, once: true }); setTimeout(() => document.removeEventListener('click', blk, true), 50); }
+  });
+})();
+
 try {
   boot();
   window.__GT_BOOTED = true;
