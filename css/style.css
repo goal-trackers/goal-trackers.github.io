@@ -850,3 +850,10 @@ button.stat:not(.tint) { background: var(--card); }
 .cat-ic { width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; background: var(--c); color: #1a1a1a; flex: none; font-size: 14px; }
 .cat-ic i { line-height: 1; }
 [data-theme="dark"] .cat-ic { background: color-mix(in srgb, var(--c) 75%, #fff 0%); color: #111; }
+/* Tampilan Kartu gaya Pinterest (masonry): tinggi kartu mengikuti isi, tidak dipaksa sejajar */
+.ggrid { display: block; column-width: 270px; column-gap: 18px; padding-top: 14px; }
+.ggrid > * { break-inside: avoid; -webkit-column-break-inside: avoid; display: block; width: 100%; margin: 0 0 22px; }
+.ggrid > .gcard { display: block; }
+@media (min-width: 992px) { .ggrid { column-width: 290px; } }
+.ggrid > .m-item { margin: 0; padding: 14px 0 8px; }
+.ggrid > .m-item > * { margin: 0; }

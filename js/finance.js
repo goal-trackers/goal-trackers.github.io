@@ -257,7 +257,7 @@ function finViewBody(cards, listHtml) {
     }
     return `<div class="journey">${cards.map(item).join('')}</div>`;
   }
-  return `<div class="ggrid">${cards.join('')}</div>`;
+  return `<div class="ggrid">${cards.map(c => `<div class="m-item">${c}</div>`).join('')}</div>`;
 }
 /** Lencana instrumen investasi (ilustrasi sendiri, bukan logo resmi): warna per jenis + kode seri */
 const ASSET_BADGE = {

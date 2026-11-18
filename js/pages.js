@@ -182,7 +182,7 @@ function renderGoalList() {
   }
   const v = S.ui.goalView;
   if (v === 'list') { box.innerHTML = `<div class="glist">${list.map(rowItem).join('')}</div>`; return; }
-  if (v === 'grid') { box.innerHTML = `<div class="ggrid">${list.map(g => goalCard(g)).join('')}</div>`; return; }
+  if (v === 'grid') { box.innerHTML = `<div class="ggrid">${list.map(g => `<div class="m-item">${goalCard(g)}</div>`).join('')}</div>`; return; }
   const featured = list.find(g => g.jenis === 'Bersama' && goalState(g) !== 'done');
   const item = g => `<div class="j-item">${goalCard(g, { featured: g === featured })}</div>`;
   if (mqWide.matches) {
