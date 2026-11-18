@@ -23,14 +23,19 @@ const usiaTahun = iso => iso ? Math.max(0, (new Date(today() + 'T12:00:00') - ne
  *  - emas/perak/tanah: jumlah × harga pasar/satuan (bila diatur & satuan cocok)
  *  - kendaraan: harga beli × (1 − susut%)^usia (saldo menurun)
  *  - selain itu: harga beli */
+const LOGAM = ['Emas', 'Perak', 'Dinar'];
+/** Harga pasar milik item sendiri (mis. harga tanah per m² di lokasinya) — dipakai sebelum harga umum. */
+const hargaItem = h => LOGAM.includes(h.jenis) ? 0 : (Number(h.harga_pasar) || 0);
 function hartaNilai(h) {
   const t = HARTA[h.jenis] || {}, beli = Number(h.harga_beli) || 0;
+  const hi = hargaItem(h);
+  if (hi > 0) return { v: Number(h.jumlah) * hi, pasar: true, item: true, per: hi };
   if (t.susut && beli > 0 && h.tgl_beli) {
     const r = susutRate(h.jenis), th = usiaTahun(h.tgl_beli);
     return { v: beli * Math.pow(1 - r / 100, th), susut: true, usia: th, rate: r };
   }
   const hp = hargaPasar(h.jenis);
-  if (t.harga && hp > 0 && h.satuan === t.satuan) return { v: Number(h.jumlah) * hp, pasar: true };
+  if (t.harga && hp > 0 && h.satuan === t.satuan) return { v: Number(h.jumlah) * hp, pasar: true, umum: true, per: hp };
   if (h.jenis === 'Dinar' && h.satuan === 'keping' && dinarEstimasi() > 0) return { v: Number(h.jumlah) * dinarEstimasi(), pasar: true, estimasi: true };
   return { v: beli, pasar: false };
 }
@@ -155,6 +160,7 @@ function hartaCols(jenis) {
     { h: 'Untung/rugi', num: 1, td: gl }, owner, lok('Tempat simpan'), aksi];
   if (jenis === 'Tanah') return [
     { h: '', td: h => hartaThumb(h, 30) }, nama, qty('Luas'), tgl, hb, { h: 'Beli /m²', num: 1, td: h => rp(per(h)) },
+    { h: 'Pasar /m²', num: 1, td: h => { const n = taks(h); return n.per ? rp(n.per) + `<br><small class="muted">${n.item ? 'harga lokasi' : 'harga umum'}</small>` : '<span class="muted">-</span>'; } },
     { h: 'Taksiran', num: 1, td: h => taks(h).pasar ? `<b>${rp(taks(h).v)}</b>` : '<span class="muted">-</span>', sum: h => taks(h).pasar ? taks(h).v : 0 },
     { h: 'Untung/rugi', num: 1, td: gl }, owner, lok('Lokasi'), aksi];
   if (jenis === 'Kendaraan') return [
@@ -188,6 +194,7 @@ function hartaItemCard(h) {
         <div class="fw-bold text-truncate" style="font-size:16px">${esc(h.nama)}</div>
         <div class="harta-total" style="font-size:20px">${fmtGram(h.jumlah)} ${esc(h.satuan)}</div>
         <div class="tiny muted">${h.tgl_beli ? 'Beli ' + fmtDate(h.tgl_beli) : 'Tanggal beli -'}${h.tgl_beli && n.susut ? ' · usia ' + fmtUsia(n.usia) : ''}</div>
+        ${n.per && !LOGAM.includes(h.jenis) ? `<div class="tiny mt-1"><span class="hp-tag ${n.item ? 'item' : ''}">@ ${fmtShort(n.per, 'Rp')}/${esc(h.satuan)} · ${n.item ? 'harga lokasi' : 'harga umum'}</span></div>` : ''}
       </div>
     </div>
     <div class="kv mt-3">
@@ -221,6 +228,8 @@ function hartaPriceBox(k) {
       <small class="muted">${hp ? 'diatur manual' + (tgl ? ' · ' + fmtDate(tgl) : '') : est ? '≈ buyback emas Antam × 4,25 gr × 91,7% (22K)' : 'Atur harga, atau perbarui harga emas di tab Emas'}</small></div>
       <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="Dinar"><i class="bi bi-tag"></i> ${hp ? 'Ubah' : 'Atur manual'}</button></div>`;
   }
+  if (k === 'Tanah') return `<div class="price-box"><div><small class="muted">Harga umum tanah per m²</small><b>${hp ? fmtVal(hp, 'Rp') : 'Belum diatur'}</b><small class="muted">Dipakai untuk tanah yang belum punya harga lokasi sendiri. Harga per lokasi diisi lewat ✏️ Edit di tiap tanah.</small></div>
+    <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-tag"></i> ${hp ? 'Ubah' : 'Atur'}</button></div>`;
   return `<div class="price-box"><div><small class="muted">Harga ${k.toLowerCase()} per ${t.satuan}</small><b>${hp ? fmtVal(hp, 'Rp') : 'Belum diatur'}</b><small class="muted">${hp && tgl ? 'diatur ' + fmtDate(tgl) : 'untuk taksiran nilai'}</small></div>
     <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-tag"></i> ${hp ? 'Ubah' : 'Atur'}</button></div>`;
 }
@@ -309,6 +318,7 @@ function openHartaForm(id, jenis) {
       <label class="field"><span>Jumlah</span><input name="jumlah" inputmode="decimal" data-input="hartaCalc" value="${h.jumlah !== '' ? esc(String(h.jumlah).replace('.', ',')) : ''}" placeholder="${h.jenis === 'Tanah' ? '200' : h.jenis === 'Emas' || h.jenis === 'Perak' ? '5' : '1'}"><em class="field-err"></em></label>
       <label class="field"><span>Satuan</span><select name="satuan" data-change="hartaCalc">${HARTA_SATUAN.concat(HARTA_SATUAN.includes(h.satuan) ? [] : [h.satuan]).map(s => `<option ${h.satuan === s ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select></label>
       <label class="field"><span>Harga beli total (Rp) <small>(opsional)</small></span><input name="harga_beli" inputmode="numeric" data-money data-input="hartaCalc" value="${Number(h.harga_beli) ? fmtN(h.harga_beli) : ''}" placeholder="0"></label>
+      <label class="field hp-field" ${LOGAM.includes(h.jenis) ? 'hidden' : ''}><span id="hpLabel">${hpLabel(h.jenis)}</span><input name="harga_pasar" inputmode="numeric" data-money data-input="hartaCalc" value="${Number(h.harga_pasar) ? fmtN(h.harga_pasar) : ''}" placeholder="${h.jenis === 'Tanah' ? 'mis. 1.100.000' : 'kosongkan jika tidak tahu'}"><small id="hpHint">${hpHint(h.jenis)}</small></label>
       <label class="field"><span>Tanggal beli</span><input type="date" name="tgl_beli" value="${esc(h.tgl_beli)}"></label>
       <label class="field"><span>Pemilik / atas nama</span><select name="pemilik_id">${ownerOptions(h.pemilik_id)}</select></label>
       <label class="field"><span>Lokasi / tempat simpan <small>(opsional)</small></span><input name="lokasi" maxlength="120" value="${esc(h.lokasi)}" placeholder="${esc(t.simpan)}"></label>
@@ -325,13 +335,17 @@ function openHartaForm(id, jenis) {
   </form>`);
   hartaPreview($('#sheet form'));
 }
+function hpLabel(j) { return j === 'Tanah' ? 'Harga pasar per m² di lokasi ini (Rp) <small>(opsional)</small>' : j === 'Kendaraan' ? 'Taksiran harga jual sekarang per unit (Rp) <small>(opsional)</small>' : 'Taksiran nilai sekarang per ' + ((HARTA[j] || {}).satuan || 'unit') + ' (Rp) <small>(opsional)</small>'; }
+function hpHint(j) { return j === 'Tanah' ? 'Isi bila harga di lokasi ini berbeda dari harga umum. Kosong = pakai harga umum tanah.' : j === 'Kendaraan' ? 'Kosong = dihitung otomatis dari penyusutan per tahun.' : 'Kosong = pakai harga beli.'; }
 function hartaFromForm(f) {
   const jenis = (f.querySelector('input[name=jenis]:checked') || {}).value || 'Emas';
   return {
     harta_id: f.harta_id.value, jenis, nama: f.nama.value.trim() || jenis, jumlah: parseNum(f.jumlah.value), satuan: f.satuan.value,
     harga_beli: parseNum(f.harga_beli.value, true), tgl_beli: f.tgl_beli.value, pemilik_id: f.pemilik_id.value, lokasi: f.lokasi.value.trim(),
     status: f.status.value, tgl_jual: f.status.value === 'Dijual' ? f.tgl_jual.value : '', harga_jual: f.status.value === 'Dijual' ? parseNum(f.harga_jual.value, true) : 0,
-    catatan: f.catatan.value.trim()
+    catatan: f.catatan.value.trim(),
+    harga_pasar: LOGAM.includes(jenis) || !f.harga_pasar ? '' : (parseNum(f.harga_pasar.value, true) || ''),
+    tgl_taksir: today()
   };
 }
 function hartaPreview(f) {
@@ -344,9 +358,10 @@ function hartaPreview(f) {
   if (h.jumlah > 0) parts.push(`Total ${h.jenis.toLowerCase()} setelah disimpan: ${fmtQty(before + (h.status === 'Dijual' ? 0 : h.jumlah), h.satuan)}`);
   if (h.jumlah > 0 && h.harga_beli > 0) parts.push(`harga beli ${fmtVal(Math.round(h.harga_beli / h.jumlah), 'Rp')}/${h.satuan}`);
   const hp = hargaPasar(h.jenis);
-  if (HARTA[h.jenis].susut && h.harga_beli > 0 && h.tgl_beli) { const n = hartaNilai(h); parts.push(`taksiran jual sekarang ±${fmtShort(n.v, 'Rp')} (usia ${fmtUsia(n.usia)}, susut ${fmtN(n.rate)}%/thn)`); }
+  if (!LOGAM.includes(h.jenis) && h.jumlah > 0 && Number(h.harga_pasar) > 0) parts.push(`taksiran sekarang ${fmtShort(h.jumlah * Number(h.harga_pasar), 'Rp')} (harga lokasi)`);
+  else if (HARTA[h.jenis].susut && h.harga_beli > 0 && h.tgl_beli) { const n = hartaNilai(h); parts.push(`taksiran jual sekarang ±${fmtShort(n.v, 'Rp')} (usia ${fmtUsia(n.usia)}, susut ${fmtN(n.rate)}%/thn)`); }
   if (h.jenis === 'Dinar' && h.jumlah > 0 && !hp && dinarEstimasi()) parts.push(`taksiran ±${fmtShort(h.jumlah * dinarEstimasi(), 'Rp')} (dari harga buyback emas)`);
-  if (HARTA[h.jenis].harga && h.jumlah > 0 && hp > 0 && h.satuan === HARTA[h.jenis].satuan) parts.push(`taksiran sekarang ${fmtShort(h.jumlah * hp, 'Rp')}`);
+  if (!(Number(h.harga_pasar) > 0) && HARTA[h.jenis].harga && h.jumlah > 0 && hp > 0 && h.satuan === HARTA[h.jenis].satuan) parts.push(`taksiran sekarang ${fmtShort(h.jumlah * hp, 'Rp')}`);
   const txt = esc(parts.length ? parts.join(' · ') : 'Isi jumlah (mis. 5 gram, 200 m²) untuk melihat total.');
   el.innerHTML = ((h.jenis === 'Emas' || h.jenis === 'Perak') && (h.satuan === 'gram' || h.satuan === 'kg') || h.jenis === 'Dinar') && h.jumlah > 0
     ? `<span class="d-flex align-items-center gap-3">${hartaThumb(h, 44)}<span>${txt}</span></span>` : txt;
@@ -452,6 +467,7 @@ Object.assign(Changes, {
     const f = el.form, t = HARTA[el.value];
     f.querySelectorAll('input[name=jenis]').forEach(r => r.closest('.chip-btn').classList.toggle('on', r.checked));
     f.satuan.value = t.satuan; f.nama.placeholder = t.contoh; f.lokasi.placeholder = t.simpan;
+    const hpF = f.querySelector('.hp-field'); if (hpF) { hpF.hidden = LOGAM.includes(el.value); $('#hpLabel').innerHTML = hpLabel(el.value); $('#hpHint').textContent = hpHint(el.value); }
     hartaPreview(f);
   },
   hartaCalc: el => hartaPreview(el.form),
