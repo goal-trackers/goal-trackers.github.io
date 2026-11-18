@@ -116,10 +116,11 @@ function seriesOf(h) {
 }
 /** Render ulang tanpa melompat ke atas: simpan posisi gulir halaman & tabel. */
 function keepScroll(fn) {
-  const y = window.scrollY, tw = document.querySelector('#page-finance .harta-tbl') ? document.querySelector('#page-finance .harta-tbl').parentElement.scrollLeft : 0;
+  const y = window.scrollY, w0 = document.querySelector('#page-finance .harta-scroll');
+  const tl = w0 ? w0.scrollLeft : 0, tt = w0 ? w0.scrollTop : 0;
   fn();
   window.scrollTo(0, y);
-  const w = document.querySelector('#page-finance .harta-tbl'); if (w) w.parentElement.scrollLeft = tw;
+  const w = document.querySelector('#page-finance .harta-scroll'); if (w) { w.scrollLeft = tl; w.scrollTop = tt; }
 }
 
 // ── Kolom tabel per jenis harta ──
@@ -138,23 +139,23 @@ function hartaCols(jenis) {
   const qty = lbl => ({ h: lbl, num: 1, td: h => `<b>${fmtGram(h.jumlah)}</b> ${esc(h.satuan)}`, sumQty: true });
   const aksi = { h: '', td: h => `<div class="d-flex gap-1 justify-content-end"><button class="icon-btn sm" data-action="editHarta" data-id="${h.harta_id}" aria-label="Edit ${esc(h.nama)}"><i class="bi bi-pencil"></i></button><button class="icon-btn sm" data-action="delHarta" data-id="${h.harta_id}" aria-label="Hapus ${esc(h.nama)}"><i class="bi bi-trash3"></i></button></div>` };
   if (jenis === 'Emas' || jenis === 'Perak') return [
-    { h: '', td: h => hartaThumb(h) }, nama, qty('Berat'), tgl, hb,
+    { h: '', td: h => hartaThumb(h, 30) }, nama, qty('Berat'), tgl, hb,
     { h: 'Beli /gr', num: 1, td: h => rp(per(h)) },
     { h: jenis === 'Emas' ? 'Taksiran buyback' : 'Taksiran', num: 1, td: h => taks(h).pasar ? `<b>${rp(taks(h).v)}</b>` : '<span class="muted">-</span>', sum: h => taks(h).pasar ? taks(h).v : 0 },
     { h: 'Untung/rugi', num: 1, td: gl }, owner, lok('Tempat simpan'), aksi];
   if (jenis === 'Dinar') return [
-    { h: '', td: h => hartaThumb(h) }, nama, qty('Jumlah'), tgl, hb, { h: 'Beli /keping', num: 1, td: h => rp(per(h)) },
+    { h: '', td: h => hartaThumb(h, 30) }, nama, qty('Jumlah'), tgl, hb, { h: 'Beli /keping', num: 1, td: h => rp(per(h)) },
     { h: 'Taksiran', num: 1, td: h => taks(h).pasar ? `<b>${rp(taks(h).v)}</b>` : '<span class="muted">-</span>', sum: h => taks(h).pasar ? taks(h).v : 0 },
     { h: 'Untung/rugi', num: 1, td: gl }, owner, lok('Tempat simpan'), aksi];
   if (jenis === 'Tanah') return [
-    { h: '', td: h => hartaThumb(h) }, nama, qty('Luas'), tgl, hb, { h: 'Beli /m²', num: 1, td: h => rp(per(h)) },
+    { h: '', td: h => hartaThumb(h, 30) }, nama, qty('Luas'), tgl, hb, { h: 'Beli /m²', num: 1, td: h => rp(per(h)) },
     { h: 'Taksiran', num: 1, td: h => taks(h).pasar ? `<b>${rp(taks(h).v)}</b>` : '<span class="muted">-</span>', sum: h => taks(h).pasar ? taks(h).v : 0 },
     { h: 'Untung/rugi', num: 1, td: gl }, owner, lok('Lokasi'), aksi];
   if (jenis === 'Kendaraan') return [
-    { h: '', td: h => hartaThumb(h) }, nama, tgl, { h: 'Usia', td: h => h.tgl_beli ? fmtUsia(usiaTahun(h.tgl_beli)) : '-' }, hb,
+    { h: '', td: h => hartaThumb(h, 30) }, nama, tgl, { h: 'Usia', td: h => h.tgl_beli ? fmtUsia(usiaTahun(h.tgl_beli)) : '-' }, hb,
     { h: 'Taksiran jual', num: 1, td: h => taks(h).susut ? `<b>±${rp(taks(h).v)}</b>` : '<span class="muted">-</span>', sum: h => taks(h).susut ? taks(h).v : 0 },
     { h: 'Turun', num: 1, td: gl }, owner, lok('Plat / garasi'), aksi];
-  return [{ h: '', td: h => hartaThumb(h) }, nama, qty('Jumlah'), tgl, hb, owner, lok('Lokasi'), aksi];
+  return [{ h: '', td: h => hartaThumb(h, 30) }, nama, qty('Jumlah'), tgl, hb, owner, lok('Lokasi'), aksi];
 }
 function hartaTableHtml(jenis, items) {
   const cols = hartaCols(jenis);
@@ -167,7 +168,7 @@ function hartaTableHtml(jenis, items) {
     if (c.sum) { const v = items.reduce((s, h) => s + c.sum(h), 0); return `<td class="num"><b>${v ? fmtVal(Math.round(v), 'Rp') : '-'}</b></td>`; }
     return '<td></td>';
   }).join('');
-  return `<div class="table-wrap"><table class="tbl harta-tbl"><thead><tr>${head}</tr></thead><tbody>${body}</tbody><tfoot><tr>${foot}</tr></tfoot></table></div>`;
+  return `<div class="table-wrap harta-scroll"><table class="tbl harta-tbl"><thead><tr>${head}</tr></thead><tbody>${body}</tbody><tfoot><tr>${foot}</tr></tfoot></table></div>`;
 }
 
 // ── Tab "Harta" di Pusat Finansial: pilih jenis → tabel kolom harta jenis itu ──
@@ -388,9 +389,9 @@ Object.assign(Actions, {
   editHarta: d => openHartaForm(d.id),
   hartaHarga: d => openHargaForm(d.jenis),
   hartaPilih: d => { S.ui.hartaJenis = d.jenis; S.ui.hartaGram = 'all'; S.ui.hartaSeri = 'all'; keepScroll(renderFinance); },
-  hartaSeri: d => { S.ui.hartaSeri = d.seri; keepScroll(renderFinance); },
+  hartaSeri: d => { S.ui.hartaSeri = d.seri; keepScroll(renderFinance); const w = document.querySelector('#page-finance .harta-scroll'); if (w) w.scrollTop = 0; },
   hartaGram: d => {
-    S.ui.hartaGram = d.gram === 'all' ? 'all' : Number(d.gram); keepScroll(renderFinance);
+    S.ui.hartaGram = d.gram === 'all' ? 'all' : Number(d.gram); keepScroll(renderFinance); const w = document.querySelector('#page-finance .harta-scroll'); if (w) w.scrollTop = 0;
   },
   hartaRefreshEmas: (d, el) => {
     setBusy(el, true);

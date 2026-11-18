@@ -200,6 +200,7 @@ function finExtraHtml() {
 // HALAMAN: PUSAT FINANSIAL (Tabungan & Rencana | Investasi | Pinjaman)
 // ============================================================
 function renderFinance() {
+  const _hs = document.querySelector('#page-finance .harta-scroll'), _hp = _hs ? [_hs.scrollTop, _hs.scrollLeft, S.ui.hartaJenis] : null;
   const tab = S.ui.finTab || 'tabungan';
   const f = finSummary();
   const act = S.assets.filter(a => a.status === 'Aktif');
@@ -230,6 +231,8 @@ function renderFinance() {
     <div class="tabs mt-3 mb-3" role="tablist">${tabs}</div>
     ${body}`;
   if (tab === 'tabungan') withChart(() => drawTrend('chFin', savingsSeries(monthsBack(today().slice(0, 7), 12))));
+  const _hn = document.querySelector('#page-finance .harta-scroll');
+  if (_hn && _hp && _hp[2] === S.ui.hartaJenis) { _hn.scrollTop = _hp[0]; _hn.scrollLeft = _hp[1]; }
 }
 function finSavingsHtml(f) {
   const list = sortGoals(f.goals, 'tenggat');
