@@ -657,6 +657,24 @@ new MutationObserver(() => requestAnimationFrame(slidersSyncAll)).observe(docume
   });
 })();
 
+/* Semua halaman: render ulang tidak mengembalikan baris geser (kartu ringkasan, tab, chip) ke posisi awal */
+function withRows_(root, fn) {
+  return function () {
+    const sel = '.chips, .tabs, .hscroll, .stats, .jenis-scroll, .table-wrap';
+    const r0 = document.querySelector(root);
+    const pos = r0 ? [...r0.querySelectorAll(sel)].map(e => e.scrollLeft) : [];
+    const out = fn.apply(this, arguments);
+    const r1 = document.querySelector(root);
+    if (r1 && pos.length) [...r1.querySelectorAll(sel)].forEach((e, i) => { if (pos[i]) e.scrollLeft = pos[i]; });
+    return out;
+  };
+}
+renderFinance = withRows_('#page-finance', renderFinance);
+renderDashboard = withRows_('#page-dashboard', renderDashboard);
+renderGoals = withRows_('#page-goals', renderGoals);
+renderDetail = withRows_('#page-detail', renderDetail);
+renderReports = withRows_('#page-reports', renderReports);
+
 try {
   boot();
   window.__GT_BOOTED = true;
