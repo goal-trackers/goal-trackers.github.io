@@ -60,7 +60,7 @@ function needsExecDate(g) {
   return g.tipe_target === 'Finansial' && g.template !== 'darurat' && g.template !== 'sekolah';
 }
 function tplChipsHtml(cur) {
-  return `<div class="field"><span>Mulai dari template <small>(opsional)</small></span><div class="chips">
+  return `<div class="field"><span>Mulai dari template <small>(opsional)</small></span><div class="chips chips-wrap">
     ${Object.keys(TPL).map(k => `<button type="button" class="chip-btn ${cur === k ? 'on' : ''}" data-action="tplPick" data-tpl="${k}">${TPL[k].emoji} ${TPL[k].label}</button>`).join('')}
     <button type="button" class="chip-btn ${!cur ? 'on' : ''}" data-action="tplPick" data-tpl="">✏️ Kustom</button></div></div>`;
 }

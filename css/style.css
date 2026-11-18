@@ -135,6 +135,9 @@ h1, h2, h3 { margin: 0; letter-spacing: -.02em; }
 }
 .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .chips::-webkit-scrollbar { display: none; }
+.chips-wrap { flex-wrap: wrap; overflow: visible; }
+.chips-wrap .chip-btn { white-space: normal; text-align: left; }
+.field > * { min-width: 0; }
 .chip-btn { min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); font-weight: 600; font-size: 13.5px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
 .chip-btn.on { background: var(--text); color: var(--card); border-color: var(--text); }
 [data-theme="dark"] .chip-btn.on { background: #F2F2F2; color: #111; }
@@ -484,7 +487,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
    SHEET / MODAL
    ============================================================ */
 .sheet-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.45); opacity: 0; pointer-events: none; transition: opacity .2s ease; }
-.sheet {
+.sheet { overflow-x: hidden;
   position: fixed; z-index: 61; left: 0; right: 0; bottom: 0; max-height: 92vh; overflow-y: auto; overscroll-behavior: contain;
   background: var(--card); border-radius: 28px 28px 0 0; padding: 8px 20px calc(24px + env(safe-area-inset-bottom));
   transform: translateY(105%); transition: transform .28s cubic-bezier(.2,.8,.2,1); box-shadow: var(--shadow-lg);
