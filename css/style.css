@@ -738,3 +738,6 @@ button.pecahan-item:active { transform: scale(.98); }
 .exp-amt { white-space: nowrap; }
 .exp-row .icon-btn { flex: none; }
 .exp-row .tiny { white-space: normal; }
+.filter-row .jenis-scroll { margin-bottom: 0; }
+@media (max-width: 560px) { .filter-row { gap: 4px; } }
+.filter-row > .chips { align-self: stretch; max-width: 100%; min-width: 0; }

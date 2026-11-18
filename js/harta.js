@@ -227,11 +227,11 @@ function finHartaHtml() {
   const sCount = {}; bySeri.forEach(h => { sCount[keyOf(h)] = (sCount[keyOf(h)] || 0) + 1; });
   const wCount = {}; byGram.filter(isW).forEach(h => { const w = wOf(h); wCount[w] = (wCount[w] || 0) + 1; });
   const chip = (on, act, attr, label, n) => `<button class="chip-btn ${on ? 'on' : ''} ${n ? '' : 'zero'}" data-action="${act}" ${attr} aria-pressed="${on}">${label} <span class="n">${n || 0}</span></button>`;
-  const sFilter = sList.length > 1 ? `<div class="filter-row"><span class="tiny muted fw-bold">Seri / nama</span><div class="chips chips-wrap seri-filter" role="tablist" aria-label="Filter seri">
+  const sFilter = sList.length > 1 ? `<div class="filter-row"><span class="tiny muted fw-bold">Seri / nama</span><div class="chips jenis-scroll seri-filter" role="tablist" aria-label="Filter seri">
       ${chip(sSel === 'all', 'hartaSeri', 'data-seri="all"', 'Semua', bySeri.length)}
       ${sList.map(key => chip(sSel === key, 'hartaSeri', `data-seri="${esc(key)}"`, esc(sLabel[key]), sCount[key])).join('')}
     </div></div>` : '';
-  const gFilter = isBar && wList.length > 1 ? `<div class="filter-row"><span class="tiny muted fw-bold">Berat</span><div class="chips chips-wrap gram-filter" role="tablist" aria-label="Filter berat">
+  const gFilter = isBar && wList.length > 1 ? `<div class="filter-row"><span class="tiny muted fw-bold">Berat</span><div class="chips jenis-scroll gram-filter" role="tablist" aria-label="Filter berat">
       ${chip(gSel === 'all', 'hartaGram', 'data-gram="all"', 'Semua', byGram.length)}
       ${wList.map(w => chip(String(gSel) === String(w), 'hartaGram', `data-gram="${w}"`, fmtGram(w) + ' gr', wCount[w])).join('')}
     </div></div>` : '';
