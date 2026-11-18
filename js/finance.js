@@ -228,7 +228,7 @@ function renderFinance() {
       <div class="stat tint" style="--c:#CFF2D6"><b>${fmtShort(f.saved, 'Rp')}</b><span>Tabungan terkumpul</span></div>
       <div class="stat tint" style="--c:#D5F0F7"><b>${fmtShort(invest, 'Rp')}</b><span>Investasi aktif · kupon ${fmtShort(kupon, 'Rp')}/bln</span></div>
       <div class="stat tint" style="--c:#E8D3F5"><b>${fmtShort(sisaPinjam, 'Rp')}</b><span>Sisa cicilan · ${fmtShort(cicilan, 'Rp')}/bln</span></div>
-      <button class="stat tint text-start" style="--c:#FBEBB5" data-action="finTab" data-tab="harta"><b>${fmtShort(hartaTotal, 'Rp')}</b><span>Harta${hartaSub ? ' · ' + hartaSub : ''}</span></button>
+      <button class="stat tint" style="--c:#FBEBB5" data-action="finTab" data-tab="harta"><b>${fmtShort(hartaTotal, 'Rp')}</b><span>Harta${hartaSub ? ' · ' + hartaSub : ''}</span></button>
       <div class="stat dashed"><b>${fmtShort(f.month, 'Rp')}</b><span>Setoran bulan ini</span></div>
     </div>
     <div class="tabs mt-3 mb-3" role="tablist">${tabs}</div>
@@ -657,6 +657,23 @@ new MutationObserver(() => requestAnimationFrame(slidersSyncAll)).observe(docume
   });
 })();
 
+/* Angka besar di kartu ringkasan: kecilkan otomatis agar selalu muat di dalam kotak */
+function fitStats(root) {
+  (root || document).querySelectorAll('.stats').forEach(row => {
+    const bs = [...row.querySelectorAll('.stat b')];
+    let min = Infinity;
+    bs.forEach(b => {
+      b.style.fontSize = '';
+      const max = b.parentElement.clientWidth - 20;
+      if (max <= 0) return;
+      let fs = parseFloat(getComputedStyle(b).fontSize);
+      while (b.scrollWidth > max && fs > 14) { fs -= 1; b.style.fontSize = fs + 'px'; }
+      min = Math.min(min, fs);
+    });
+    if (min < Infinity) bs.forEach(b => { b.style.fontSize = min + 'px'; });   // semua angka satu ukuran agar proporsional
+  });
+}
+window.addEventListener('resize', () => fitStats());
 /* Semua halaman: render ulang tidak mengembalikan baris geser (kartu ringkasan, tab, chip) ke posisi awal */
 function withRows_(root, fn) {
   return function () {
@@ -666,6 +683,7 @@ function withRows_(root, fn) {
     const out = fn.apply(this, arguments);
     const r1 = document.querySelector(root);
     if (r1 && pos.length) [...r1.querySelectorAll(sel)].forEach((e, i) => { if (pos[i]) e.scrollLeft = pos[i]; });
+    if (r1) fitStats(r1);
     return out;
   };
 }

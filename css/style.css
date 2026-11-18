@@ -284,7 +284,7 @@ h1, h2, h3 { margin: 0; letter-spacing: -.02em; }
 .stats { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(130px, 1fr); gap: 12px; overflow-x: auto; scrollbar-width: none; padding: 4px 2px 6px; }
 .stats::-webkit-scrollbar { display: none; }
 .stat { position: relative; border-radius: 22px; padding: 16px 14px; text-align: center; background: var(--card); min-height: 104px; display: grid; align-content: center; }
-.stat b { font-size: clamp(22px, 6vw, 34px); white-space: nowrap; font-weight: 800; line-height: 1; letter-spacing: -.03em; }
+.stat b { font-size: clamp(22px, 6vw, 34px); white-space: nowrap; display: inline-block; max-width: 100%; justify-self: center; font-weight: 800; line-height: 1; letter-spacing: -.03em; }
 .stat span { font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 6px; }
 .stat.tint span { color: var(--text); opacity: .75; }
 .stat.dashed { background: transparent; border: 2px dashed var(--line); }
