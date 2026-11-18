@@ -114,6 +114,12 @@ function seriesOf(h) {
   if (!n || n.toLowerCase() === String(h.jenis).toLowerCase()) n = 'Tanpa seri';
   return n;
 }
+/** Apakah kombinasi filter seri + berat saat ini punya isi? (kalau tidak, filter lain direset agar tabel tidak kosong) */
+function hartaComboAda() {
+  const k = S.ui.hartaJenis, sSel = S.ui.hartaSeri || 'all', gSel = S.ui.hartaGram || 'all';
+  return hartaOwned().some(h => h.jenis === k && (sSel === 'all' || seriesOf(h).toLowerCase() === sSel)
+    && (gSel === 'all' || ((h.satuan === 'gram' || h.satuan === 'kg') && Math.round((h.satuan === 'kg' ? h.jumlah * 1000 : Number(h.jumlah)) * 1000) / 1000 === Number(gSel))));
+}
 /** Render ulang tanpa melompat ke atas: simpan posisi gulir halaman & tabel. */
 function keepScroll(fn) {
   const y = window.scrollY, w0 = document.querySelector('#page-finance .harta-scroll');
@@ -204,26 +210,30 @@ function finHartaHtml() {
   const items = owned.filter(h => h.jenis === k).sort((a, b) => String(b.tgl_beli).localeCompare(String(a.tgl_beli)));
   const isBar = k === 'Emas' || k === 'Perak';
   const wOf = h => Math.round((h.satuan === 'kg' ? Number(h.jumlah) * 1000 : Number(h.jumlah)) * 1000) / 1000;
-  const wCount = {};
-  if (isBar) items.forEach(h => { if (h.satuan === 'gram' || h.satuan === 'kg') { const w = wOf(h); wCount[w] = (wCount[w] || 0) + 1; } });
-  const wList = Object.keys(wCount).map(Number).sort((a, b) => a - b);
-  if (S.ui.hartaGram !== 'all' && !wList.includes(Number(S.ui.hartaGram))) S.ui.hartaGram = 'all';
-  const gSel = S.ui.hartaGram || 'all';
-  // Filter seri / nama (mis. Certicard Antam, Retro, Gift Series) — dari kolom Nama tanpa angka berat
-  const sCount = {}, sLabel = {};
-  items.forEach(h => { const sr = seriesOf(h); const key = sr.toLowerCase(); sCount[key] = (sCount[key] || 0) + 1; if (!sLabel[key]) sLabel[key] = sr; });
-  const sList = Object.keys(sCount).sort((a, b) => sCount[b] - sCount[a] || a.localeCompare(b));
+  const isW = h => h.satuan === 'gram' || h.satuan === 'kg';
+  const keyOf = h => seriesOf(h).toLowerCase();
+  // Daftar pilihan dari SEMUA catatan (agar tombol tidak hilang), jumlah dihitung silang (faceted)
+  const sLabel = {}; items.forEach(h => { if (!sLabel[keyOf(h)]) sLabel[keyOf(h)] = seriesOf(h); });
+  const sTotal = {}; items.forEach(h => { sTotal[keyOf(h)] = (sTotal[keyOf(h)] || 0) + 1; });
+  const sList = Object.keys(sLabel).sort((a, b) => sTotal[b] - sTotal[a] || a.localeCompare(b));
+  const wList = isBar ? [...new Set(items.filter(isW).map(wOf))].sort((a, b) => a - b) : [];
   if (S.ui.hartaSeri !== 'all' && !sList.includes(S.ui.hartaSeri)) S.ui.hartaSeri = 'all';
-  const sSel = S.ui.hartaSeri || 'all';
-  const shown = items.filter(h => (!isBar || gSel === 'all' || ((h.satuan === 'gram' || h.satuan === 'kg') && wOf(h) === Number(gSel)))
-    && (sSel === 'all' || seriesOf(h).toLowerCase() === sSel));
+  if (S.ui.hartaGram !== 'all' && !wList.includes(Number(S.ui.hartaGram))) S.ui.hartaGram = 'all';
+  const sSel = S.ui.hartaSeri || 'all', gSel = S.ui.hartaGram || 'all';
+  const okS = h => sSel === 'all' || keyOf(h) === sSel;
+  const okG = h => !isBar || gSel === 'all' || (isW(h) && wOf(h) === Number(gSel));
+  const shown = items.filter(h => okS(h) && okG(h));
+  const bySeri = items.filter(okG), byGram = items.filter(okS);      // jumlah seri mengikuti berat terpilih & sebaliknya
+  const sCount = {}; bySeri.forEach(h => { sCount[keyOf(h)] = (sCount[keyOf(h)] || 0) + 1; });
+  const wCount = {}; byGram.filter(isW).forEach(h => { const w = wOf(h); wCount[w] = (wCount[w] || 0) + 1; });
+  const chip = (on, act, attr, label, n) => `<button class="chip-btn ${on ? 'on' : ''} ${n ? '' : 'zero'}" data-action="${act}" ${attr} aria-pressed="${on}">${label} <span class="n">${n || 0}</span></button>`;
   const sFilter = sList.length > 1 ? `<div class="filter-row"><span class="tiny muted fw-bold">Seri / nama</span><div class="chips chips-wrap seri-filter" role="tablist" aria-label="Filter seri">
-      <button class="chip-btn ${sSel === 'all' ? 'on' : ''}" data-action="hartaSeri" data-seri="all" aria-pressed="${sSel === 'all'}">Semua <span class="n">${items.length}</span></button>
-      ${sList.map(key => `<button class="chip-btn ${sSel === key ? 'on' : ''}" data-action="hartaSeri" data-seri="${esc(key)}" aria-pressed="${sSel === key}">${esc(sLabel[key])} <span class="n">${sCount[key]}</span></button>`).join('')}
+      ${chip(sSel === 'all', 'hartaSeri', 'data-seri="all"', 'Semua', bySeri.length)}
+      ${sList.map(key => chip(sSel === key, 'hartaSeri', `data-seri="${esc(key)}"`, esc(sLabel[key]), sCount[key])).join('')}
     </div></div>` : '';
   const gFilter = isBar && wList.length > 1 ? `<div class="filter-row"><span class="tiny muted fw-bold">Berat</span><div class="chips chips-wrap gram-filter" role="tablist" aria-label="Filter berat">
-      <button class="chip-btn ${gSel === 'all' ? 'on' : ''}" data-action="hartaGram" data-gram="all" aria-pressed="${gSel === 'all'}">Semua <span class="n">${items.length}</span></button>
-      ${wList.map(w => `<button class="chip-btn ${String(gSel) === String(w) ? 'on' : ''}" data-action="hartaGram" data-gram="${w}" aria-pressed="${String(gSel) === String(w)}">${fmtGram(w)} gr <span class="n">${wCount[w]}</span></button>`).join('')}
+      ${chip(gSel === 'all', 'hartaGram', 'data-gram="all"', 'Semua', byGram.length)}
+      ${wList.map(w => chip(String(gSel) === String(w), 'hartaGram', `data-gram="${w}"`, fmtGram(w) + ' gr', wCount[w])).join('')}
     </div></div>` : '';
   const soldK = sold.filter(h => h.jenis === k);
   const modalTxt = s && s.modal ? 'modal ' + fmtShort(s.modal, 'Rp') : '';
@@ -389,9 +399,9 @@ Object.assign(Actions, {
   editHarta: d => openHartaForm(d.id),
   hartaHarga: d => openHargaForm(d.jenis),
   hartaPilih: d => { S.ui.hartaJenis = d.jenis; S.ui.hartaGram = 'all'; S.ui.hartaSeri = 'all'; keepScroll(renderFinance); },
-  hartaSeri: d => { S.ui.hartaSeri = d.seri; keepScroll(renderFinance); const w = document.querySelector('#page-finance .harta-scroll'); if (w) w.scrollTop = 0; },
+  hartaSeri: d => { S.ui.hartaSeri = d.seri; if (!hartaComboAda()) S.ui.hartaGram = 'all'; keepScroll(renderFinance); const w = document.querySelector('#page-finance .harta-scroll'); if (w) w.scrollTop = 0; },
   hartaGram: d => {
-    S.ui.hartaGram = d.gram === 'all' ? 'all' : Number(d.gram); keepScroll(renderFinance); const w = document.querySelector('#page-finance .harta-scroll'); if (w) w.scrollTop = 0;
+    S.ui.hartaGram = d.gram === 'all' ? 'all' : Number(d.gram); if (!hartaComboAda()) S.ui.hartaSeri = 'all'; keepScroll(renderFinance); const w = document.querySelector('#page-finance .harta-scroll'); if (w) w.scrollTop = 0;
   },
   hartaRefreshEmas: (d, el) => {
     setBusy(el, true);
