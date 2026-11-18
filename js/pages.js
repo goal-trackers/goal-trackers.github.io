@@ -148,7 +148,7 @@ function renderGoals() {
   const tabs = [['semua', 'Semua'], ['saya', 'Milik Saya'], ['pasangan', p ? 'Milik ' + p.nama : 'Pasangan'], ['bersama', 'Bersama']]
     .map(([k, l]) => `<button role="tab" aria-selected="${u.goalTab === k}" class="${u.goalTab === k ? 'on' : ''}" data-action="goalTab" data-tab="${k}">${esc(l)}<span class="n">${count[k]}</span></button>`).join('');
   const cats = `<button class="chip-btn ${!u.goalCat ? 'on' : ''}" data-action="goalCat" data-id="">Semua kategori</button>` +
-    activeCats().map(c => `<button class="chip-btn ${u.goalCat === c.kategori_id ? 'on' : ''}" data-action="goalCat" data-id="${c.kategori_id}"><i class="bi ${esc(c.ikon)}"></i>${esc(c.nama)}</button>`).join('');
+    activeCats().map(c => `<button class="chip-btn cat-chip ${u.goalCat === c.kategori_id ? 'on' : ''}" data-action="goalCat" data-id="${c.kategori_id}"><span class="cat-ic" style="--c:${esc(c.warna || '#D5F0F7')}"><i class="bi ${esc(c.ikon)}"></i></span>${esc(c.nama)}</button>`).join('');
   const opt = (v, l, cur) => `<option value="${v}" ${cur === v ? 'selected' : ''}>${l}</option>`;
   const views = [['journey', 'bi-bezier2', 'Peta perjalanan'], ['list', 'bi-list-ul', 'Daftar'], ['grid', 'bi-grid', 'Kartu']]
     .map(([k, i, l]) => `<button class="${u.goalView === k ? 'on' : ''}" data-action="goalView" data-view="${k}" aria-label="${l}" title="${l}" aria-pressed="${u.goalView === k}"><i class="bi ${i}"></i></button>`).join('');

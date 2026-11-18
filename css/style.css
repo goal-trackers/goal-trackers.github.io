@@ -845,3 +845,8 @@ button.stat:not(.tint) { background: var(--card); }
 .hp-tag { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--soft); font-weight: 700; }
 .hp-tag.item { background: #CFF2D6; color: #145C2C; }
 [data-theme="dark"] .hp-tag.item { background: #2F6440; color: #C9F5D6; }
+/* Ikon kategori berwarna */
+.cat-chip { padding-left: 6px; gap: 8px; }
+.cat-ic { width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; background: var(--c); color: #1a1a1a; flex: none; font-size: 14px; }
+.cat-ic i { line-height: 1; }
+[data-theme="dark"] .cat-ic { background: color-mix(in srgb, var(--c) 75%, #fff 0%); color: #111; }
