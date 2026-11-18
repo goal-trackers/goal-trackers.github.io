@@ -820,3 +820,17 @@ button.stat:not(.tint) { background: var(--card); }
   .tn.active:hover .tn-ic { transform: none; }
 }
 @media (min-width: 992px) { .tn .tn-ic, .tn.active .tn-ic { display: grid; place-items: center; } }
+/* ── Tab gaya Pinterest: pil seukuran isi, tanpa wadah, rata kiri ── */
+.tabs { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 2px 0 4px; gap: 10px; justify-content: flex-start; }
+.tabs button { flex: none; min-height: 44px; padding: 0 18px 0 8px; font-size: 15px; font-weight: 700; letter-spacing: -.1px; opacity: 1 !important;
+  background: #EFEFEF !important; color: #111 !important; box-shadow: none !important; transition: background .15s ease, transform .12s ease; }
+.tabs button:not(:has(.tab-ic)) { padding: 0 18px; }
+.tabs button:hover { background: #E2E2E2 !important; }
+.tabs button:active { transform: scale(.96); }
+.tabs button.on { background: #111 !important; color: #fff !important; }
+.tabs .tab-ic { width: 30px; height: 30px; font-size: 14px; }
+.tabs .n { background: transparent !important; color: inherit !important; opacity: .55; font-weight: 700; padding: 0 0 0 2px; margin-left: 2px; }
+.tabs button.on .n { opacity: .7; }
+[data-theme="dark"] .tabs button { background: #2B2B2B !important; color: #F2F2F2 !important; }
+[data-theme="dark"] .tabs button:hover { background: #363636 !important; }
+[data-theme="dark"] .tabs button.on { background: #F2F2F2 !important; color: #111 !important; }
