@@ -108,6 +108,12 @@ function hartaThumb(h, w) {
   return `<span class="harta-emoji tint" style="--c:${t.c}">${t.emoji}</span>`;
 }
 
+/** Nama seri dari kolom Nama tanpa angka berat: "Certicard Antam 5 gr" → "Certicard Antam". */
+function seriesOf(h) {
+  let n = String(h.nama || '').replace(/\(?\b\d+(?:[.,]\d+)?\s*(?:gr|gram|g|kg|keping|kpg)\b\.?\)?/gi, ' ').replace(/#\d+/g, ' ').replace(/\s+/g, ' ').replace(/^[\s\-·,]+|[\s\-·,]+$/g, '').trim();
+  if (!n || n.toLowerCase() === String(h.jenis).toLowerCase()) n = 'Tanpa seri';
+  return n;
+}
 /** Render ulang tanpa melompat ke atas: simpan posisi gulir halaman & tabel. */
 function keepScroll(fn) {
   const y = window.scrollY, tw = document.querySelector('#page-finance .harta-tbl') ? document.querySelector('#page-finance .harta-tbl').parentElement.scrollLeft : 0;
@@ -202,11 +208,22 @@ function finHartaHtml() {
   const wList = Object.keys(wCount).map(Number).sort((a, b) => a - b);
   if (S.ui.hartaGram !== 'all' && !wList.includes(Number(S.ui.hartaGram))) S.ui.hartaGram = 'all';
   const gSel = S.ui.hartaGram || 'all';
-  const shown = isBar && gSel !== 'all' ? items.filter(h => (h.satuan === 'gram' || h.satuan === 'kg') && wOf(h) === Number(gSel)) : items;
-  const gFilter = isBar && wList.length > 1 ? `<div class="chips chips-wrap mb-3 gram-filter" role="tablist" aria-label="Filter berat">
+  // Filter seri / nama (mis. Certicard Antam, Retro, Gift Series) — dari kolom Nama tanpa angka berat
+  const sCount = {}, sLabel = {};
+  items.forEach(h => { const sr = seriesOf(h); const key = sr.toLowerCase(); sCount[key] = (sCount[key] || 0) + 1; if (!sLabel[key]) sLabel[key] = sr; });
+  const sList = Object.keys(sCount).sort((a, b) => sCount[b] - sCount[a] || a.localeCompare(b));
+  if (S.ui.hartaSeri !== 'all' && !sList.includes(S.ui.hartaSeri)) S.ui.hartaSeri = 'all';
+  const sSel = S.ui.hartaSeri || 'all';
+  const shown = items.filter(h => (!isBar || gSel === 'all' || ((h.satuan === 'gram' || h.satuan === 'kg') && wOf(h) === Number(gSel)))
+    && (sSel === 'all' || seriesOf(h).toLowerCase() === sSel));
+  const sFilter = sList.length > 1 ? `<div class="filter-row"><span class="tiny muted fw-bold">Seri / nama</span><div class="chips chips-wrap seri-filter" role="tablist" aria-label="Filter seri">
+      <button class="chip-btn ${sSel === 'all' ? 'on' : ''}" data-action="hartaSeri" data-seri="all" aria-pressed="${sSel === 'all'}">Semua <span class="n">${items.length}</span></button>
+      ${sList.map(key => `<button class="chip-btn ${sSel === key ? 'on' : ''}" data-action="hartaSeri" data-seri="${esc(key)}" aria-pressed="${sSel === key}">${esc(sLabel[key])} <span class="n">${sCount[key]}</span></button>`).join('')}
+    </div></div>` : '';
+  const gFilter = isBar && wList.length > 1 ? `<div class="filter-row"><span class="tiny muted fw-bold">Berat</span><div class="chips chips-wrap gram-filter" role="tablist" aria-label="Filter berat">
       <button class="chip-btn ${gSel === 'all' ? 'on' : ''}" data-action="hartaGram" data-gram="all" aria-pressed="${gSel === 'all'}">Semua <span class="n">${items.length}</span></button>
       ${wList.map(w => `<button class="chip-btn ${String(gSel) === String(w) ? 'on' : ''}" data-action="hartaGram" data-gram="${w}" aria-pressed="${String(gSel) === String(w)}">${fmtGram(w)} gr <span class="n">${wCount[w]}</span></button>`).join('')}
-    </div>` : '';
+    </div></div>` : '';
   const soldK = sold.filter(h => h.jenis === k);
   const modalTxt = s && s.modal ? 'modal ' + fmtShort(s.modal, 'Rp') : '';
   const head = `<div class="card harta-head-card">
@@ -221,7 +238,7 @@ function finHartaHtml() {
       </div>
       ${hartaPriceBox(k)}
     </div>`;
-  const table = items.length ? `<div class="card mt-3">${gFilter}${hartaTableHtml(k, shown)}${k === 'Emas' ? '<p class="tiny muted mt-2 mb-0"><i class="bi bi-info-circle"></i> Taksiran = berat × harga buyback hari ini, sebelum PPh 22 (penjualan > Rp 10 jt dipotong 1,5% dengan NPWP / 3% tanpa NPWP). Harga buyback Antam sama di semua butik, termasuk Balikpapan.</p>' : ''}</div>`
+  const table = items.length ? `<div class="card mt-3">${sFilter}${gFilter}${shown.length ? hartaTableHtml(k, shown) : '<p class="muted my-3">Tidak ada catatan yang cocok dengan filter ini.</p>'}${k === 'Emas' ? '<p class="tiny muted mt-2 mb-0"><i class="bi bi-info-circle"></i> Taksiran = berat × harga buyback hari ini, sebelum PPh 22 (penjualan > Rp 10 jt dipotong 1,5% dengan NPWP / 3% tanpa NPWP). Harga buyback Antam sama di semua butik, termasuk Balikpapan.</p>' : ''}</div>`
     : `<div class="card mt-3">${emptyHtml(t.icon, `Belum ada ${k.toLowerCase()} tercatat.`, `<button class="btn btn-dark btn-sm" data-action="newHarta" data-jenis="${k}">Catat ${k.toLowerCase()} pertama</button>`)}</div>`;
   const soldHtml = soldK.length ? `<details class="card mt-3"><summary class="fw-bold">Riwayat ${k.toLowerCase()} dijual (${soldK.length})</summary>
     <div class="table-wrap mt-2"><table class="tbl harta-tbl"><thead><tr><th></th><th>Nama</th><th class="num">Jumlah</th><th>Tgl jual</th><th class="num">Harga jual</th><th class="num">Modal</th><th></th></tr></thead><tbody>
@@ -245,7 +262,9 @@ function openHartaForm(id, jenis) {
     <div class="field"><span>Jenis harta</span><div class="chips chips-wrap">
       ${Object.keys(HARTA).map(k => `<label class="chip-btn ${h.jenis === k ? 'on' : ''}"><input type="radio" name="jenis" value="${k}" class="visually-hidden" data-change="hartaJenis" ${h.jenis === k ? 'checked' : ''}>${HARTA[k].emoji} ${k}</label>`).join('')}
     </div></div>
-    <label class="field"><span>Nama / keterangan singkat</span><input name="nama" maxlength="80" value="${esc(h.nama)}" placeholder="${esc(t.contoh)}"></label>
+    <label class="field"><span>Nama / seri <small>(dipakai untuk filter)</small></span><input name="nama" maxlength="80" list="hartaNamaList" value="${esc(h.nama)}" placeholder="${esc(t.contoh)}">
+      <datalist id="hartaNamaList">${[...new Set(['Certicard Antam', 'Retro', 'Gift Series', 'Antam Batik', 'Antam Imlek', 'Antam Idul Fitri', 'UBS', 'Galeri24'].concat((S.harta || []).map(x => seriesOf(x)).filter(x => x !== 'Tanpa seri')))].map(n => `<option value="${esc(n)}">`).join('')}</datalist>
+      <small>Cukup tulis serinya, mis. "Certicard Antam" atau "Retro" — berat diisi di kolom Jumlah.</small></label>
     <div class="grid-2">
       <label class="field"><span>Jumlah</span><input name="jumlah" inputmode="decimal" data-input="hartaCalc" value="${h.jumlah !== '' ? esc(String(h.jumlah).replace('.', ',')) : ''}" placeholder="${h.jenis === 'Tanah' ? '200' : h.jenis === 'Emas' || h.jenis === 'Perak' ? '5' : '1'}"><em class="field-err"></em></label>
       <label class="field"><span>Satuan</span><select name="satuan" data-change="hartaCalc">${HARTA_SATUAN.concat(HARTA_SATUAN.includes(h.satuan) ? [] : [h.satuan]).map(s => `<option ${h.satuan === s ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select></label>
@@ -368,7 +387,8 @@ Object.assign(Actions, {
   newHarta: d => openHartaForm(null, d.jenis),
   editHarta: d => openHartaForm(d.id),
   hartaHarga: d => openHargaForm(d.jenis),
-  hartaPilih: d => { S.ui.hartaJenis = d.jenis; S.ui.hartaGram = 'all'; keepScroll(renderFinance); },
+  hartaPilih: d => { S.ui.hartaJenis = d.jenis; S.ui.hartaGram = 'all'; S.ui.hartaSeri = 'all'; keepScroll(renderFinance); },
+  hartaSeri: d => { S.ui.hartaSeri = d.seri; keepScroll(renderFinance); },
   hartaGram: d => {
     S.ui.hartaGram = d.gram === 'all' ? 'all' : Number(d.gram); keepScroll(renderFinance);
   },

@@ -686,3 +686,8 @@ table.harta-tbl { min-width: 860px; }
 button.pecahan-item { font: inherit; color: inherit; text-align: left; cursor: pointer; width: 100%; transition: border-color .15s ease, transform .15s ease; }
 button.pecahan-item:hover { border-color: var(--text); }
 button.pecahan-item:active { transform: scale(.98); }
+.filter-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.filter-row > span { min-width: 74px; padding-top: 11px; }
+.filter-row .chips { flex: 1; min-width: 0; }
+.filter-row:last-of-type { margin-bottom: 14px; }
+@media (max-width: 560px) { .filter-row { flex-direction: column; gap: 6px; } .filter-row > span { padding-top: 0; } }
