@@ -24,7 +24,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-reboot.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-utilities.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/style.css?v=1.6.3">
+  <link rel="stylesheet" href="css/style.css?v=1.7.0">
 </head>
 <body>
 
@@ -33,7 +33,7 @@
     <div class="splash-logo"><svg class="logo-svg" viewBox="0 0 64 64" fill="none" stroke="#E03131" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M41.5 13.6A20 20 0 1 0 51.6 28"/><path d="M32 4v12M32 48v12M4 32h12M48 32h12"/><path d="M22 31.5l8 7.5L50 13"/></svg></div>
     <p>Goal Trackers</p>
     <span class="spinner"></span>
-    <small style="opacity:.45;font-weight:500;font-size:12px">versi 1.6.3</small>
+    <small style="opacity:.45;font-weight:500;font-size:12px">versi 1.7.0</small>
   </div>
 
   <!-- ═════════ LOGIN ═════════ -->
@@ -159,7 +159,7 @@
     setTimeout(function () {
       if (window.__GT_BOOTED) return;
       var got = window.__GT_PARTS || [];
-      var files = { JS1: 'js/core.js', JS2: 'js/pages.js', JS3: 'js/reports.js', JS4: 'js/actions.js', JS5: 'js/finance.js', JS6: 'js/harta.js' };
+      var files = { JS1: 'js/core.js', JS2: 'js/pages.js', JS3: 'js/reports.js', JS4: 'js/actions.js', JS5: 'js/finance.js', JS6: 'js/harta.js', JS7: 'js/pengeluaran.js' };
       var miss = Object.keys(files).filter(function (n) { return got.indexOf(n) < 0; }).map(function (n) { return files[n]; });
       window.__gtFail(miss.length
         ? 'Berkas ' + miss.join(', ') + ' gagal dimuat. Periksa koneksi internet lalu muat ulang.'
@@ -167,13 +167,14 @@
     }, 15000);
   </script>
 
-  <script src="js/config.js?v=1.6.3"></script>
-  <script src="js/core.js?v=1.6.3"></script>
-  <script src="js/pages.js?v=1.6.3"></script>
-  <script src="js/reports.js?v=1.6.3"></script>
-  <script src="js/actions.js?v=1.6.3"></script>
-  <script src="js/harta.js?v=1.6.3"></script>
-  <script src="js/finance.js?v=1.6.3"></script>
+  <script src="js/config.js?v=1.7.0"></script>
+  <script src="js/core.js?v=1.7.0"></script>
+  <script src="js/pages.js?v=1.7.0"></script>
+  <script src="js/reports.js?v=1.7.0"></script>
+  <script src="js/actions.js?v=1.7.0"></script>
+  <script src="js/harta.js?v=1.7.0"></script>
+  <script src="js/pengeluaran.js?v=1.7.0"></script>
+  <script src="js/finance.js?v=1.7.0"></script>
   <div id="installBar" class="install-bar" hidden role="dialog" aria-label="Pasang aplikasi">
     <img src="icons/icon-192.png" alt="" width="40" height="40">
     <div class="flex-grow-1"><b>Pasang Goal Trackers</b><div class="tiny" id="installHint">Buka langsung dari layar utama, seperti aplikasi.</div></div>
