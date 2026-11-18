@@ -786,3 +786,8 @@ button.stat:not(.tint) { background: var(--card); }
 [data-theme="dark"] .tabs { background: var(--bg-2); border-color: #333; }
 [data-theme="dark"] .tabs button.on { background: #F2F2F2; color: #111; }
 [data-theme="dark"] .tabs button.on .n { background: rgba(0,0,0,.12); color: #111; }
+/* Tab yang tidak terpilih: pil abu-abu */
+.tabs button:not(.on) { background: #EDEDEB; opacity: .85; }
+.tabs button:not(.on):hover { background: #E2E2DF; opacity: 1; }
+[data-theme="dark"] .tabs button:not(.on) { background: #2C2C2C; }
+[data-theme="dark"] .tabs button:not(.on):hover { background: #363636; }
