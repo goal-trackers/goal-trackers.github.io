@@ -190,6 +190,7 @@ async function exportXlsx(btn) {
     add(s.months.map((m, i) => ({ 'Bulan': s.labels[i], 'Setoran (Rp)': s.monthly[i], 'Total Terkumpul (Rp)': s.cumulative[i] })), 'Tabungan Bulanan', '-');
     add(assetRowsExport(), 'Investasi', 'Belum ada investasi');
     add(loanRowsExport(), 'Pinjaman', 'Belum ada pinjaman');
+    add(hartaRowsExport(), 'Harta', 'Belum ada harta');
     add(S.achievements.filter(a => String(a.tanggal).slice(0, 10) >= p.start && String(a.tanggal).slice(0, 10) <= p.end)
       .map(a => ({ 'Tanggal': String(a.tanggal).slice(0, 10), 'Jenis': a.jenis, 'Pencapaian': plain(a.pesan), 'Oleh': userById(a.user_id).nama })), 'Pencapaian', 'Belum ada pencapaian');
     XLSX.writeFile(wb, `Rekap_GoalTrackers_${p.file}.xlsx`);
@@ -309,7 +310,7 @@ function renderSettings() {
 const NOTIF_ICON = {
   pencapaian: ['bi-trophy', '#FBEBB5'], progres: ['bi-graph-up-arrow', '#CFF2D6'], reaksi: ['bi-heart', '#F8CFE0'],
   tenggat: ['bi-alarm', '#FFE1C7'], sepi: ['bi-hourglass-split', '#D5F0F7'], goal_baru: ['bi-people', '#E8D3F5'], info: ['bi-info-circle', '#D5F0F7'],
-  kupon: ['bi-cash-coin', '#CFF2D6'], jatuh_tempo: ['bi-bank', '#FBEBB5'], cicilan: ['bi-credit-card', '#E8D3F5']
+  kupon: ['bi-cash-coin', '#CFF2D6'], jatuh_tempo: ['bi-bank', '#FBEBB5'], cicilan: ['bi-credit-card', '#E8D3F5'], harta: ['bi-gem', '#FBEBB5']
 };
 function renderNotifications() {
   const list = S.notifications.slice().sort((a, b) => String(b.dibuat_pada).localeCompare(String(a.dibuat_pada)));

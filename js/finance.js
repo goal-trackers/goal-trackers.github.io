@@ -190,9 +190,10 @@ function financeAgendaHtml() {
 function finExtraHtml() {
   const act = S.assets.filter(a => a.status === 'Aktif');
   const loans = S.loans.filter(l => l.status !== 'Lunas' && !loanInfo(l).done);
-  if (!act.length && !loans.length) return '';
+  const hx = hartaExtraHtml();
+  if (!act.length && !loans.length) return hx;
   return `${act.length ? `<div class="fin-row tiny"><span class="muted">Investasi aktif</span><strong>${fmtShort(act.reduce((s, a) => s + Number(a.nominal), 0), 'Rp')} · kupon ${fmtShort(act.reduce((s, a) => s + assetInfo(a).net, 0), 'Rp')}/bln</strong></div>` : ''}
-    ${loans.length ? `<div class="fin-row tiny"><span class="muted">Sisa cicilan</span><strong>${fmtShort(loans.reduce((s, l) => s + loanInfo(l).sisaBayar, 0), 'Rp')}</strong></div>` : ''}`;
+    ${loans.length ? `<div class="fin-row tiny"><span class="muted">Sisa cicilan</span><strong>${fmtShort(loans.reduce((s, l) => s + loanInfo(l).sisaBayar, 0), 'Rp')}</strong></div>` : ''}${hx}`;
 }
 
 // ============================================================
@@ -207,18 +208,23 @@ function renderFinance() {
   const runLoans = S.loans.filter(l => l.status !== 'Lunas' && !loanInfo(l).done);
   const sisaPinjam = runLoans.reduce((s, l) => s + loanInfo(l).sisaBayar, 0);
   const cicilan = runLoans.reduce((s, l) => s + loanInfo(l).c, 0);
-  const tabs = [['tabungan', 'Tabungan & Rencana', f.count], ['investasi', 'Investasi', S.assets.length], ['pinjaman', 'Pinjaman', S.loans.length]]
+  const tabs = [['tabungan', 'Tabungan & Rencana', f.count], ['investasi', 'Investasi', S.assets.length], ['pinjaman', 'Pinjaman', S.loans.length], ['harta', 'Harta', hartaOwned().length]]
     .map(([k, l, n]) => `<button role="tab" aria-selected="${tab === k}" class="${tab === k ? 'on' : ''}" data-action="finTab" data-tab="${k}">${l}<span class="n">${n}</span></button>`).join('');
   let body = '';
   if (tab === 'tabungan') body = finSavingsHtml(f);
   else if (tab === 'investasi') body = finAssetsHtml();
+  else if (tab === 'harta') body = finHartaHtml();
   else body = finLoansHtml();
+  const hs = hartaSummary(hartaOwned());
+  const hartaTotal = Object.keys(hs).reduce((s, k) => s + hs[k].nilai, 0);
+  const hartaSub = ['Emas', 'Tanah'].filter(k => hs[k]).map(k => qtyText(hs[k].qty)).join(' · ');
   $('#page-finance').innerHTML = `
-    <div class="page-head"><div><p class="eyebrow">Tabungan, investasi & cicilan keluarga</p><h1>Pusat Finansial <span aria-hidden="true">💰</span></h1></div></div>
+    <div class="page-head"><div><p class="eyebrow">Tabungan, investasi, cicilan & harta keluarga</p><h1>Pusat Finansial <span aria-hidden="true">💰</span></h1></div></div>
     <div class="stats">
       <div class="stat tint" style="--c:#CFF2D6"><b>${fmtShort(f.saved, 'Rp')}</b><span>Tabungan terkumpul</span></div>
       <div class="stat tint" style="--c:#D5F0F7"><b>${fmtShort(invest, 'Rp')}</b><span>Investasi aktif · kupon ${fmtShort(kupon, 'Rp')}/bln</span></div>
       <div class="stat tint" style="--c:#E8D3F5"><b>${fmtShort(sisaPinjam, 'Rp')}</b><span>Sisa cicilan · ${fmtShort(cicilan, 'Rp')}/bln</span></div>
+      <button class="stat tint text-start" style="--c:#FBEBB5" data-action="finTab" data-tab="harta"><b>${fmtShort(hartaTotal, 'Rp')}</b><span>Harta${hartaSub ? ' · ' + hartaSub : ''}</span></button>
       <div class="stat dashed"><b>${fmtShort(f.month, 'Rp')}</b><span>Setoran bulan ini</span></div>
     </div>
     <div class="tabs mt-3 mb-3" role="tablist">${tabs}</div>

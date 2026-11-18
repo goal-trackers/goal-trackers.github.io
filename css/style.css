@@ -572,7 +572,7 @@ body.sheet-open { overflow: hidden; }
   .login-art h1 { font-size: 44px; font-weight: 800; line-height: 1.1; margin: 40px 0 16px; }
   .login-art p { color: rgba(255,255,255,.7); max-width: 440px; font-size: 17px; }
   .login-panel { margin: 14px; border-radius: 32px; }
-  .stats { grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); overflow: visible; }
+  .stats { grid-auto-flow: row; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); overflow: visible; }
   .hscroll { grid-auto-columns: minmax(300px, 46%); }
   .journey { padding-left: 0; grid-template-columns: 1fr 1fr; column-gap: 72px; }
   .journey::before { left: 50%; }
@@ -638,3 +638,20 @@ body.sheet-open { overflow: hidden; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   .gcard.featured { transform: none; }
 }
+/* ── Harta (emas, tanah, dll) ── */
+.harta-card .harta-ic { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-size: 26px; flex: none; }
+.harta-total { font-size: 24px; font-weight: 800; line-height: 1.15; margin: 2px 0; overflow-wrap: anywhere; }
+.harta-list { display: grid; gap: 8px; }
+.harta-row { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 16px; background: var(--soft); }
+.harta-qty { width: 64px; min-height: 52px; border-radius: 14px; display: grid; place-items: center; text-align: center; flex: none; padding: 4px; line-height: 1.1; }
+.harta-qty b { font-size: 16px; } .harta-qty small { font-size: 11px; color: var(--muted); font-weight: 600; }
+.stat-line { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.stat-line b { font-size: 20px; }
+button.stat { border: 0; font: inherit; color: inherit; cursor: pointer; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+label.chip-btn { cursor: pointer; }
+label.chip-btn:has(input:focus-visible) { box-shadow: var(--focus); }
+.harta-head { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+.harta-head > .flex-grow-1 { flex: 1 1 160px; }
+@media (max-width: 560px) { .harta-add { width: 100%; } }
+.harta-card .link-btn { text-align: left; display: block; }

@@ -76,10 +76,10 @@ const LIB = {
 const KEY = { token: 'gt_token', snap: 'gt_snap_v1', outbox: 'gt_outbox_v1', owner: 'gt_outbox_owner', theme: 'gt_theme', view: 'gt_view' };
 
 // ── State aplikasi (sumber kebenaran untuk render) ──
-const DATA_KEYS = ['me', 'users', 'goals', 'milestones', 'logs', 'categories', 'achievements', 'notifications', 'reactions', 'settings', 'version', 'assets', 'assetIncome', 'loans'];
+const DATA_KEYS = ['me', 'users', 'goals', 'milestones', 'logs', 'categories', 'achievements', 'notifications', 'reactions', 'settings', 'version', 'assets', 'assetIncome', 'loans', 'harta'];
 const S = {
   token: null, me: null, users: [], goals: [], milestones: [], logs: [], categories: [], achievements: [],
-  notifications: [], reactions: [], settings: {}, version: '0', assets: [], assetIncome: [], loans: [],
+  notifications: [], reactions: [], settings: {}, version: '0', assets: [], assetIncome: [], loans: [], harta: [],
   ui: {
     page: 'dashboard', history: [], detailId: null,
     goalTab: 'semua', goalView: lsGet(KEY.view, 'journey'), goalQuery: '', goalCat: '', goalStatus: 'aktif', goalSort: 'tenggat',
