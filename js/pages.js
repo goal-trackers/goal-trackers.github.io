@@ -90,9 +90,9 @@ function renderDashboard() {
         <form class="search-pill" data-form="dashSearch" role="search"><i class="bi bi-search"></i><input id="dashSearch" name="q" type="search" placeholder="Cari goal lalu tekan Enter…" aria-label="Cari goal"></form>
       </div>
       <div class="stats">
-        <div class="stat tint" style="--c:#D5F0F7"><b>${live.length}</b><span>Total Goal</span></div>
-        <div class="stat tint" style="--c:#CFF2D6"><b>${done}</b><span>Selesai</span>${done ? '<span class="pop" aria-hidden="true">🎉</span>' : ''}</div>
-        <div class="stat"><b>${running}</b><span>Berjalan</span></div>
+        <button class="stat tint" style="--c:#D5F0F7" data-action="dashGo" data-status="live" aria-label="Lihat semua goal"><b>${live.length}</b><span>Total Goal</span></button>
+        <button class="stat tint" style="--c:#CFF2D6" data-action="dashGo" data-status="selesai" aria-label="Lihat goal selesai"><b>${done}</b><span>Selesai</span>${done ? '<span class="pop" aria-hidden="true">🎉</span>' : ''}</button>
+        <button class="stat" data-action="dashGo" data-status="aktif" aria-label="Lihat goal berjalan"><b>${running}</b><span>Berjalan</span></button>
         <div class="stat dashed"><b>${soon}</b><span>Tenggat ≤ 14 hari</span></div>
       </div>
       <div class="dash-two mt-3">
@@ -132,6 +132,7 @@ function filteredGoals() {
   if (u.goalStatus === 'aktif') list = list.filter(g => ['active', 'upcoming', 'overdue'].includes(goalState(g)));
   else if (u.goalStatus === 'selesai') list = list.filter(g => goalState(g) === 'done');
   else if (u.goalStatus === 'arsip') list = list.filter(g => goalState(g) === 'archived');
+  else if (u.goalStatus === 'live') list = list.filter(g => goalState(g) !== 'archived');
   const q = u.goalQuery.trim().toLowerCase();
   if (q) list = list.filter(g => (g.judul + ' ' + g.deskripsi).toLowerCase().includes(q));
   return sortGoals(list, u.goalSort);
@@ -160,7 +161,7 @@ function renderGoals() {
       <div class="tabs" role="tablist">${tabs}</div>
       <div class="chips">${cats}</div>
       <div class="toolbar-row">
-        <select data-change="goalStatus" aria-label="Filter status">${opt('aktif', 'Sedang berjalan', u.goalStatus)}${opt('selesai', 'Selesai', u.goalStatus)}${opt('arsip', 'Diarsipkan', u.goalStatus)}${opt('semua', 'Semua status', u.goalStatus)}</select>
+        <select data-change="goalStatus" aria-label="Filter status">${opt('aktif', 'Sedang berjalan', u.goalStatus)}${opt('selesai', 'Selesai', u.goalStatus)}${opt('arsip', 'Diarsipkan', u.goalStatus)}${opt('live', 'Semua (tanpa arsip)', u.goalStatus)}${opt('semua', 'Semua status', u.goalStatus)}</select>
         <select data-change="goalSort" aria-label="Urutkan">${opt('tenggat', 'Tenggat terdekat', u.goalSort)}${opt('progres', 'Progres tertinggi', u.goalSort)}${opt('prioritas', 'Prioritas', u.goalSort)}${opt('terbaru', 'Terbaru dibuat', u.goalSort)}</select>
         <button class="btn btn-dark btn-sm ms-auto" data-action="newGoal"><i class="bi bi-plus-lg"></i> Goal Baru</button>
       </div>

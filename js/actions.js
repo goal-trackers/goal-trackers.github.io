@@ -249,6 +249,7 @@ function openCategoryForm(id) {
 // AKSI (event delegation — satu listener untuk seluruh app)
 // ============================================================
 const Actions = {
+  dashGo: d => { S.ui.goalStatus = d.status; S.ui.goalTab = 'semua'; S.ui.goalCat = ''; S.ui.goalQuery = ''; navigateTo('goals'); },
   nav: d => { if (d.page === 'goals' && d.tab) { S.ui.goalTab = d.tab; S.ui.goalStatus = 'aktif'; } navigateTo(d.page); },
   back: () => goBack(),
   openGoal: d => { if (d.id) navigateTo('detail', { detailId: d.id }); },
