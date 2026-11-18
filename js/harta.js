@@ -148,6 +148,25 @@ function hartaPriceBox(k) {
   return `<div class="price-box"><div><small class="muted">Harga ${k.toLowerCase()} per ${t.satuan}</small><b>${hp ? fmtVal(hp, 'Rp') : 'Belum diatur'}</b><small class="muted">${hp && tgl ? 'diatur ' + fmtDate(tgl) : 'untuk taksiran nilai'}</small></div>
     <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-tag"></i> ${hp ? 'Ubah' : 'Atur'}</button></div>`;
 }
+/** Rincian per pecahan berat: mis. 1 gr × 10 ea, 3 gr × 2 ea (emas/perak). */
+function hartaPecahanHtml(k, items) {
+  if (k !== 'Emas' && k !== 'Perak') return '';
+  const g = {};
+  items.forEach(h => {
+    if (h.satuan !== 'gram' && h.satuan !== 'kg') return;
+    const w = Math.round((h.satuan === 'kg' ? Number(h.jumlah) * 1000 : Number(h.jumlah)) * 1000) / 1000;
+    g[w] = (g[w] || 0) + 1;
+  });
+  const ws = Object.keys(g).map(Number).sort((a, b) => a - b);
+  if (!ws.length) return '';
+  const hp = hargaPasar(k);
+  return `<div class="pecahan"><div class="tiny muted fw-bold mb-2">Rincian per pecahan</div><div class="pecahan-grid">${ws.map(w => `
+    <div class="pecahan-item" title="${fmtGram(w)} gram × ${g[w]} keping = ${fmtGram(w * g[w])} gram">
+      ${barSvg(w, k, w >= 100 ? 44 : 26)}
+      <div style="min-width:0"><div class="pc-top"><b>${fmtGram(w)} gr</b><span class="pc-x">× ${g[w]} ea</span></div>
+        <div class="tiny muted">${fmtGram(w * g[w])} gr${hp && k === 'Emas' ? ' · ' + fmtShort(w * g[w] * hp, 'Rp') : ''}</div></div>
+    </div>`).join('')}</div></div>`;
+}
 function finHartaHtml() {
   const owned = hartaOwned();
   const sold = (S.harta || []).filter(h => h.status === 'Dijual');
@@ -169,6 +188,7 @@ function finHartaHtml() {
         </div>
         <button class="btn btn-dark btn-sm harta-add" data-action="newHarta" data-jenis="${k}"><i class="bi bi-plus-lg"></i> Tambah ${esc(k.toLowerCase())}</button>
       </div>
+      ${hartaPecahanHtml(k, items)}
       ${hartaPriceBox(k)}
     </div>`;
   const table = items.length ? `<div class="card mt-3">${hartaTableHtml(k, items)}${k === 'Emas' ? '<p class="tiny muted mt-2 mb-0"><i class="bi bi-info-circle"></i> Taksiran = berat × harga buyback hari ini, sebelum PPh 22 (penjualan > Rp 10 jt dipotong 1,5% dengan NPWP / 3% tanpa NPWP). Harga buyback Antam sama di semua butik, termasuk Balikpapan.</p>' : ''}</div>`

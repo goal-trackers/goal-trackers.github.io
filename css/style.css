@@ -673,3 +673,13 @@ table.harta-tbl { min-width: 860px; }
 .harta-tbl td:first-child { width: 52px; }
 .chip-btn .n { font-size: 11px; background: var(--soft); border-radius: 999px; padding: 1px 7px; }
 .chip-btn.on .n { background: rgba(255,255,255,.2); }
+.pecahan { margin-top: 14px; }
+.pecahan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.pecahan-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); }
+.pecahan-item b { font-size: 15px; }
+.pc-x { font-weight: 800; color: var(--text); background: #FBEBB5; border-radius: 999px; padding: 1px 8px; font-size: 12.5px; margin-left: 2px; }
+[data-theme="dark"] .pc-x { color: #111; }
+.pecahan-grid { grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)); }
+.pc-top { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.pecahan-item .tiny { white-space: nowrap; }
+@media (max-width: 560px) { .pecahan-grid { grid-template-columns: 1fr 1fr; } .pecahan-item { padding: 8px; gap: 8px; } }
