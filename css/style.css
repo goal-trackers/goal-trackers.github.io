@@ -801,3 +801,16 @@ button.stat:not(.tint) { background: var(--card); }
 .gc-task.done .t { text-decoration: line-through; color: var(--muted); }
 .gc-task .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 [data-theme="dark"] .gc-task .ms-check { border-color: #6A6A6A; }
+/* Navbar atas: ikon dalam lingkaran berwarna (menggantikan dock bawah) */
+@media (min-width: 992px) {
+  .dock { display: none !important; }
+  .tn { padding: 0 6px; gap: 8px; color: rgba(255,255,255,.75); }
+  .tn .tn-ic { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--c, #E6E8EE); color: #111; transition: transform .15s ease, box-shadow .15s ease; flex: none; }
+  .tn .tn-ic i { font-size: 18px; }
+  .tn .tn-ic .nav-logo { width: 20px; height: 20px; stroke-width: 4.6; }
+  .tn:hover { background: transparent; }
+  .tn:hover .tn-ic { transform: translateY(-2px); }
+  .tn.active { background: rgba(255,255,255,.12); padding: 0 16px 0 4px; color: #fff; }
+  .tn.active .tn-ic { box-shadow: 0 0 0 2px #111, 0 0 0 4px var(--c); }
+  .tn-add .tn-ic { background: #3A3A3A; color: #fff; }
+}
