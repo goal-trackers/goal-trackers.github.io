@@ -212,8 +212,9 @@ function renderFinance() {
   const runLoans = S.loans.filter(l => l.status !== 'Lunas' && !loanInfo(l).done);
   const sisaPinjam = runLoans.reduce((s, l) => s + loanInfo(l).sisaBayar, 0);
   const cicilan = runLoans.reduce((s, l) => s + loanInfo(l).c, 0);
-  const tabs = [['tabungan', 'Tabungan & Rencana', f.count], ['investasi', 'Investasi', S.assets.length], ['pinjaman', 'Pinjaman', S.loans.length], ['harta', 'Harta', hartaOwned().length]]
-    .map(([k, l, n]) => `<button role="tab" aria-selected="${tab === k}" class="${tab === k ? 'on' : ''}" data-action="finTab" data-tab="${k}">${l}<span class="n">${n}</span></button>`).join('');
+  const tabs = [['tabungan', 'Tabungan & Rencana', f.count, 'bi-piggy-bank', '#CFF2D6'], ['investasi', 'Investasi', S.assets.length, 'bi-graph-up-arrow', '#D5F0F7'],
+    ['pinjaman', 'Pinjaman', S.loans.length, 'bi-credit-card', '#E8D3F5'], ['harta', 'Harta', hartaOwned().length, 'bi-gem', '#FBEBB5']]
+    .map(([k, l, n, ic, c]) => `<button role="tab" aria-selected="${tab === k}" class="${tab === k ? 'on' : ''}" style="--tc:${c}" data-action="finTab" data-tab="${k}"><span class="tab-ic"><i class="bi ${ic}"></i></span>${l}<span class="n">${n}</span></button>`).join('');
   let body = '';
   if (tab === 'tabungan') body = finSavingsHtml(f);
   else if (tab === 'investasi') body = finAssetsHtml();
