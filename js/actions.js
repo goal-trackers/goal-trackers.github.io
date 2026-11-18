@@ -349,6 +349,18 @@ const Actions = {
     });
   },
   unitDel: d => { const list = units().filter(x => x !== d.unit); S.settings.satuan_kustom = list.join(','); saveSnapshot(); renderAll(); Outbox.push('saveUnits', [list]); },
+  editMember: d => {
+    const u = userById(d.id), self = d.id === S.me.user_id;
+    openSheet('Edit Anggota', `<form data-form="editMember" autocomplete="off" novalidate><input type="hidden" name="uid" value="${esc(d.id)}">
+      <label class="field"><span>Nama</span><input name="nama" maxlength="40" value="${esc(u.nama)}" required></label>
+      <label class="field"><span>Email login</span><input name="email" type="email" inputmode="email" autocapitalize="off" value="${esc(u.email)}" required><small>Dipakai untuk login. Setiap anggota harus punya email berbeda.</small></label>
+      <div class="grid-2">
+        <label class="field"><span>Avatar (emoji)</span><input name="avatar" maxlength="8" value="${esc(u.avatar || '')}" placeholder="👩"></label>
+        <label class="field"><span>Peran</span><select name="peran" ${self ? 'disabled' : ''}>${['Admin', 'Partner'].map(r => `<option ${u.peran === r ? 'selected' : ''}>${r}</option>`).join('')}</select>${self ? '<small>Peran sendiri tidak bisa diubah.</small>' : ''}</label>
+      </div>
+      <p class="form-error" id="memberErr"></p>
+      <div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button><button class="btn btn-dark" type="submit">Simpan</button></div></form>`);
+  },
   resetPin: d => {
     const u = userById(d.id);
     openSheet('Reset PIN ' + esc(u.nama), `<form data-form="resetPin" autocomplete="off"><input type="hidden" name="uid" value="${esc(d.id)}">
@@ -463,6 +475,19 @@ const Forms = {
     setBusy(btn, true);
     try { await api('changePin', S.token, f.old.value, f.new1.value); f.reset(); toast('PIN berhasil diganti 🔒'); }
     catch (e) { e.auth ? handleAuthLost() : (err.textContent = e.message); }
+    setBusy(btn, false);
+  },
+  editMember: async f => {
+    const email = f.email.value.trim().toLowerCase();
+    if (!f.nama.value.trim()) { $('#memberErr').textContent = 'Nama wajib diisi.'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { $('#memberErr').textContent = 'Format email tidak valid.'; return; }
+    if (S.users.some(u => u.user_id !== f.uid.value && String(u.email).toLowerCase() === email)) { $('#memberErr').textContent = 'Email ini sudah dipakai anggota lain.'; return; }
+    const btn = f.querySelector('button[type=submit]');
+    setBusy(btn, true);
+    try {
+      const p = await api('adminUpdateMember', S.token, f.uid.value, { nama: f.nama.value.trim(), email, avatar: f.avatar.value.trim(), peran: f.peran.disabled ? undefined : f.peran.value });
+      applyPayload(p); closeSheet(); toast('Data anggota disimpan. Login berikutnya memakai email ' + email + '.');
+    } catch (e) { e.auth ? handleAuthLost() : ($('#memberErr').textContent = /tidak dikenal|unknown|Aksi/i.test(e.message || '') ? 'Backend belum diperbarui. Pasang Kode.gs terbaru lalu buat Versi baru.' : e.message); }
     setBusy(btn, false);
   },
   resetPin: async f => {

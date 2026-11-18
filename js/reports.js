@@ -256,7 +256,8 @@ function renderSettings() {
       <form data-form="adminSettings"><label class="field"><span>Pengingat tenggat (hari sebelum)</span><input name="pengingat_hari" value="${esc(S.settings.pengingat_hari || '7,1')}" placeholder="7,1"><small>Pisahkan dengan koma. Notifikasi in-app dikirim pukul 07.00 WITA.</small></label>
       <button class="btn btn-soft btn-sm" type="submit">Simpan pengingat</button></form>
       <h3 class="mt-4">Pengguna</h3>
-      ${S.users.map(u => `<div class="cat-item">${avatarHtml(u)}<div><b>${esc(u.nama)}</b><div class="tiny muted">${esc(u.email)} · ${esc(u.peran)}</div></div>${u.user_id !== me.user_id ? `<button class="btn btn-soft btn-sm" data-action="resetPin" data-id="${u.user_id}">Reset PIN</button>` : '<span class="tiny muted">Anda</span>'}</div>`).join('')}
+      ${S.users.map(u => `<div class="cat-item">${avatarHtml(u)}<div><b>${esc(u.nama)}</b><div class="tiny muted">${esc(u.email)} · ${esc(u.peran)}</div></div><span class="d-flex gap-1 flex-wrap justify-content-end">${u.user_id === me.user_id ? '<span class="tiny muted align-self-center me-1">Anda</span>' : ''}<button class="btn btn-soft btn-sm" data-action="editMember" data-id="${u.user_id}"><i class="bi bi-pencil"></i> Edit</button>${u.user_id !== me.user_id ? `<button class="btn btn-soft btn-sm" data-action="resetPin" data-id="${u.user_id}">Reset PIN</button>` : ''}</span></div>`).join('')}
+      ${(() => { const em = S.users.map(u => String(u.email).toLowerCase()); return em.some((e, i) => em.indexOf(e) !== i) ? '<div class="verdict bad mt-2"><i class="bi bi-exclamation-triangle"></i><span>Ada anggota dengan email yang sama, sehingga salah satunya tidak bisa login. Tekan <b>Edit</b> dan ganti emailnya.</span></div>' : ''; })()}
       <button class="btn btn-dark btn-sm w-100 mt-3" data-action="backup"><i class="bi bi-cloud-download"></i> Cadangkan data sekarang</button>
     </div>` : '';
   $('#page-settings').innerHTML = `
