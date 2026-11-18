@@ -791,3 +791,13 @@ button.stat:not(.tint) { background: var(--card); }
 .tabs button:not(.on):hover { background: #E2E2DF; opacity: 1; }
 [data-theme="dark"] .tabs button:not(.on) { background: #2C2C2C; }
 [data-theme="dark"] .tabs button:not(.on):hover { background: #363636; }
+/* Checklist di kartu goal */
+.gc-tasks { list-style: none; margin: 10px 0 2px; padding: 0; display: grid; gap: 4px; }
+.gc-task { width: 100%; display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 12px; text-align: left; font: inherit; font-size: 14px; color: var(--text); background: transparent; border: 0; min-height: 40px; cursor: pointer; }
+.gc-task:hover { background: var(--soft); }
+.gc-task:disabled { cursor: default; }
+.gc-task .ms-check { width: 22px; height: 22px; border-radius: 7px; border: 2px solid #BDBDBD; display: grid; place-items: center; flex: none; color: transparent; font-size: 14px; transition: background .15s ease, border-color .15s ease; }
+.gc-task.done .ms-check { background: var(--green); border-color: var(--green); color: #fff; }
+.gc-task.done .t { text-decoration: line-through; color: var(--muted); }
+.gc-task .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+[data-theme="dark"] .gc-task .ms-check { border-color: #6A6A6A; }

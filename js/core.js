@@ -532,11 +532,24 @@ function goalCard(g, o = {}) {
     ${g.deskripsi ? `<p class="clamp2">${esc(g.deskripsi)}</p>` : ''}
     <div class="pbar" role="progressbar" aria-valuenow="${Math.floor(pct)}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>
     <div class="gc-meta"><span><b>${valueText(g)}</b>${targetText(g) ? ' / ' + targetText(g) : ''}</span><span>${pctInt(g)}%</span></div>
+    ${g.tipe_target === 'Checklist' ? cardChecklist(g) : ''}
     <div class="gc-foot">
       <span class="badge-s ${cls}">${lbl}</span>
       <div class="gc-actions">${o.featured ? ownerAvatars(g) : ''}${logBtn}<button class="icon-btn sm dark" data-action="openGoal" data-id="${g.goal_id}" aria-label="Buka detail"><i class="bi bi-arrow-up-right"></i></button></div>
     </div>
   </article>`;
+}
+/** Daftar tugas langsung di kartu goal Checklist — bisa dicentang tanpa membuka detail */
+function cardChecklist(g, max = 6) {
+  const ms = msOf(g.goal_id);
+  if (!ms.length) return '';
+  const can = canEdit(g) && g.status !== 'Arsip';
+  const shown = ms.slice(0, max);
+  return `<ul class="gc-tasks" aria-label="Daftar tugas ${esc(g.judul)}">${shown.map(m => {
+    const done = m.status === 'Selesai';
+    return `<li><button type="button" class="gc-task ${done ? 'done' : ''}" ${can ? `data-action="toggleMs" data-id="${m.milestone_id}"` : 'disabled'} aria-pressed="${done}" aria-label="${done ? 'Batalkan centang' : 'Centang'} ${esc(m.judul)}">
+      <span class="ms-check"><i class="bi bi-check-lg"></i></span><span class="t">${esc(m.judul)}</span></button></li>`;
+  }).join('')}${ms.length > max ? `<li class="tiny muted ps-1">+${ms.length - max} tugas lagi — buka detail</li>` : ''}</ul>`;
 }
 function rowItem(g) {
   const [lbl, cls] = STATE_LABEL[goalState(g)];
