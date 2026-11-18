@@ -259,7 +259,7 @@ function finSavingsHtml(f) {
       </div>
       ${punyaPengeluaran(g) ? (() => { const a = anggaranInfo(g), lb = a.sisa < 0; return `<div class="kv mt-2"><div><small>Terpakai</small><b>${fmtShort(a.pakai, 'Rp')}</b></div><div><small>${lb ? 'Kelebihan' : 'Sisa anggaran'}</small><b style="color:${lb ? 'var(--red-ink)' : 'var(--green-ink,#1B7F3A)'}">${lb ? '−' : ''}${fmtShort(Math.abs(a.sisa), 'Rp')}</b></div></div>`; })() : ''}
       ${canEdit(g) ? `<div class="plan-acts mt-3">
-        ${bisaPengeluaran(g) ? `<button class="btn btn-soft btn-sm" data-action="newPengeluaran" data-id="${g.goal_id}"><i class="bi bi-receipt"></i> Catat pengeluaran</button>` : ''}
+        ${bisaPengeluaran(g) ? `<button class="btn btn-soft btn-sm" data-action="newPengeluaran" data-id="${g.goal_id}"><i class="bi bi-receipt"></i> ${PKAT_INFO[pkProfile(g)].btn}</button>` : ''}
         <button class="btn btn-soft btn-sm" data-action="editGoal" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>
         <button class="btn btn-soft btn-sm" data-action="openGoal" data-id="${g.goal_id}"><i class="bi bi-list-ul"></i> Rincian</button>
       </div>` : ''}
