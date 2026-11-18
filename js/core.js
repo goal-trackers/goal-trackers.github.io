@@ -369,7 +369,7 @@ function renderPage(page) {
 function renderAll() {
   if (!S.me) return;
   renderHeader();
-  renderPage(S.ui.page);
+  keepRows('#page-' + S.ui.page, () => renderPage(S.ui.page));   // pembaruan data tidak menggeser tab/chip ke awal
 }
 function renderHeader() {
   if (!S.me) return;
@@ -554,3 +554,20 @@ function miniList(list, theirs) {
 }
 
 window.__GT_PARTS = (window.__GT_PARTS || []).concat('JS1');
+
+/** Render ulang tanpa mengembalikan baris geser (tab/chip/kartu) ke awal; pilihan aktif tetap terlihat. */
+function keepRows(root, fn) {
+  const sel = '.chips, .tabs, .hscroll, .stats, .jenis-scroll';
+  const r0 = document.querySelector(root);
+  const pos = r0 ? [...r0.querySelectorAll(sel)].map(e => e.scrollLeft) : [];
+  const y = window.scrollY;
+  fn();
+  window.scrollTo(0, y);
+  const r1 = document.querySelector(root); if (!r1) return;
+  [...r1.querySelectorAll(sel)].forEach((e, i) => {
+    if (pos[i] !== undefined) e.scrollLeft = pos[i];
+    const on = e.querySelector('.on, [aria-selected="true"]');
+    if (on) { const a = on.getBoundingClientRect(), b = e.getBoundingClientRect();
+      if (a.left < b.left || a.right > b.right) on.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
+  });
+}
