@@ -267,6 +267,14 @@ const ASSET_BADGE = {
 /** Ikon gambar per jenis (diunggah pengguna). Jenis lain memakai lencana gambar sendiri. */
 const ASSET_IMG = { ST: 'img/ins-st.png' };
 function assetBadgeSvg(a, size) {
+  if (a.jenis === 'SR') {                                   // SR: bintang delapan ungu (digambar ulang dari ikon pengguna)
+    const w = size || 44, seri = (String(a.nama).match(/\d{2,4}/) || [''])[0];
+    return `<svg viewBox="0 0 48 48" width="${w}" height="${w}" role="img" aria-label="SR ${esc(seri)}">
+      <polygon points="24.00,3.00 30.15,9.15 38.85,9.15 38.85,17.85 45.00,24.00 38.85,30.15 38.85,38.85 30.15,38.85 24.00,45.00 17.85,38.85 9.15,38.85 9.15,30.15 3.00,24.00 9.15,17.85 9.15,9.15 17.85,9.15" fill="#fff" stroke="#8B1A8F" stroke-width="3.4" stroke-linejoin="round"/>
+      <text x="24" y="${seri ? 23.5 : 28.5}" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="900" fill="#8B1A8F">SR</text>
+      ${seri ? `<text x="24" y="33.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="8.5" font-weight="800" fill="#8B1A8F">${esc(seri)}</text>` : ''}
+    </svg>`;
+  }
   if (ASSET_IMG[a.jenis]) {
     const w = size || 44, seri = (String(a.nama).match(/\d{2,4}/) || [''])[0];
     return `<span class="asset-img" style="width:${w}px;height:${w}px"><img src="${ASSET_IMG[a.jenis]}" alt="${esc(a.jenis)}" width="${w}" height="${w}">${seri ? `<i>${esc(seri)}</i>` : ''}</span>`;
