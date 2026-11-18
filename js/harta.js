@@ -94,7 +94,7 @@ function finHartaHtml() {
       </div>
       ${t.susut ? `<button class="link-btn p-0 tiny" style="min-height:32px" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-graph-down-arrow"></i> Penyusutan ${fmtN(susutRate(k))}%/tahun${S.settings['harga_' + k] === undefined || S.settings['harga_' + k] === '' ? ' (bawaan)' : ''} · ubah</button>` : ''}
       ${t.harga ? `<button class="link-btn p-0 tiny" style="min-height:32px" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-tag"></i> ${hp > 0 ? 'Ubah harga ' + k.toLowerCase() + ' per ' + t.satuan + ' (diatur ' + (S.settings['harga_' + k + '_tgl'] ? fmtDate(S.settings['harga_' + k + '_tgl']) : '-') + ')' : 'Atur harga ' + k.toLowerCase() + ' per ' + t.satuan + ' untuk taksiran nilai'}</button>` : ''}
-      <div class="harta-list mt-2">${rows}</div>
+      ${items.length > 1 ? `<div class="slider harta-slider mt-2"><button type="button" class="slide-btn prev" data-slide="-1" aria-label="Geser ke kiri"><i class="bi bi-chevron-left"></i></button><div class="hscroll harta-list">${rows}</div><button type="button" class="slide-btn next" data-slide="1" aria-label="Geser ke kanan"><i class="bi bi-chevron-right"></i></button></div>` : `<div class="harta-list mt-2">${rows}</div>`}
     </div>`;
   }).join('');
 

@@ -655,3 +655,8 @@ label.chip-btn:has(input:focus-visible) { box-shadow: var(--focus); }
 .harta-head > .flex-grow-1 { flex: 1 1 160px; }
 @media (max-width: 560px) { .harta-add { width: 100%; } }
 .harta-card .link-btn { text-align: left; display: block; }
+.harta-slider .hscroll { grid-auto-columns: minmax(250px, 88%); gap: 10px; padding: 4px 2px 12px; }
+.harta-slider .harta-row { height: 100%; }
+.harta-slider .slide-btn { width: 36px; height: 36px; font-size: 15px; }
+.harta-slider .slide-btn.prev { left: -14px; } .harta-slider .slide-btn.next { right: -14px; }
+@media (min-width: 900px) { .harta-slider .hscroll { grid-auto-columns: minmax(260px, 92%); } }
