@@ -861,3 +861,14 @@ button.stat:not(.tint) { background: var(--card); }
 /* Beranda: kartu Goal Bersama setinggi isinya (tidak dipaksa sejajar) */
 .slider .hscroll { align-items: start; }
 .slider .hscroll > .gcard { height: auto; align-self: start; }
+
+/* Semua kartu goal diwarnai sesuai kategori */
+.gcard.tint .gc-corner { background: color-mix(in srgb, var(--c) 45%, #fff); }
+[data-theme="dark"] .gcard.tint .gc-corner { background: color-mix(in srgb, var(--c) 55%, #2A2A2A); }
+.gcard.tint .gc-cat { color: var(--text); opacity: .75; }
+.gcard.tint .badge-s { background: rgba(255,255,255,.85); color: #111; }
+.gcard.tint .badge-s::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #3BA7C9; }
+.gcard.tint .badge-s.s-done::before { background: #2E9E5B; }
+.gcard.tint .badge-s.s-overdue::before { background: #E5484D; }
+.gcard.tint .badge-s.s-upcoming::before, .gcard.tint .badge-s.s-archived::before { background: #9A9A9A; }
+[data-theme="dark"] .gcard.tint .badge-s { background: rgba(0,0,0,.35); color: #F2F2F2; }

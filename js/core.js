@@ -524,7 +524,7 @@ function goalCard(g, o = {}) {
   const owner = g.jenis === 'Bersama' ? 'Bersama' : esc(userById(g.pemilik_id).nama);
   const logBtn = canLog(g)
     ? `<button class="icon-btn sm" data-action="${g.tipe_target === 'Checklist' ? 'openGoal' : 'logProgress'}" data-id="${g.goal_id}" aria-label="Catat progres ${esc(g.judul)}"><i class="bi bi-plus-lg"></i></button>` : '';
-  return `<article class="gcard ${o.featured ? 'featured tint' : ''}" style="--c:${esc(color)}" data-action="openGoal" data-id="${g.goal_id}" tabindex="0" role="button" aria-label="Buka ${esc(g.judul)}">
+  return `<article class="gcard tint${o.featured ? ' featured' : ''}" style="--c:${esc(color)}" data-action="openGoal" data-id="${g.goal_id}" tabindex="0" role="button" aria-label="Buka ${esc(g.judul)}">
     ${corner}
     ${o.featured ? '<span class="fx-note" aria-hidden="true">✨</span>' : ''}
     <span class="gc-cat"><i class="bi ${esc(cat.ikon)}"></i>${esc(cat.nama)} · ${owner}</span>
