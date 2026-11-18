@@ -258,7 +258,7 @@ function finHartaHtml() {
   return `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
       <p class="tiny muted mb-0">Taksiran total semua harta <b style="color:var(--text);font-size:16px">${fmtShort(total, 'Rp')}</b></p>
       <button class="btn btn-soft btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button></div>
-    <div class="chips chips-wrap mb-3" role="tablist" aria-label="Jenis harta">${tabs}</div>
+    <div class="chips jenis-scroll mb-3" role="tablist" aria-label="Jenis harta">${tabs}</div>
     ${head}${table}${soldHtml}`;
 }
 
@@ -398,7 +398,13 @@ Object.assign(Actions, {
   newHarta: d => openHartaForm(null, d.jenis),
   editHarta: d => openHartaForm(d.id),
   hartaHarga: d => openHargaForm(d.jenis),
-  hartaPilih: d => { S.ui.hartaJenis = d.jenis; S.ui.hartaGram = 'all'; S.ui.hartaSeri = 'all'; keepScroll(renderFinance); },
+  hartaPilih: d => {
+    const row = document.querySelector('#page-finance .jenis-scroll'), x = row ? row.scrollLeft : 0;
+    S.ui.hartaJenis = d.jenis; S.ui.hartaGram = 'all'; S.ui.hartaSeri = 'all'; keepScroll(renderFinance);
+    const r2 = document.querySelector('#page-finance .jenis-scroll'); if (!r2) return;
+    r2.scrollLeft = x;
+    const on = r2.querySelector('.chip-btn.on'); if (on) on.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  },
   hartaSeri: d => { S.ui.hartaSeri = d.seri; if (!hartaComboAda()) S.ui.hartaGram = 'all'; keepScroll(renderFinance); const w = document.querySelector('#page-finance .harta-scroll'); if (w) w.scrollTop = 0; },
   hartaGram: d => {
     S.ui.hartaGram = d.gram === 'all' ? 'all' : Number(d.gram); if (!hartaComboAda()) S.ui.hartaSeri = 'all'; keepScroll(renderFinance); const w = document.querySelector('#page-finance .harta-scroll'); if (w) w.scrollTop = 0;
