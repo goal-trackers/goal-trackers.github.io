@@ -307,7 +307,7 @@ function renderFinance() {
         ['tabungan', '', fmtShort(f.month, 'Rp'), 'Setoran bulan ini', 'dashed']]
         .map(([k, c, v, l, cls], i) => `<button type="button" class="stat ${cls} stat-link ${tab === k && i < 5 ? 'on' : ''}" ${c ? `style="--c:${c}"` : ''} data-action="finStat" data-tab="${k}" aria-label="${esc(l)} — buka tab"><b>${v}</b><span>${l}</span></button>`).join('')}
     </div>
-    <div class="fin-tabbar mt-3 mb-3"><div class="tabs" role="tablist">${tabs}</div>${tab === 'tabungan' ? '<button class="chip-btn fin-add" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>' : ''}</div>
+    <div class="fin-tabbar mt-3 mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; return `<h2 class="fin-sec"><span class="tab-ic" style="--tc:${t[4]}"><i class="bi ${t[3]}"></i></span>${t[1]} <span class="n">${t[2]}</span></h2>`; })()}${tab === 'tabungan' ? '<button class="chip-btn fin-add" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>' : ''}</div>
     ${body}`;
   if (tab === 'tabungan') withChart(() => drawTrend('chFin', savingsSeries(monthsBack(today().slice(0, 7), 12))));
   const _hn = document.querySelector('#page-finance .harta-scroll');
@@ -857,7 +857,7 @@ function loanRowsExport() {
 Object.assign(Actions, {
   finTab: d => { S.ui.finTab = d.tab; renderFinance(); },
   finStat: d => { S.ui.finTab = d.tab; renderFinance();
-    const t = document.querySelector('#page-finance .tabs'); if (t && t.getBoundingClientRect().top > innerHeight * .6) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); },
+    const t = document.querySelector('#page-finance .fin-tabbar'); if (t && t.getBoundingClientRect().top > innerHeight * .6) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); },
   finView: d => { const t = S.ui.finTab || 'tabungan'; S.ui.finViews = S.ui.finViews || {}; S.ui.finViews[t] = d.view; lsSet('gt_finview_' + t, d.view); renderFinance(); },
   tplPick: d => tplPick(d.tpl || ''),
   newAsset: () => openAssetForm(),
