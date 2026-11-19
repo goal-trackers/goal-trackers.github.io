@@ -61,8 +61,14 @@ function needsExecDate(g) {
 }
 function tplChipsHtml(cur) {
   return `<div class="field"><span>Mulai dari template <small>(opsional)</small></span><div class="chips chips-wrap">
-    ${Object.keys(TPL).map(k => `<button type="button" class="chip-btn ${cur === k ? 'on' : ''}" data-action="tplPick" data-tpl="${k}">${TPL[k].emoji} ${TPL[k].label}</button>`).join('')}
-    <button type="button" class="chip-btn ${!cur ? 'on' : ''}" data-action="tplPick" data-tpl="">✏️ Kustom</button></div></div>`;
+    ${Object.keys(TPL).map(k => `<button type="button" class="chip-btn cat-chip ${cur === k ? 'on' : ''}" data-action="tplPick" data-tpl="${k}">${tplIc(k)}${TPL[k].label}</button>`).join('')}
+    <button type="button" class="chip-btn cat-chip ${!cur ? 'on' : ''}" data-action="tplPick" data-tpl=""><span class="cat-ic" style="--c:#ECECEA"><i class="bi bi-pencil"></i></span>Kustom</button></div></div>`;
+}
+/** Ikon bulat berwarna (gaya Pinterest) untuk template, mengikuti kategori */
+function tplIc(k, cls = 'cat-ic') {
+  const c = (S.categories || []).find(x => x.kategori_id === TPL[k].cat) || {};
+  const ic = c.ikon || { liburan: 'bi-airplane', darurat: 'bi-shield-check', sekolah: 'bi-mortarboard' }[k];
+  return `<span class="${cls}" style="--c:${esc(c.warna || '#D5F0F7')}"><i class="bi ${esc(ic)}"></i></span>`;
 }
 function tplBoxHtml(tpl, m) {
   if (!TPL[tpl]) return '';
@@ -306,7 +312,7 @@ function finSavingsHtml(f) {
   const cards = list.map(g => {
     const done = goalState(g) === 'done';
     const m = parseMeta(g.meta);
-    const tag = TPL[g.template] ? `<span class="chip tint" style="--c:${esc(goalColor(g))}">${TPL[g.template].emoji} ${TPL[g.template].label}</span>` : '';
+    const tag = TPL[g.template] ? `<span class="chip tint tpl-tag" style="--c:${esc(goalColor(g))}"><i class="bi ${esc((catById(TPL[g.template].cat) || {}).ikon || 'bi-bookmark')}"></i> ${TPL[g.template].label}</span>` : '';
     return `<div class="card tint fin-note" style="--c:${esc(goalColor(g))}">
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${goalPct(g)};--size:84px"><div><b>${pctInt(g)}%</b></div></div>

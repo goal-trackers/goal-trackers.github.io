@@ -1081,3 +1081,4 @@ button.stat:not(.tint) { background: var(--card); }
 .fin-tabbar .fin-add { box-shadow: none; }
 .gc-task .v { margin-left: auto; font-size: 12px; font-weight: 700; opacity: .6; white-space: nowrap; padding-left: 6px; }
 .gc-task:disabled { opacity: 1; }
+.tpl-tag i { font-size: 12px; margin-right: 2px; }
