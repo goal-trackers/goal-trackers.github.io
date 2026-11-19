@@ -1184,3 +1184,13 @@ button.stat:not(.tint) { background: var(--card); }
   .tn { white-space: nowrap; }
 }
 @media (min-width: 992px) and (max-width: 1180px) { .topbar .brand-text { display: none; } }
+
+/* Wordmark: G(ikon target)al Trackers — ikon menggantikan huruf "o", tanpa kotak */
+.wordmark { display: inline-flex; align-items: baseline; font-weight: 800; font-size: 22px; letter-spacing: -.03em; line-height: 1; white-space: nowrap; color: inherit; }
+.wordmark .wm-o { width: .8em; height: .8em; align-self: center; margin: 0 .02em 0 .03em; transform: translateY(.06em); flex: none; }
+.brand .wordmark { color: #fff; }
+.login-card .brand .wordmark { color: var(--text); font-size: 26px; }
+@media (max-width: 1180px) and (min-width: 992px) { .topbar .wordmark .wm-rest { display: none; } }
+@media (max-width: 380px) { .topbar .wordmark { font-size: 19px; } }
+.wordmark .wm-rest { margin-left: .26em; }
+.wordmark .wm-o { width: .86em; height: .86em; margin: 0 .03em; }
