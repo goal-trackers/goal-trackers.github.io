@@ -985,3 +985,13 @@ button.stat:not(.tint) { background: var(--card); }
 .card.fin-note .ring > div { background: color-mix(in srgb, var(--c) var(--tint-mix), var(--card)); }
 .card.fin-note .tiny.muted { color: var(--text); opacity: .65; }
 [data-theme="dark"] .card.fin-note .chip.tint, [data-theme="dark"] .card.fin-note .kv > div, [data-theme="dark"] .card.fin-note .btn-soft { background: rgba(0,0,0,.25); }
+
+/* Investasi: warna kartu & baris mengikuti jenis (SR ungu, ST biru, dst.) */
+.asset-chip { background: var(--fg); color: #fff; font-weight: 800; letter-spacing: .3px; }
+.card.fin-note .ring { background: conic-gradient(var(--fg, var(--green)) calc(var(--p) * 1%), rgba(17,17,17,.08) 0); }
+.row-item.row-tint { background: color-mix(in srgb, var(--c) var(--tint-mix), var(--card)); }
+.row-item.row-tint .pbar > span { background: var(--fg); }
+.row-item.row-tint .badge-s { background: rgba(255,255,255,.8); }
+.row-item.row-tint .ic-raw { background: #fff; border-radius: 50%; padding: 4px; display: grid; place-items: center; }
+[data-theme="dark"] .row-item.row-tint { background: color-mix(in srgb, var(--fg) 30%, var(--card)); }
+[data-theme="dark"] .card.fin-note[style*="--fg"] { background: color-mix(in srgb, var(--fg) 30%, var(--card)); }
