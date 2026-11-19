@@ -976,3 +976,12 @@ button.stat:not(.tint) { background: var(--card); }
 .ggrid > .m-item > * { box-shadow: 0 1px 1px rgba(0,0,0,.06), 0 16px 20px -14px rgba(17,17,17,.30), 0 3px 8px rgba(17,17,17,.06) !important; }
 .ggrid > .m-item:hover > * { box-shadow: 0 1px 1px rgba(0,0,0,.06), 0 24px 28px -16px rgba(17,17,17,.34), 0 6px 14px rgba(17,17,17,.08) !important; }
 .ggrid > .m-item::before { background: linear-gradient(90deg, rgba(225,225,225,.55), rgba(240,240,240,.85) 50%, rgba(225,225,225,.55)); border-left-color: rgba(0,0,0,.06); border-right-color: rgba(0,0,0,.06); }
+
+/* Kartu tabungan/rencana di Finansial: warna sesuai kategori */
+.card.fin-note .chip.tint { background: rgba(255,255,255,.75); }
+.card.fin-note .kv > div { background: rgba(255,255,255,.55); }
+.card.fin-note .btn-soft { background: rgba(255,255,255,.6); border-color: transparent; }
+.card.fin-note .btn-soft:hover { background: rgba(255,255,255,.85); }
+.card.fin-note .ring > div { background: color-mix(in srgb, var(--c) var(--tint-mix), var(--card)); }
+.card.fin-note .tiny.muted { color: var(--text); opacity: .65; }
+[data-theme="dark"] .card.fin-note .chip.tint, [data-theme="dark"] .card.fin-note .kv > div, [data-theme="dark"] .card.fin-note .btn-soft { background: rgba(0,0,0,.25); }
