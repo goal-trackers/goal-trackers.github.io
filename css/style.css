@@ -1137,3 +1137,9 @@ button.stat:not(.tint) { background: var(--card); }
 .fin-sec { display: inline-flex; align-items: center; gap: 10px; margin: 0; font-size: 20px; font-weight: 800; }
 .fin-sec .tab-ic { width: 36px; height: 36px; border-radius: 50%; display: inline-grid; place-items: center; background: var(--tc); color: #1a1a1a; font-size: 16px; }
 .fin-sec .n { font-size: 13px; font-weight: 700; opacity: .5; }
+.goals-toolbar select.sel-on { background: #111; color: #fff; border-color: #111; }
+[data-theme="dark"] .goals-toolbar select.sel-on { background: #F2F2F2; color: #111; }
+@media (max-width: 767px) { .goals-toolbar .toolbar-row select { min-width: 0; flex: 1 1 0; } }
+@media (max-width: 767px) { .goals-toolbar .toolbar-row { flex-wrap: wrap; overflow: visible; } .goals-toolbar .toolbar-row select { flex: 1 1 calc(50% - 6px); } .goals-toolbar .toolbar-row select[data-change=goalCatSel] { flex-basis: 100%; } }
+@media (max-width: 767px) { .goals-toolbar .toolbar-row select { width: 0; min-width: 0; box-sizing: border-box; } .goals-toolbar .toolbar-row { gap: 8px; } }
+.goals-toolbar > *, .goals-toolbar .toolbar-top > * { min-width: 0; max-width: 100%; }

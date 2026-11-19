@@ -166,12 +166,12 @@ function renderGoals() {
       <div class="toolbar-top">
         <div class="tabs" role="tablist">${tabs}</div>
         <div class="toolbar-row">
+        <select data-change="goalCatSel" aria-label="Filter kategori" class="${u.goalCat ? 'sel-on' : ''}"><option value="">Semua kategori (${inTab.length})</option>${activeCats().filter(c => catN[c.kategori_id] || u.goalCat === c.kategori_id).map(c => `<option value="${c.kategori_id}" ${u.goalCat === c.kategori_id ? 'selected' : ''}>${esc(c.nama)} (${catN[c.kategori_id] || 0})</option>`).join('')}</select>
         <select data-change="goalStatus" aria-label="Filter status">${opt('aktif', 'Sedang berjalan', u.goalStatus)}${opt('selesai', 'Selesai', u.goalStatus)}${opt('arsip', 'Diarsipkan', u.goalStatus)}${opt('live', 'Semua (tanpa arsip)', u.goalStatus)}${opt('semua', 'Semua status', u.goalStatus)}</select>
         <select data-change="goalSort" aria-label="Urutkan">${opt('tenggat', 'Tenggat terdekat', u.goalSort)}${opt('progres', 'Progres tertinggi', u.goalSort)}${opt('prioritas', 'Prioritas', u.goalSort)}${opt('terbaru', 'Terbaru dibuat', u.goalSort)}</select>
         <button class="btn btn-dark btn-sm" data-action="newGoal"><i class="bi bi-plus-lg"></i> Goal Baru</button>
         </div>
       </div>
-      <div class="chips cat-row" aria-label="Filter kategori">${cats}</div>
     </div>
     <div class="goals-layout">
       <div class="view-rail" role="group" aria-label="Pilih tampilan">${views}</div>

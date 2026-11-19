@@ -417,6 +417,7 @@ const Actions = {
 };
 
 const Changes = {
+  goalCatSel: el => { S.ui.goalCat = el.value; keepRows('#page-goals', renderGoals); },
   goalStatus: el => { S.ui.goalStatus = el.value; renderGoalList(); },
   goalSort: el => { S.ui.goalSort = el.value; renderGoalList(); },
   goalJenis: el => { $('#visField').hidden = el.value === 'Bersama'; },
