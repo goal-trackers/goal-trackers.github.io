@@ -153,7 +153,7 @@ function renderGoals() {
     : u.goalTab === 'bersama' ? g.jenis === 'Bersama' : true);
   const catN = {}; inTab.forEach(g => { catN[g.kategori_id] = (catN[g.kategori_id] || 0) + 1; });
   const cats = `<button class="chip-btn ${!u.goalCat ? 'on' : ''}" data-action="goalCat" data-id="">Semua kategori<span class="n">${inTab.length}</span></button>` +
-    activeCats().map(c => { const n = catN[c.kategori_id] || 0; return `<button class="chip-btn cat-chip ${u.goalCat === c.kategori_id ? 'on' : ''} ${n ? '' : 'zero'}" data-action="goalCat" data-id="${c.kategori_id}"><span class="cat-ic" style="--c:${esc(c.warna || '#D5F0F7')}"><i class="bi ${esc(c.ikon)}"></i></span>${esc(c.nama)}<span class="n">${n}</span></button>`; }).join('');
+    activeCats().filter(c => catN[c.kategori_id] || u.goalCat === c.kategori_id).map(c => { const n = catN[c.kategori_id] || 0; return `<button class="chip-btn cat-chip ${u.goalCat === c.kategori_id ? 'on' : ''} ${n ? '' : 'zero'}" data-action="goalCat" data-id="${c.kategori_id}"><span class="cat-ic" style="--c:${esc(c.warna || '#D5F0F7')}"><i class="bi ${esc(c.ikon)}"></i></span>${esc(c.nama)}<span class="n">${n}</span></button>`; }).join('');
   const opt = (v, l, cur) => `<option value="${v}" ${cur === v ? 'selected' : ''}>${l}</option>`;
   const views = [['journey', 'bi-bezier2', 'Peta perjalanan'], ['list', 'bi-list-ul', 'Daftar'], ['grid', 'bi-grid', 'Kartu']]
     .map(([k, i, l]) => `<button class="${u.goalView === k ? 'on' : ''}" data-action="goalView" data-view="${k}" aria-label="${l}" title="${l}" aria-pressed="${u.goalView === k}"><i class="bi ${i}"></i></button>`).join('');
@@ -162,14 +162,16 @@ function renderGoals() {
       <div><p class="eyebrow">${count.semua} goal berjalan & selesai</p><h1>Goal Kami <span aria-hidden="true">🎯</span></h1></div>
       <label class="search-pill"><i class="bi bi-search"></i><input id="goalSearch" type="search" placeholder="Cari judul goal…" value="${esc(u.goalQuery)}" data-input="goalSearch" aria-label="Cari goal"></label>
     </div>
-    <div class="toolbar">
-      <div class="tabs" role="tablist">${tabs}</div>
-      <div class="chips">${cats}</div>
-      <div class="toolbar-row">
+    <div class="toolbar goals-toolbar">
+      <div class="toolbar-top">
+        <div class="tabs" role="tablist">${tabs}</div>
+        <div class="toolbar-row">
         <select data-change="goalStatus" aria-label="Filter status">${opt('aktif', 'Sedang berjalan', u.goalStatus)}${opt('selesai', 'Selesai', u.goalStatus)}${opt('arsip', 'Diarsipkan', u.goalStatus)}${opt('live', 'Semua (tanpa arsip)', u.goalStatus)}${opt('semua', 'Semua status', u.goalStatus)}</select>
         <select data-change="goalSort" aria-label="Urutkan">${opt('tenggat', 'Tenggat terdekat', u.goalSort)}${opt('progres', 'Progres tertinggi', u.goalSort)}${opt('prioritas', 'Prioritas', u.goalSort)}${opt('terbaru', 'Terbaru dibuat', u.goalSort)}</select>
-        <button class="btn btn-dark btn-sm ms-auto" data-action="newGoal"><i class="bi bi-plus-lg"></i> Goal Baru</button>
+        <button class="btn btn-dark btn-sm" data-action="newGoal"><i class="bi bi-plus-lg"></i> Goal Baru</button>
+        </div>
       </div>
+      <div class="chips cat-row" aria-label="Filter kategori">${cats}</div>
     </div>
     <div class="goals-layout">
       <div class="view-rail" role="group" aria-label="Pilih tampilan">${views}</div>

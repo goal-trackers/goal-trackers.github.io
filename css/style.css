@@ -1039,3 +1039,22 @@ button.stat:not(.tint) { background: var(--card); }
 @media (prefers-reduced-motion: reduce) { .slider .hscroll > .gcard { transition: none; } }
 .badge-card small { display: block; font-weight: 700; opacity: .85; margin-top: 2px; }
 .badge-card .bk { display: block; font-size: 11px; line-height: 1.3; opacity: .65; margin-top: 3px; }
+
+/* Toolbar Goals yang rapi: [tab pemilik ........ status · urutan · Goal Baru] lalu satu baris kategori ringkas */
+.goals-toolbar { gap: 14px; }
+.goals-toolbar .toolbar-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.goals-toolbar .toolbar-top .tabs { margin: 0; }
+.goals-toolbar .toolbar-row { flex-wrap: nowrap; }
+.goals-toolbar .cat-row { gap: 8px; padding: 2px 6px 4px 2px; }
+.goals-toolbar .cat-row .chip-btn { min-height: 36px; font-size: 13px; padding: 0 12px; }
+.goals-toolbar .cat-row .cat-chip { padding-left: 4px; gap: 7px; }
+.goals-toolbar .cat-row .cat-ic { width: 28px; height: 28px; font-size: 13px; }
+.goals-toolbar .cat-row .chip-btn .n { font-size: 10.5px; }
+@media (min-width: 768px) { #page-goals .goals-toolbar .cat-row { flex-wrap: wrap; overflow: visible; row-gap: 8px; } }
+@media (max-width: 767px) {
+  .goals-toolbar .toolbar-top { flex-direction: column; align-items: stretch; }
+  .goals-toolbar .toolbar-row { overflow-x: auto; scrollbar-width: none; }
+  .goals-toolbar .toolbar-row::-webkit-scrollbar { display: none; }
+  .goals-toolbar .toolbar-row .btn { margin-left: auto; white-space: nowrap; }
+}
+@media (max-width: 767px) { .goals-toolbar .toolbar-row [data-action="newGoal"] { display: none; } .goals-toolbar .toolbar-row select { flex: 1; min-width: 0; } }
