@@ -457,7 +457,25 @@ function sortGoals(list, by) {
   return s;
 }
 function emptyHtml(icon, text, extra = '') { return `<div class="empty"><i class="bi ${icon}"></i><p class="mb-1">${text}</p>${extra}</div>`; }
-function hasAch(goalId, jenis, pesan) { return S.achievements.some(a => a.goal_id === goalId && a.jenis === jenis && (!pesan || a.pesan === pesan)); }
+/** Perayaan yang masih berlaku: goal masih ada & tidak dibatalkan (arsip sebelum 100%),
+ *  ambang % masih tercapai, dan milestone-nya masih tercentang. Yang tidak berlaku disembunyikan. */
+function achValid(a) {
+  const g = goalById(a.goal_id);
+  if (!g) return false;
+  const pct = goalPct(g);
+  if (g.status === 'Arsip' && pct < 100) return false;
+  const t = /^(\d+)%$/.exec(a.jenis);
+  if (t) return pct + 1e-9 >= Number(t[1]);
+  if (a.jenis === 'Milestone') {
+    const m = /^Milestone "([\s\S]*)" pada "/.exec(String(a.pesan));
+    if (!m) return true;
+    const ms = msOf(g.goal_id).find(x => x.judul === m[1]);
+    return !!ms && ms.status === 'Selesai';
+  }
+  return true;
+}
+const liveAch = () => S.achievements.filter(achValid);
+function hasAch(goalId, jenis, pesan) { return liveAch().some(a => a.goal_id === goalId && a.jenis === jenis && (!pesan || a.pesan === pesan)); }
 
 /** Cermin logika server: sinkron status milestone & goal. */
 function syncStatusLocal(g) {

@@ -41,7 +41,7 @@ function insights() {
     .filter(x => !x.p.done && (!x.p.eta || x.p.eta > x.g.tenggat)).sort((a, b) => a.g.tenggat.localeCompare(b.g.tenggat))[0];
   if (risky) out.push({ c: '#FBEBB5', t: `"${risky.g.judul}" berisiko terlambat. Butuh ±${fmtShort(Math.ceil(monthlyNeed(risky.g)), risky.g.satuan)} per bulan agar tepat waktu.` });
   // 4. Pencapaian bulan ini
-  const achMonth = S.achievements.filter(a => String(a.tanggal).slice(0, 7) === ym).length;
+  const achMonth = liveAch().filter(a => String(a.tanggal).slice(0, 7) === ym).length;
   if (achMonth) out.push({ c: '#E8D3F5', t: `Kalian meraih ${achMonth} pencapaian bulan ini. Rayakan! 🎉` });
   if (!out.length) out.push({ c: '#D5F0F7', t: 'Mulai dengan satu goal kecil hari ini — langkah kecil tetap langkah maju. 💪' });
   return out.slice(0, 4);
@@ -61,7 +61,7 @@ function agendaHtml() {
     <button class="ev dashed w-100" data-action="newGoal"><i class="bi bi-plus-circle"></i> Tambah goal baru</button>`;
 }
 function recentAchHtml() {
-  const list = S.achievements.slice().sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal))).slice(0, 3);
+  const list = liveAch().sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal))).slice(0, 3);
   if (!list.length) return '';
   return `<h2 class="side-title">Pencapaian Terbaru <span aria-hidden="true">🎉</span></h2>` + list.map(a => {
     const g = goalById(a.goal_id) || {};
@@ -321,7 +321,7 @@ function savingsSeries(months) {
 // ============================================================
 function renderCelebrate() {
   const u = S.ui;
-  let list = S.achievements.slice().sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal)));
+  let list = liveAch().sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal)));
   if (u.celebUser) list = list.filter(a => a.user_id === u.celebUser);
   const groups = [['25%', 'bi-flag', '#D5F0F7'], ['50%', 'bi-bullseye', '#E8D3F5'], ['75%', 'bi-rocket-takeoff', '#FBEBB5'], ['100%', 'bi-trophy', '#CFF2D6'], ['Milestone', 'bi-check2-circle', '#FFE1C7'], ['Streak', 'bi-fire', '#F8CFE0']];
   const badges = groups.map(([j, i, c]) => `<div class="badge-card tint" style="--c:${c}"><i class="bi ${i}"></i><b>${list.filter(a => j === 'Streak' ? /^Streak/.test(a.jenis) : a.jenis === j).length}</b><small>${j}</small></div>`).join('');
@@ -329,7 +329,7 @@ function renderCelebrate() {
     S.users.map(x => `<button class="chip-btn ${u.celebUser === x.user_id ? 'on' : ''}" data-action="celebUser" data-id="${x.user_id}">${esc(x.avatar || '')} ${esc(x.nama)}</button>`).join('');
   const icon = j => j === '100%' ? 'bi-trophy' : j === 'Milestone' ? 'bi-check2-circle' : /^Streak/.test(j) ? 'bi-fire' : 'bi-stars';
   $('#page-celebrate').innerHTML = `
-    <div class="page-head"><div><p class="eyebrow">${S.achievements.length} momen tercatat</p><h1>Galeri Perayaan <span aria-hidden="true">🎉</span></h1></div></div>
+    <div class="page-head"><div><p class="eyebrow">${liveAch().length} momen tercatat</p><h1>Galeri Perayaan <span aria-hidden="true">🎉</span></h1></div></div>
     <div class="badges">${badges}</div>
     <div class="chips mt-3">${chips}</div>
     ${list.length ? `<div class="timeline">${list.map(a => {

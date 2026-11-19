@@ -23,7 +23,7 @@ function renderReports() {
   const finIds = new Set(S.goals.filter(g => g.tipe_target === 'Finansial').map(g => g.goal_id));
   const saved = logs.filter(l => finIds.has(l.goal_id)).reduce((s, l) => s + Number(l.nilai_tambah), 0);
   const { start, end } = periodRange();
-  const ach = S.achievements.filter(a => String(a.tanggal).slice(0, 10) >= start && String(a.tanggal).slice(0, 10) <= end).length;
+  const ach = liveAch().filter(a => String(a.tanggal).slice(0, 10) >= start && String(a.tanggal).slice(0, 10) <= end).length;
   const years = Array.from(new Set([today().slice(0, 4)].concat(S.logs.map(l => l.tanggal.slice(0, 4))))).sort().reverse();
   $('#page-reports').innerHTML = `
     <div class="page-head"><div><p class="eyebrow">Rekap ${esc(label)}</p><h1>Laporan <span aria-hidden="true">📊</span></h1></div>
@@ -191,7 +191,7 @@ async function exportXlsx(btn) {
     add(assetRowsExport(), 'Investasi', 'Belum ada investasi');
     add(loanRowsExport(), 'Pinjaman', 'Belum ada pinjaman');
     add(hartaRowsExport(), 'Harta', 'Belum ada harta');
-    add(S.achievements.filter(a => String(a.tanggal).slice(0, 10) >= p.start && String(a.tanggal).slice(0, 10) <= p.end)
+    add(liveAch().filter(a => String(a.tanggal).slice(0, 10) >= p.start && String(a.tanggal).slice(0, 10) <= p.end)
       .map(a => ({ 'Tanggal': String(a.tanggal).slice(0, 10), 'Jenis': a.jenis, 'Pencapaian': plain(a.pesan), 'Oleh': userById(a.user_id).nama })), 'Pencapaian', 'Belum ada pencapaian');
     XLSX.writeFile(wb, `Rekap_GoalTrackers_${p.file}.xlsx`);
     toast('File Excel diunduh ✅');
@@ -222,7 +222,7 @@ async function exportPdf(btn) {
       ['Rata-rata progres', Math.round(avg(live.map(goalPct))) + '%'],
       ['Catatan progres periode ini', String(logs.length)],
       ['Tabungan periode ini', fmtVal(logs.filter(l => finIds.has(l.goal_id)).reduce((s, l) => s + Number(l.nilai_tambah), 0), 'Rp')],
-      ['Pencapaian periode ini', String(S.achievements.filter(a => String(a.tanggal).slice(0, 10) >= p.start && String(a.tanggal).slice(0, 10) <= p.end).length)]
+      ['Pencapaian periode ini', String(liveAch().filter(a => String(a.tanggal).slice(0, 10) >= p.start && String(a.tanggal).slice(0, 10) <= p.end).length)]
     ];
     doc.autoTable({ startY: 104, head: [['Ringkasan', '']], body: sum, theme: 'plain', headStyles: { fillColor: [207, 242, 214], textColor: 17 }, styles: { fontSize: 10.5 }, columnStyles: { 1: { halign: 'right', fontStyle: 'bold' } }, margin: { left: 40, right: 40 } });
     const goalRows = goalRowsExport().map(r => [plain(r.Judul), r.Kategori, r.Jenis, r.Pemilik, r.Tipe === 'Finansial' ? fmtVal(r.Tercapai, 'Rp') : `${fmtN(r.Tercapai)} ${r.Satuan}`, r.Tipe === 'Finansial' ? fmtVal(r.Target, 'Rp') : `${fmtN(r.Target)} ${r.Satuan}`, r['Progres (%)'] + '%', r.Status, fmtDate(r.Tenggat)]);
