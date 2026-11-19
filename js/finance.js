@@ -28,10 +28,10 @@ function tplAll() {
   _tplObj = o;
   return o;
 }
-const clean_ = t => { const o = {}; ['label', 'judul', 'cat', 'hint'].forEach(k => { if (t[k]) o[k] = t[k]; }); return o; };
+const clean_ = t => { const o = {}; ['label', 'judul', 'cat', 'hint', 'ikon', 'warna'].forEach(k => { if (t[k]) o[k] = t[k]; }); return o; };
 const tplListRaw = () => Object.keys(tplAll()).map(k => { const t = tplAll()[k];
-  return t.base ? { id: k, base: t.base, label: t.label, judul: t.judul, cat: t.cat, hint: t.hint }
-    : { id: k, label: t.label, judul: t.judul, cat: t.cat, hint: t.hint, tipe: t.tipe, jenis: t.jenis, target: t.target, satuan: t.satuan, tugas: t.tugas || [] }; });
+  return t.base ? { id: k, base: t.base, label: t.label, judul: t.judul, cat: t.cat, hint: t.hint, ikon: t.ikon || '', warna: t.warna || '' }
+    : { id: k, label: t.label, judul: t.judul, cat: t.cat, hint: t.hint, ikon: t.ikon || '', warna: t.warna || '', tipe: t.tipe, jenis: t.jenis, target: t.target, satuan: t.satuan, tugas: t.tugas || [] }; });
 const TPL = new Proxy({}, {
   get: (_, k) => tplAll()[k],
   has: (_, k) => k in tplAll(),
@@ -96,9 +96,9 @@ function tplChipsHtml(cur) {
 }
 /** Ikon bulat berwarna (gaya Pinterest) untuk template, mengikuti kategori */
 function tplIc(k, cls = 'cat-ic') {
-  const c = (S.categories || []).find(x => x.kategori_id === TPL[k].cat) || {};
-  const ic = c.ikon || { liburan: 'bi-airplane', darurat: 'bi-shield-check', sekolah: 'bi-mortarboard' }[k];
-  return `<span class="${cls}" style="--c:${esc(c.warna || '#D5F0F7')}"><i class="bi ${esc(ic)}"></i></span>`;
+  const t = TPL[k] || {}, c = (S.categories || []).find(x => x.kategori_id === t.cat) || {};
+  const ic = t.ikon || c.ikon || { liburan: 'bi-airplane', darurat: 'bi-shield-check', sekolah: 'bi-mortarboard' }[k] || 'bi-bookmark-star';
+  return `<span class="${cls}" style="--c:${esc(t.warna || c.warna || '#D5F0F7')}"><i class="bi ${esc(ic)}"></i></span>`;
 }
 function tplBoxHtml(tpl, m) {
   if (!TPL[tpl]) return '';
@@ -348,7 +348,7 @@ function finSavingsHtml(f) {
   const cards = list.map(g => {
     const done = goalState(g) === 'done';
     const m = parseMeta(g.meta);
-    const tag = TPL[g.template] ? `<span class="chip tint tpl-tag" style="--c:${esc(goalColor(g))}"><i class="bi ${esc((catById(TPL[g.template].cat) || {}).ikon || 'bi-bookmark')}"></i> ${TPL[g.template].label}</span>` : '';
+    const tag = TPL[g.template] ? `<span class="chip tint tpl-tag" style="--c:${esc(goalColor(g))}"><i class="bi ${esc(TPL[g.template].ikon || (catById(TPL[g.template].cat) || {}).ikon || 'bi-bookmark')}"></i> ${TPL[g.template].label}</span>` : '';
     return `<div class="card tint fin-note" style="--c:${esc(goalColor(g))}">
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${goalPct(g)};--size:84px"><div><b>${pctInt(g)}%</b></div></div>
@@ -831,13 +831,18 @@ function openTplForm(id) {
   const ex = id && TPL[id];
   const t = ex || { label: '', judul: '', cat: (activeCats()[0] || {}).kategori_id, hint: '', tipe: 'Finansial', jenis: 'Bersama', target: 0, satuan: '', tugas: [] };
   const isBase = !!(ex && ex.base);
+  const cc = (S.categories || []).find(x => x.kategori_id === t.cat) || {};
+  const curIc = t.ikon || cc.ikon || 'bi-bookmark-star', curW = t.warna || cc.warna || PASTELS[0];
   const r = (name, v, l, cur) => `<label><input type="radio" name="${name}" value="${v}" ${cur === v ? 'checked' : ''} ${name === 'tipe' ? 'data-change="tplFormTipe"' : ''}><span>${l}</span></label>`;
   const tugas = (t.tugas || []).map(m => m.nilai ? `${m.judul} = ${fmtN(m.nilai)}` : m.judul).join('\n');
   openSheet(ex ? 'Edit Template' : 'Template Baru', `
   <form data-form="tplSave" novalidate>
     <input type="hidden" name="id" value="${esc(id || '')}">
     <label class="field"><span>Nama template</span><input name="label" maxlength="40" required value="${esc(t.label)}" placeholder="mis. Tabungan Qurban"><em class="field-err"></em></label>
-    <label class="field"><span>Judul goal bawaan</span><input name="judul" maxlength="80" value="${esc(t.judul || '')}" placeholder="mis. Tabungan Qurban 2027"></label>
+    <div class="field"><span>Ikon</span><div class="icon-pick">${CAT_ICONS.concat(CAT_ICONS.includes(curIc) ? [] : [curIc]).map(i => `<label><input type="radio" name="ikon" value="${i}" ${curIc === i ? 'checked' : ''} aria-label="${ICON_LABEL[i] || i}"><span title="${ICON_LABEL[i] || ''}"><i class="bi ${i}"></i></span></label>`).join('')}</div></div>
+    <div class="field"><span>Warna</span><div class="swatches">${PASTELS.map(x => `<label class="swatch" style="--c:${x}"><input type="radio" name="warna" value="${x}" ${curW === x ? 'checked' : ''} aria-label="Warna ${x}"></label>`).join('')}</div></div>
+    <details class="tpl-more" ${ex && !ex.base && (ex.target || (ex.tugas || []).length || ex.tipe !== 'Finansial') ? 'open' : ''}><summary>Isian otomatis goal <small class="muted">(opsional — judul, kategori, target, daftar tugas)</small></summary>
+    <label class="field mt-2"><span>Judul goal bawaan</span><input name="judul" maxlength="80" value="${esc(t.judul || '')}" placeholder="mis. Tabungan Qurban 2027"></label>
     <label class="field"><span>Kategori</span><select name="cat">${activeCats().map(c => `<option value="${c.kategori_id}" ${t.cat === c.kategori_id ? 'selected' : ''}>${esc(c.nama)}</option>`).join('')}</select></label>
     ${isBase ? `<p class="tiny muted">Template bawaan: tipe Tabungan dengan kalkulator otomatis, jadi tipe & target tidak bisa diubah di sini.</p>` : `
     <div class="field"><span>Jenis</span><div class="seg">${r('jenis', 'Bersama', '<i class="bi bi-people"></i> Bersama', t.jenis)}${r('jenis', 'Pribadi', '<i class="bi bi-person"></i> Pribadi', t.jenis)}</div></div>
@@ -848,6 +853,7 @@ function openTplForm(id) {
     </div>
     <label class="field"><span id="tplTugasLbl">${t.tipe === 'Checklist' ? 'Daftar tugas' : 'Tahapan'} <small>(opsional · satu per baris${t.tipe === 'Checklist' ? '' : ', nilai pakai "=" mis. Tiket = 5.000.000'})</small></span><textarea name="tugas" rows="4" placeholder="${t.tipe === 'Checklist' ? 'Bikin paspor\nPesan tiket' : 'Tiket pesawat = 5.000.000\nHotel = 3.000.000'}">${esc(tugas)}</textarea></label>`}
     <label class="field"><span>Petunjuk <small>(opsional)</small></span><textarea name="hint" rows="2" maxlength="240" placeholder="mis. Target = harga hewan qurban tahun depan.">${esc(t.hint || '')}</textarea></label>
+    </details>
     <div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button><button class="btn btn-dark" type="submit">Simpan</button></div>
   </form>`);
 }
@@ -887,7 +893,8 @@ Object.assign(Forms, {
     const id = f.id.value || ('tp-' + Date.now().toString(36));
     const list = tplListRaw();
     const ex = list.find(x => x.id === id);
-    const rec = { id, label, judul: f.judul.value.trim(), cat: f.cat.value, hint: f.hint.value.trim() };
+    const rec = { id, label, judul: f.judul.value.trim(), cat: f.cat.value, hint: f.hint.value.trim(),
+      ikon: (f.querySelector('input[name=ikon]:checked') || {}).value || '', warna: (f.querySelector('input[name=warna]:checked') || {}).value || '' };
     if (ex && ex.base) rec.base = ex.base;
     else {
       const tipe = (f.querySelector('input[name=tipe]:checked') || {}).value || 'Finansial';
