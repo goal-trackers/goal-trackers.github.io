@@ -444,6 +444,8 @@ const REK_JENIS = {
   Lainnya: { ic: 'bi-wallet2', c: '#FFE1C7', ph: 'mis. Celengan rumah' }
 };
 const REK_TARGET = 1e15;
+/** Rekening bersama boleh dihapus suami maupun istri (bukan hanya Admin) */
+const canDelRek = g => g.jenis === 'Bersama' ? true : g.pemilik_id === S.me.user_id;
 const isRek = g => { const m = parseMeta(g && g.meta); return !!(m.utama || m.rekening); };
 const rekJenis = g => { const m = parseMeta(g.meta); return (m.rekening && REK_JENIS[m.rekening.jenis]) ? m.rekening.jenis : 'Bank'; };
 const rekList = () => (S.rekening || []).filter(g => g.status !== 'Arsip')
@@ -470,7 +472,7 @@ function finRekHtml() {
   const btns = (g, big) => `<button class="btn ${big ? 'btn-mint' : 'btn-soft'} btn-sm" data-action="${isUsdRek(g) ? 'usdTx' : 'logProgress'}" data-id="${g.goal_id}"><i class="bi bi-arrow-left-right"></i> Setor / tarik</button>
       <button class="btn btn-soft btn-sm" data-action="rekHist" data-id="${g.goal_id}"><i class="bi bi-clock-history"></i> Riwayat</button>
       ${canEdit(g) ? `<button class="btn btn-soft btn-sm" data-action="rekEdit" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>` : ''}
-      ${canDelete(g) ? `<button class="btn btn-soft btn-sm rek-del" data-action="rekHapus" data-id="${g.goal_id}" aria-label="Hapus ${esc(g.judul)}"><i class="bi bi-trash3"></i> Hapus</button>` : ''}`;
+      ${canDelRek(g) ? `<button class="btn btn-soft btn-sm rek-del" data-action="rekHapus" data-id="${g.goal_id}" aria-label="Hapus ${esc(g.judul)}"><i class="bi bi-trash3"></i> Hapus</button>` : ''}`;
   const cards = list.map(g => { const r = REK_JENIS[rekJenis(g)] || REK_JENIS.Lainnya, x = info(g);
     return `<div class="card tint fin-note rek-card" style="--c:${r.c}">
       <div class="d-flex align-items-center gap-3">
@@ -496,7 +498,7 @@ function finRekHtml() {
         <button class="icon-btn sm" data-action="${isUsdRek(g) ? 'usdTx' : 'logProgress'}" data-id="${g.goal_id}" title="Setor / tarik" aria-label="Setor atau tarik ${esc(g.judul)}"><i class="bi bi-arrow-left-right"></i></button>
         <button class="icon-btn sm" data-action="rekHist" data-id="${g.goal_id}" title="Riwayat" aria-label="Riwayat ${esc(g.judul)}"><i class="bi bi-clock-history"></i></button>
         ${canEdit(g) ? `<button class="icon-btn sm" data-action="rekEdit" data-id="${g.goal_id}" title="Edit" aria-label="Edit ${esc(g.judul)}"><i class="bi bi-pencil"></i></button>` : ''}
-        ${canDelete(g) ? `<button class="icon-btn sm" data-action="rekHapus" data-id="${g.goal_id}" title="Hapus" aria-label="Hapus ${esc(g.judul)}"><i class="bi bi-trash3"></i></button>` : ''}
+        ${canDelRek(g) ? `<button class="icon-btn sm" data-action="rekHapus" data-id="${g.goal_id}" title="Hapus" aria-label="Hapus ${esc(g.judul)}"><i class="bi bi-trash3"></i></button>` : ''}
       </div></div>`; }).join('');
   return `<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
       <div><div class="fw-bold">Total saldo ${fmtVal(saldo, 'Rp')} <span class="tiny muted fw-normal">· kupon masuk bulan ini ${fmtShort(bulanIni, 'Rp')}</span></div>${intro}${list.some(isUsdRek) ? `<div class="mt-2">${kursInfoHtml()}</div>` : ''}</div>${add}</div>
@@ -554,7 +556,7 @@ function openRekForm(id) {
     ${g ? '' : `<label class="field"><span id="rekSaldoLbl">Saldo saat ini (${jenis === 'Dolar' ? 'USD' : 'Rp'}) <small>(opsional)</small></span><input name="saldo" inputmode="decimal" ${jenis === 'Dolar' ? '' : 'data-money'} placeholder="0"></label>`}
     <div id="rekKurs" class="mb-3" ${jenis === 'Dolar' ? '' : 'hidden'}>${kursInfoHtml()}<small class="d-block muted mt-1">Saldo disimpan dalam USD dan dinilai ke Rupiah dengan kurs hari ini.</small></div>
     <label class="check-row"><input type="checkbox" name="utama" ${main ? 'checked' : ''} ${main && g ? 'disabled' : ''}> <span>Jadikan <b>penerima kupon utama</b> <small class="muted d-block">Kupon investasi baru otomatis diarahkan ke rekening ini.</small></span></label>
-    <div class="sheet-foot">${g && canDelete(g) ? `<button type="button" class="btn btn-soft rek-del" data-action="rekHapus" data-id="${g.goal_id}"><i class="bi bi-trash3"></i> Hapus</button>` : `<button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button>`}<button class="btn btn-dark" type="submit">Simpan</button></div>
+    <div class="sheet-foot">${g && canDelRek(g) ? `<button type="button" class="btn btn-soft rek-del" data-action="rekHapus" data-id="${g.goal_id}"><i class="bi bi-trash3"></i> Hapus</button>` : `<button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button>`}<button class="btn btn-dark" type="submit">Simpan</button></div>
   </form>`);
 }
 function goalSaveArgs_(g) {
