@@ -998,3 +998,42 @@ button.stat:not(.tint) { background: var(--card); }
 /* Logo investasi tepat di tengah lingkaran putih */
 .row-item.row-tint .ic-raw { width: 54px; height: 54px; padding: 0; line-height: 0; box-sizing: border-box; }
 .row-item .ic-raw > svg, .row-item .ic-raw > .asset-img { display: block; margin: 0; }
+
+/* ============================================================
+   Beranda: Goal Bersama = sticky note dijepit pada tali
+   ============================================================ */
+.slider .hscroll {
+  padding-top: 46px; padding-bottom: 26px; column-gap: 22px;
+  background:
+    repeating-linear-gradient(115deg, #B88B5E 0 3px, #9C7148 3px 5px) 0 24px / 100% 3px no-repeat;
+  background-attachment: local;
+}
+[data-theme="dark"] .slider .hscroll { background: repeating-linear-gradient(115deg, #8C6A48 0 3px, #6E5236 3px 5px) 0 24px / 100% 3px no-repeat; background-attachment: local; }
+.slider .hscroll > .gcard {
+  --tilt: 0deg; overflow: visible;
+  transform-origin: 50% -18px; transform: rotate(var(--tilt));
+  border-radius: 6px 6px 6px 22px / 6px 6px 6px 14px;
+  background-image: linear-gradient(175deg, rgba(255,255,255,.28), rgba(255,255,255,0) 40%, rgba(0,0,0,.035));
+  box-shadow: 0 1px 1px rgba(0,0,0,.06), 0 18px 22px -14px rgba(17,17,17,.30), 0 3px 8px rgba(17,17,17,.06);
+  transition: transform .5s cubic-bezier(.3,1.6,.5,1), box-shadow .25s ease;
+}
+.slider .hscroll > .gcard:nth-child(5n+1) { --tilt: -1.6deg; }
+.slider .hscroll > .gcard:nth-child(5n+2) { --tilt: 1.2deg; }
+.slider .hscroll > .gcard:nth-child(5n+3) { --tilt: -0.7deg; }
+.slider .hscroll > .gcard:nth-child(5n+4) { --tilt: 1.7deg; }
+.slider .hscroll > .gcard:nth-child(5n+5) { --tilt: -1.1deg; }
+.slider .hscroll > .gcard:hover { transform: rotate(calc(var(--tilt) * -1)); box-shadow: 0 1px 1px rgba(0,0,0,.06), 0 24px 28px -16px rgba(17,17,17,.34), 0 6px 14px rgba(17,17,17,.08); }
+/* Jepitan kayu */
+.slider .hscroll > .gcard::before {
+  content: ''; position: absolute; z-index: 4; left: 50%; top: -30px; width: 14px; height: 40px;
+  transform: translateX(-50%);
+  border-radius: 4px 4px 3px 3px;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.18) 0 1px, transparent 1px calc(50% - .5px), rgba(0,0,0,.28) calc(50% - .5px) calc(50% + .5px), transparent calc(50% + .5px) calc(100% - 1px), rgba(0,0,0,.18) calc(100% - 1px)),
+    linear-gradient(180deg, transparent 0 13px, #8A8F96 13px 17px, transparent 17px),
+    linear-gradient(90deg, #D9B07A, #EBC994 45%, #C99A60);
+  box-shadow: 1px 3px 4px rgba(0,0,0,.25);
+  pointer-events: none;
+}
+@media (max-width: 767px) { .slider .hscroll > .gcard { transform: rotate(calc(var(--tilt) * .7)); } }
+@media (prefers-reduced-motion: reduce) { .slider .hscroll > .gcard { transition: none; } }
