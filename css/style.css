@@ -960,3 +960,19 @@ button.stat:not(.tint) { background: var(--card); }
   .ggrid > .m-item { transform: rotate(calc(var(--tilt) * .6)); }
 }
 @media (prefers-reduced-motion: reduce) { .ggrid > .m-item { transition: none; } }
+
+/* Papan: putih bersih tanpa bingkai */
+.ggrid {
+  --cork: #FFFFFF;
+  background-image: radial-gradient(rgba(17,17,17,.045) 1px, transparent 1.5px);
+  background-size: 14px 14px; background-position: 0 0;
+  box-shadow: 0 1px 2px rgba(17,17,17,.04), 0 10px 30px rgba(17,17,17,.06);
+}
+[data-theme="dark"] .ggrid {
+  --cork: #1E1E1E;
+  background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.5px);
+  box-shadow: none;
+}
+.ggrid > .m-item > * { box-shadow: 0 1px 1px rgba(0,0,0,.06), 0 16px 20px -14px rgba(17,17,17,.30), 0 3px 8px rgba(17,17,17,.06) !important; }
+.ggrid > .m-item:hover > * { box-shadow: 0 1px 1px rgba(0,0,0,.06), 0 24px 28px -16px rgba(17,17,17,.34), 0 6px 14px rgba(17,17,17,.08) !important; }
+.ggrid > .m-item::before { background: linear-gradient(90deg, rgba(225,225,225,.55), rgba(240,240,240,.85) 50%, rgba(225,225,225,.55)); border-left-color: rgba(0,0,0,.06); border-right-color: rgba(0,0,0,.06); }
