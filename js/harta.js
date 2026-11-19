@@ -236,10 +236,26 @@ function hartaPriceBox(k) {
   return pill(t.icon, hp ? `Harga ${k.toLowerCase()} ${fmtVal(hp, 'Rp')}/${t.satuan}` : `Harga ${k.toLowerCase()} belum diatur`, hp && tgl ? 'manual · ' + fmtDate(tgl) : 'untuk taksiran nilai', ubah(hp ? 'Ubah' : 'Atur'));
 }
 /** Pilihan jenis harta sebagai teks (gaya navbar) + tombol Harta lain — tampil di kanan judul Pusat Finansial */
+/** Ringkasan jenis harta terpilih (dihitung ulang tiap render → otomatis ikut berubah saat harta ditambah/diubah) */
+function hartaJenisSummary() {
+  const sum = hartaSummary(hartaOwned()), k = HARTA[S.ui.hartaJenis] ? S.ui.hartaJenis : 'Emas', t = HARTA[k], s = sum[k];
+  const noun = { Emas: 'keping', Perak: 'keping', Tanah: 'bidang' }[k];
+  const jml = s ? (noun ? `${s.n} ${noun} / ${qtyText(s.qty)}` : qtyText(s.qty)) : (noun ? `0 ${noun}` : '0 ' + t.satuan);
+  return `<div class="harta-head-plain">
+      <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+        <div style="min-width:0">
+          <div class="harta-own">${esc(k)} yang dimiliki <b>${jml}</b></div>
+          <div class="tiny muted">${s ? `Taksiran ${fmtShort(s.nilai, 'Rp')}${s.modal ? ` · Modal ${fmtShort(s.modal, 'Rp')}` : ''}` : 'Belum ada catatan'}</div>
+        </div>
+        <button class="btn btn-dark btn-sm harta-add" data-action="newHarta" data-jenis="${k}"><i class="bi bi-plus-lg"></i> Tambah ${esc(k.toLowerCase())}</button>
+      </div>
+      ${hartaPriceBox(k)}
+    </div>`;
+}
 function hartaHeadNav() {
   const sum = hartaSummary(hartaOwned()), k = HARTA[S.ui.hartaJenis] ? S.ui.hartaJenis : 'Emas';
-  return `<div class="harta-nav"><nav class="text-tabs" aria-label="Jenis harta">${Object.keys(HARTA).map(j => `<button class="${j === k ? 'on' : ''}" data-action="hartaPilih" data-jenis="${j}" aria-pressed="${j === k}">${j}${sum[j] ? `<span class="n">${sum[j].n}</span>` : ''}</button>`).join('')}</nav>
-    <button class="btn btn-soft btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button></div>`;
+  return `<div class="harta-nav-wrap"><div class="harta-nav"><nav class="text-tabs" aria-label="Jenis harta">${Object.keys(HARTA).map(j => `<button class="${j === k ? 'on' : ''}" data-action="hartaPilih" data-jenis="${j}" aria-pressed="${j === k}">${j}${sum[j] ? `<span class="n">${sum[j].n}</span>` : ''}</button>`).join('')}</nav>
+    <button class="btn btn-soft btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button></div>${hartaJenisSummary()}</div>`;
 }
 function finHartaHtml() {
   const owned = hartaOwned();
@@ -280,18 +296,7 @@ function finHartaHtml() {
   const sFilter = filterBar, gFilter = '';
   const soldK = sold.filter(h => h.jenis === k);
   const modalTxt = s && s.modal ? 'modal ' + fmtShort(s.modal, 'Rp') : '';
-  const noun = { Emas: 'keping', Perak: 'keping', Tanah: 'bidang' }[k];
-  const jml = s ? (noun ? `${s.n} ${noun} / ${qtyText(s.qty)}` : qtyText(s.qty)) : (noun ? `0 ${noun}` : '0 ' + t.satuan);
-  const head = `<div class="harta-head-plain">
-      <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
-        <div style="min-width:0">
-          <div class="harta-own">${esc(k)} yang dimiliki <b>${jml}</b></div>
-          <div class="tiny muted">${s ? `Taksiran ${fmtShort(s.nilai, 'Rp')}${s.modal ? ` · Modal ${fmtShort(s.modal, 'Rp')}` : ''}` : 'Belum ada catatan'}</div>
-        </div>
-        <button class="btn btn-dark btn-sm harta-add" data-action="newHarta" data-jenis="${k}"><i class="bi bi-plus-lg"></i> Tambah ${esc(k.toLowerCase())}</button>
-      </div>
-      ${hartaPriceBox(k)}
-    </div>`;
+
   const note = k === 'Emas' ? '<p class="tiny muted mt-2 mb-0"><i class="bi bi-info-circle"></i> Taksiran = berat × harga buyback hari ini, sebelum PPh 22 (penjualan > Rp 10 jt dipotong 1,5% dengan NPWP / 3% tanpa NPWP). Harga buyback Antam sama di semua butik, termasuk Balikpapan.</p>' : '';
   const kosong = '<p class="muted my-3">Tidak ada catatan yang cocok dengan filter ini.</p>';
   let table;
@@ -307,7 +312,7 @@ function finHartaHtml() {
       <div style="min-width:0"><div class="fw-bold fin-total">Taksiran total semua harta ${fmtVal(Math.round(total), 'Rp')}${hsub ? ` <span class="tiny muted fw-normal">· ${hsub}</span>` : ''}</div>
         <p class="tiny muted mb-0" style="max-width:640px">Emas, perak, dinar, tanah, rumah, kendaraan & lainnya — ditaksir dengan harga buyback Antam, harga lokasi, atau penyusutan.</p></div>
 </div>
-    ${head}${table}${soldHtml}`;
+    ${table}${soldHtml}`;
 }
 
 // ── Form tambah / edit harta ──

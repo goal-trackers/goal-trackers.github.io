@@ -1216,3 +1216,8 @@ button.stat:not(.tint) { background: var(--card); }
 .harta-own { font-size: 17px; font-weight: 600; }
 .harta-own b { font-weight: 800; }
 .harta-head-plain .harta-price { margin-top: 10px; }
+.fin-head { align-items: flex-start; }
+.harta-nav-wrap { display: flex; flex-direction: column; gap: 12px; min-width: 0; max-width: 100%; }
+.harta-nav-wrap .harta-head-plain { margin: 0; padding: 0 0 0 14px; }
+.harta-nav-wrap .harta-own { font-size: 16px; }
+@media (max-width: 767px) { .harta-nav-wrap { width: 100%; } .harta-nav-wrap .harta-head-plain { padding-left: 0; } }
