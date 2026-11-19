@@ -298,15 +298,6 @@ function renderFinance() {
   const hartaSub = ['Emas', 'Tanah'].filter(k => hs[k]).map(k => qtyText(hs[k].qty)).join(' · ');
   $('#page-finance').innerHTML = `
     <div class="page-head"><div><p class="eyebrow">Tabungan, investasi, cicilan & harta keluarga</p><h1>Pusat Finansial <span aria-hidden="true">💰</span></h1></div></div>
-    <div class="stats">
-      ${[['rekening', '#E2F4E8', fmtShort(rekList().reduce((s, g) => s + rekRp(g), 0), 'Rp'), 'Saldo rekening', 'tint'],
-        ['tabungan', '#CFF2D6', fmtShort(f.saved, 'Rp'), 'Tabungan terkumpul', 'tint'],
-        ['investasi', '#D5F0F7', fmtShort(invest, 'Rp'), `Investasi aktif · kupon ${fmtShort(kupon, 'Rp')}/bln`, 'tint'],
-        ['pinjaman', '#E8D3F5', fmtShort(sisaPinjam, 'Rp'), `Sisa cicilan · ${fmtShort(cicilan, 'Rp')}/bln`, 'tint'],
-        ['harta', '#FBEBB5', fmtShort(hartaTotal, 'Rp'), `Harta${hartaSub ? ' · ' + hartaSub : ''}`, 'tint'],
-        ['tabungan', '', fmtShort(f.month, 'Rp'), 'Setoran bulan ini', 'dashed']]
-        .map(([k, c, v, l, cls], i) => `<button type="button" class="stat ${cls} stat-link ${tab === k && i < 5 ? 'on' : ''}" ${c ? `style="--c:${c}"` : ''} data-action="finStat" data-tab="${k}" aria-label="${esc(l)} — buka tab"><b>${v}</b><span>${l}</span></button>`).join('')}
-    </div>
     <div class="fin-tabbar mt-3 mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; return `<h2 class="fin-sec"><span class="tab-ic" style="--tc:${t[4]}"><i class="bi ${t[3]}"></i></span>${t[1]} <span class="n">${t[2]}</span></h2>`; })()}${tab === 'tabungan' ? '<button class="chip-btn fin-add" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>' : ''}</div>
     ${body}`;
   if (tab === 'tabungan') withChart(() => drawTrend('chFin', savingsSeries(monthsBack(today().slice(0, 7), 12))));
@@ -406,7 +397,8 @@ function finSavingsHtml(f) {
     </div>`;
   });
   const cardArr = cards;
-  return `    ${list.length ? finLayout(cardArr, `<div class="glist">${list.map(rowItem).join('')}</div>`) : `<div class="card">${emptyHtml('bi-wallet2', 'Belum ada rencana tabungan. Klik “Target tabungan lain” di kanan atas untuk mulai.')}</div>`}
+  return `${finSumHead(`Total tabungan terkumpul ${fmtVal(f.saved, 'Rp')}`, `setoran bulan ini ${fmtVal(f.month, 'Rp')}`, 'Target tabungan & rencana keluarga — liburan, sekolah anak, dana darurat, dll. Masing-masing punya target dan tenggat.')}
+    ${list.length ? finLayout(cardArr, `<div class="glist">${list.map(rowItem).join('')}</div>`) : `<div class="card">${emptyHtml('bi-wallet2', 'Belum ada rencana tabungan. Klik “Target tabungan lain” di kanan atas untuk mulai.')}</div>`}
     <div class="card mt-3"><h3>Tren Tabungan 12 Bulan <span class="muted tiny">batang = setoran per bulan · garis = total terkumpul</span></h3><div class="chart-box"><canvas id="chFin" aria-label="Grafik tren tabungan per bulan" role="img"></canvas></div></div>`;
 }
 // ── TABUNGAN UTAMA: rekening penampung kupon / imbalan investasi (SR, SBN, ORI, deposito, dll) ──
@@ -455,6 +447,9 @@ const rekUsd = g => Number(parseMeta(g.meta).usd) || 0;
 /** Nilai rekening dalam Rupiah hari ini (rekening dolar: saldo USD × kurs hari ini) */
 const rekRp = g => isUsdRek(g) ? Math.round(rekUsd(g) * kursUsd()) : Number(g.nilai_saat_ini || 0);
 const rekIc = (j, size = 46) => { const r = REK_JENIS[j] || REK_JENIS.Lainnya; return `<span class="rek-ic" style="--c:${r.c};width:${size}px;height:${size}px"><i class="bi ${r.ic}"></i></span>`; };
+/** Ringkasan di atas tiap bagian Finansial: total besar + keterangan (gaya sama dengan Rekening) */
+const finSumHead = (main, extra, desc, btn = '') => `<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+    <div style="min-width:0"><div class="fw-bold fin-total">${main}${extra ? ` <span class="tiny muted fw-normal">· ${extra}</span>` : ''}</div>${desc ? `<p class="tiny muted mb-0" style="max-width:640px">${desc}</p>` : ''}</div>${btn}</div>`;
 function finRekHtml() {
   const list = rekList(), u = utamaGoal();
   const add = `<button class="btn btn-dark btn-sm" data-action="rekBaru"><i class="bi bi-plus-lg"></i> Tambah rekening</button>`;
@@ -501,7 +496,7 @@ function finRekHtml() {
         ${canDelRek(g) ? `<button class="icon-btn sm" data-action="rekHapus" data-id="${g.goal_id}" title="Hapus" aria-label="Hapus ${esc(g.judul)}"><i class="bi bi-trash3"></i></button>` : ''}
       </div></div>`; }).join('');
   return `<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-      <div><div class="fw-bold">Total saldo ${fmtVal(saldo, 'Rp')} <span class="tiny muted fw-normal">· kupon masuk bulan ini ${fmtShort(bulanIni, 'Rp')}</span></div>${intro}${list.some(isUsdRek) ? `<div class="mt-2">${kursInfoHtml()}</div>` : ''}</div>${add}</div>
+      <div><div class="fw-bold fin-total">Total saldo ${fmtVal(saldo, 'Rp')} <span class="tiny muted fw-normal">· kupon masuk bulan ini ${fmtVal(bulanIni, 'Rp')}</span></div>${intro}${list.some(isUsdRek) ? `<div class="mt-2">${kursInfoHtml()}</div>` : ''}</div>${add}</div>
     ${lain.length && u ? `<div class="price-box mb-3"><div><small class="muted">${lain.length} investasi aktif belum mengirim kupon ke rekening mana pun</small><b style="font-size:14px">${lain.map(a => esc(a.nama)).join(', ')}</b></div>
       <button class="btn btn-dark btn-sm" data-action="utamaArahkan"><i class="bi bi-arrow-down-circle"></i> Arahkan ke ${esc(u.judul)}</button></div>` : ''}
     ${finLayout(cards, `<div class="card"><div class="rek-list">${rows}</div></div>`)}`;
@@ -647,10 +642,11 @@ function finAssetsHtml() {
   const u = utamaGoal();
   const kuponInfo = `<div class="rek-hint mb-3"><i class="bi bi-arrow-return-right"></i> ${u ? `Kupon baru otomatis masuk ke <b>${esc(u.judul)}</b> ★` : 'Belum ada rekening penerima kupon.'}
     <button class="link-btn" data-action="finTab" data-tab="rekening">${u ? 'Atur rekening' : 'Tambah rekening'}</button></div>`;
-  return `${kuponInfo}<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-      ${S.assets.some(isUsd) ? `<div class="w-100">${kursInfoHtml()}</div>` : ''}
-      <p class="tiny muted mb-0" style="max-width:560px">Catat SBN, Sukuk Ritel, ORI, ST, deposito, dll. Kupon bersih tiap bulan otomatis masuk ke tabungan pilihan (diproses pukul 07.00 WITA pada tanggal kupon).</p>
-      <button class="btn btn-dark btn-sm" data-action="newAsset"><i class="bi bi-plus-lg"></i> Tambah Investasi</button></div>
+  const actA = S.assets.filter(a => a.status === 'Aktif');
+  return `${finSumHead(`Total investasi aktif ${fmtVal(actA.reduce((s, a) => s + nomRp(a), 0), 'Rp')}`, `kupon bersih ${fmtVal(actA.reduce((s, a) => s + assetInfo(a).net, 0), 'Rp')}/bln`,
+      'Catat SBN, Sukuk Ritel, ORI, ST, deposito, dll. Kupon bersih tiap bulan otomatis masuk ke rekening pilihan (diproses pukul 07.00 WITA pada tanggal kupon).',
+      '<button class="btn btn-dark btn-sm" data-action="newAsset"><i class="bi bi-plus-lg"></i> Tambah Investasi</button>')}
+    ${S.assets.some(isUsd) ? `<div class="mb-3">${kursInfoHtml()}</div>` : ''}${kuponInfo}
     ${list.length ? finLayout(cards, rowsA) : `<div class="card">${emptyHtml('bi-bank', 'Belum ada investasi tercatat.', '<button class="btn btn-dark btn-sm" data-action="newAsset">Tambah investasi pertama</button>')}</div>`}`;
 }
 function finLoansHtml() {
@@ -681,9 +677,10 @@ function finLoansHtml() {
   const rowsL = `<div class="glist">${list.map(l => { const i = loanInfo(l); return finRow({ act: `data-action="editLoan" data-id="${l.pinjaman_id}"`, ic: '💳', c: '#E8D3F5', title: l.nama,
     badge: i.done ? '<span class="badge-s s-done" style="padding:2px 8px">Lunas</span>' : '<span class="badge-s s-active" style="padding:2px 8px">Berjalan</span>',
     sub: `${esc(l.pemberi)} · ${fmtShort(i.c, 'Rp')}/bln · sisa ${fmtShort(i.sisaBayar, 'Rp')}`, pct: i.pct, right: i.k + '/' + i.n }); }).join('')}</div>`;
-  return `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-      <p class="tiny muted mb-0" style="max-width:560px">Cicilan yang dipotong otomatis dari gaji dihitung berdasarkan tanggal potong. Notifikasi muncul setiap kali cicilan terpotong.</p>
-      <button class="btn btn-dark btn-sm" data-action="newLoan"><i class="bi bi-plus-lg"></i> Tambah Pinjaman</button></div>
+  const runL = S.loans.filter(l => l.status !== 'Lunas' && !loanInfo(l).done);
+  return `${finSumHead(`Sisa cicilan ${fmtVal(runL.reduce((s, l) => s + loanInfo(l).sisaBayar, 0), 'Rp')}`, `${fmtVal(runL.reduce((s, l) => s + loanInfo(l).c, 0), 'Rp')}/bln`,
+      'Cicilan yang dipotong otomatis dari gaji dihitung berdasarkan tanggal potong. Notifikasi muncul setiap kali cicilan terpotong.',
+      '<button class="btn btn-dark btn-sm" data-action="newLoan"><i class="bi bi-plus-lg"></i> Tambah Pinjaman</button>')}
     ${list.length ? finLayout(cards, rowsL) : `<div class="card">${emptyHtml('bi-credit-card', 'Belum ada pinjaman tercatat.', '<button class="btn btn-dark btn-sm" data-action="newLoan">Tambah pinjaman</button>')}</div>`}`;
 }
 

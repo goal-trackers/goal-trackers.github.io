@@ -1194,3 +1194,4 @@ button.stat:not(.tint) { background: var(--card); }
 @media (max-width: 380px) { .topbar .wordmark { font-size: 19px; } }
 .wordmark .wm-rest { margin-left: .26em; }
 .wordmark .wm-o { width: .86em; height: .86em; margin: 0 .03em; }
+.fin-total { font-size: 17px; }

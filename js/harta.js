@@ -296,8 +296,10 @@ function finHartaHtml() {
     <div class="table-wrap mt-2"><table class="tbl harta-tbl"><thead><tr><th></th><th>Nama</th><th class="num">Jumlah</th><th>Tgl jual</th><th class="num">Harga jual</th><th class="num">Modal</th><th></th></tr></thead><tbody>
     ${soldK.map(h => `<tr><td>${hartaThumb(h, 30)}</td><td><b>${esc(h.nama)}</b></td><td class="num">${fmtGram(h.jumlah)} ${esc(h.satuan)}</td><td>${h.tgl_jual ? fmtDate(h.tgl_jual) : '-'}</td><td class="num">${Number(h.harga_jual) ? fmtVal(h.harga_jual, 'Rp') : '-'}</td><td class="num">${Number(h.harga_beli) ? fmtVal(h.harga_beli, 'Rp') : '-'}</td>
       <td><button class="icon-btn sm" data-action="editHarta" data-id="${h.harta_id}" aria-label="Edit"><i class="bi bi-pencil"></i></button></td></tr>`).join('')}</tbody></table></div></details>` : '';
-  return `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-      <p class="tiny muted mb-0">Taksiran total semua harta <b style="color:var(--text);font-size:16px">${fmtShort(total, 'Rp')}</b></p>
+  const hsub = ['Emas', 'Tanah'].filter(j => sum[j]).map(j => qtyText(sum[j].qty)).join(' · ');
+  return `<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+      <div style="min-width:0"><div class="fw-bold fin-total">Taksiran total semua harta ${fmtVal(total, 'Rp')}${hsub ? ` <span class="tiny muted fw-normal">· ${hsub}</span>` : ''}</div>
+        <p class="tiny muted mb-0" style="max-width:640px">Emas, perak, dinar, tanah, rumah, kendaraan & lainnya — ditaksir dengan harga buyback Antam, harga lokasi, atau penyusutan.</p></div>
       <div class="d-flex align-items-center gap-2 ms-auto harta-jenis-bar">
         <label class="hf-sel jenis-sel"><span class="cat-ic" style="--c:${HARTA[k].c}"><i class="bi ${HARTA[k].icon}"></i></span><select data-change="hartaJenisSel" aria-label="Jenis harta">${Object.keys(HARTA).map(j => `<option value="${j}" ${j === k ? 'selected' : ''}>${j} (${sum[j] ? sum[j].n : 0})</option>`).join('')}</select></label>
         <button class="btn btn-soft btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button></div></div>
