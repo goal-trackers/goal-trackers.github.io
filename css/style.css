@@ -995,3 +995,6 @@ button.stat:not(.tint) { background: var(--card); }
 .row-item.row-tint .ic-raw { background: #fff; border-radius: 50%; padding: 4px; display: grid; place-items: center; }
 [data-theme="dark"] .row-item.row-tint { background: color-mix(in srgb, var(--fg) 30%, var(--card)); }
 [data-theme="dark"] .card.fin-note[style*="--fg"] { background: color-mix(in srgb, var(--fg) 30%, var(--card)); }
+/* Logo investasi tepat di tengah lingkaran putih */
+.row-item.row-tint .ic-raw { width: 54px; height: 54px; padding: 0; line-height: 0; box-sizing: border-box; }
+.row-item .ic-raw > svg, .row-item .ic-raw > .asset-img { display: block; margin: 0; }
