@@ -280,13 +280,13 @@ function finHartaHtml() {
   const sFilter = filterBar, gFilter = '';
   const soldK = sold.filter(h => h.jenis === k);
   const modalTxt = s && s.modal ? 'modal ' + fmtShort(s.modal, 'Rp') : '';
-  const head = `<div class="card harta-head-card">
-      <div class="harta-head">
-        <div class="harta-ic tint" style="--c:${t.c}" aria-hidden="true">${k === 'Emas' || k === 'Perak' ? barSvg(s ? (s.qty.gram || 0) + (s.qty.kg || 0) * 1000 : 0, k, 46) : k === 'Dinar' ? coinSvg(1, 44) : `<i class="bi ${t.icon}" style="font-size:22px"></i>`}</div>
-        <div class="flex-grow-1" style="min-width:0">
-          <div class="tiny muted fw-bold">${esc(k)} yang dimiliki · ${s ? s.n : 0} catatan</div>
-          <div class="harta-total">${s ? qtyText(s.qty) : '0 ' + t.satuan}</div>
-          <div class="tiny muted">${s ? 'Taksiran ' + fmtShort(s.nilai, 'Rp') + (modalTxt ? ' · ' + modalTxt : '') : 'Belum ada catatan'}</div>
+  const noun = { Emas: 'keping', Perak: 'keping', Tanah: 'bidang' }[k];
+  const jml = s ? (noun ? `${s.n} ${noun} / ${qtyText(s.qty)}` : qtyText(s.qty)) : (noun ? `0 ${noun}` : '0 ' + t.satuan);
+  const head = `<div class="harta-head-plain">
+      <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+        <div style="min-width:0">
+          <div class="harta-own">${esc(k)} yang dimiliki <b>${jml}</b></div>
+          <div class="tiny muted">${s ? `Taksiran ${fmtShort(s.nilai, 'Rp')}${s.modal ? ` · Modal ${fmtShort(s.modal, 'Rp')}` : ''}` : 'Belum ada catatan'}</div>
         </div>
         <button class="btn btn-dark btn-sm harta-add" data-action="newHarta" data-jenis="${k}"><i class="bi bi-plus-lg"></i> Tambah ${esc(k.toLowerCase())}</button>
       </div>

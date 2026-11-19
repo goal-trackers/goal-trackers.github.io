@@ -1211,3 +1211,8 @@ button.stat:not(.tint) { background: var(--card); }
 [data-theme="dark"] .text-tabs button:hover { background: rgba(255,255,255,.08); }
 [data-theme="dark"] .text-tabs button.on { background: #F2F2F2; color: #111; }
 @media (max-width: 767px) { .harta-nav { justify-content: flex-start; width: 100%; } .text-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; } .text-tabs::-webkit-scrollbar { display: none; } }
+/* Ringkasan per jenis harta: tanpa kotak & gambar */
+.harta-head-plain { margin: 4px 0 6px; }
+.harta-own { font-size: 17px; font-weight: 600; }
+.harta-own b { font-weight: 800; }
+.harta-head-plain .harta-price { margin-top: 10px; }
