@@ -227,7 +227,7 @@ function renderDetail() {
 
   const msHtml = ms.length ? ms.map(m => {
     const done = m.status === 'Selesai';
-    const clickable = checklist && edit && g.status !== 'Arsip';
+    const clickable = edit && g.status !== 'Arsip' && (checklist || !(Number(m.nilai_target) > 0));
     const tag = clickable ? 'button' : 'div';
     return `<${tag} class="ms-item ${done ? 'done' : ''} w-100 text-start" ${clickable ? `data-action="toggleMs" data-id="${m.milestone_id}" aria-pressed="${done}"` : ''}>
       <span class="ms-check"><i class="bi bi-check-lg"></i></span>

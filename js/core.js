@@ -563,11 +563,12 @@ function cardChecklist(g, max = 6) {
   const ms = msOf(g.goal_id);
   if (!ms.length) return '';
   const checklist = g.tipe_target === 'Checklist';
-  const can = checklist && canEdit(g) && g.status !== 'Arsip';   // tahapan goal angka/finansial tercentang otomatis
+  const canG = canEdit(g) && g.status !== 'Arsip';
+  const canM = m => canG && (checklist || !(Number(m.nilai_target) > 0));   // tahapan bernominal tercentang otomatis
   const shown = ms.slice(0, max);
   return `<ul class="gc-tasks" aria-label="Daftar tugas ${esc(g.judul)}">${shown.map(m => {
     const done = m.status === 'Selesai';
-    return `<li><button type="button" class="gc-task ${done ? 'done' : ''}" ${can ? `data-action="toggleMs" data-id="${m.milestone_id}"` : 'disabled'} aria-pressed="${done}" aria-label="${done ? 'Batalkan centang' : 'Centang'} ${esc(m.judul)}">
+    return `<li><button type="button" class="gc-task ${done ? 'done' : ''}" ${canM(m) ? `data-action="toggleMs" data-id="${m.milestone_id}"` : `disabled title="${Number(m.nilai_target) > 0 ? 'Tercentang otomatis saat nominal tercapai' : 'Hanya pemilik goal yang bisa mencentang'}"`} aria-pressed="${done}" aria-label="${done ? 'Batalkan centang' : 'Centang'} ${esc(m.judul)}">
       <span class="ms-check"><i class="bi bi-check-lg"></i></span><span class="t">${esc(m.judul)}</span>${!checklist && m.nilai_target ? `<span class="v">${fmtShort(m.nilai_target, g.satuan)}</span>` : ''}</button></li>`;
   }).join('')}${ms.length > max ? `<li class="tiny muted ps-1">+${ms.length - max} tugas lagi — buka detail</li>` : ''}</ul>`;
 }
