@@ -1196,6 +1196,36 @@ function migrateRekTarget_() {
 const _openGoal = Actions.openGoal;
 Actions.openGoal = d => { const g = goalById(d.id); if (g && isRek(g)) { S.ui.finTab = 'rekening'; navigateTo('finance'); setTimeout(() => Actions.rekHist(d), 60); return; } _openGoal(d); };
 
+/* ── Menu dropdown Finansial di navbar: Rekening · Tabungan & Rencana · Investasi · Pinjaman · Harta ── */
+function finMenuItems() {
+  const f = finSummary();
+  return [['rekening', 'Rekening', rekList().length, 'bi-bank', '#E2F4E8'], ['tabungan', 'Tabungan & Rencana', f.count, 'bi-wallet2', '#CFF2D6'],
+    ['investasi', 'Investasi', S.assets.length, 'bi-graph-up-arrow', '#D5F0F7'], ['pinjaman', 'Pinjaman', S.loans.length, 'bi-credit-card', '#E8D3F5'],
+    ['harta', 'Harta', hartaOwned().length, 'bi-gem', '#FBEBB5']];
+}
+function closeFinMenu() { const m = document.getElementById('finMenu'); if (m) m.remove(); document.querySelectorAll('[data-action=finMenu]').forEach(b => b.setAttribute('aria-expanded', 'false')); }
+function openFinMenu(btn) {
+  if (document.getElementById('finMenu')) { closeFinMenu(); return; }
+  const cur = S.ui.page === 'finance' ? (S.ui.finTab || 'tabungan') : '';
+  const m = document.createElement('div');
+  m.id = 'finMenu'; m.className = 'fin-menu'; m.setAttribute('role', 'menu');
+  m.innerHTML = finMenuItems().map(([k, l, n, ic, c]) => `<button role="menuitem" class="${cur === k ? 'on' : ''}" data-action="finGo" data-tab="${k}"><span class="tab-ic" style="--tc:${c}"><i class="bi ${ic}"></i></span><span class="flex-grow-1 text-start">${l}</span><span class="n">${n}</span></button>`).join('');
+  document.body.appendChild(m);
+  const r = btn.getBoundingClientRect(), up = r.top > innerHeight / 2, w = m.offsetWidth;
+  m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+  if (up) m.style.bottom = (innerHeight - r.top + 8) + 'px'; else m.style.top = (r.bottom + 8) + 'px';
+  btn.setAttribute('aria-expanded', 'true');
+  const first = m.querySelector('button.on') || m.querySelector('button'); if (first) first.focus({ preventScroll: true });
+}
+Object.assign(Actions, {
+  finMenu: (d, el) => openFinMenu(el),
+  finGo: d => { closeFinMenu(); S.ui.finTab = d.tab; if (S.ui.page === 'finance') renderFinance(); else navigateTo('finance'); }
+});
+document.addEventListener('click', e => { if (!e.target.closest('#finMenu, [data-action=finMenu]')) closeFinMenu(); }, true);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFinMenu(); });
+window.addEventListener('resize', closeFinMenu);
+window.addEventListener('scroll', closeFinMenu, { passive: true });
+
 try {
   boot();
   window.__GT_BOOTED = true;

@@ -1119,3 +1119,18 @@ button.stat:not(.tint) { background: var(--card); }
 .hf-sel select:focus { outline: none; }
 .hf-sel:focus-within { box-shadow: 0 0 0 2px var(--text); }
 .harta-filter .link-btn { min-height: 0; padding: 0; font-weight: 800; text-decoration: underline; color: var(--text); }
+
+/* Dropdown Finansial (navbar) */
+.fin-menu { position: fixed; z-index: 2000; min-width: 260px; padding: 8px; border-radius: 22px; background: var(--card); border: 1px solid var(--line);
+  box-shadow: 0 18px 44px rgba(17,17,17,.18); display: grid; gap: 4px; animation: finMenuIn .16s ease; }
+@keyframes finMenuIn { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }
+.fin-menu button { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 12px 0 7px; border-radius: 999px; font-weight: 700; font-size: 14.5px; color: var(--text); background: transparent; border: 0; text-align: left; }
+.fin-menu button:hover, .fin-menu button:focus-visible { background: var(--soft); outline: none; }
+.fin-menu button.on { background: #111; color: #fff; }
+.fin-menu .tab-ic { width: 32px; height: 32px; border-radius: 50%; display: inline-grid; place-items: center; background: var(--tc); color: #1a1a1a; font-size: 14px; flex: none; }
+.fin-menu .n { font-size: 12px; font-weight: 700; opacity: .55; }
+.fin-menu button.on .n { opacity: .75; }
+[data-theme="dark"] .fin-menu { background: #232323; border-color: #333; }
+[data-theme="dark"] .fin-menu button.on { background: #F2F2F2; color: #111; }
+.tn-caret { font-size: 11px; margin-left: 4px; opacity: .7; }
+@media (prefers-reduced-motion: reduce) { .fin-menu { animation: none; } }
