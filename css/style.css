@@ -1037,3 +1037,5 @@ button.stat:not(.tint) { background: var(--card); }
 }
 @media (max-width: 767px) { .slider .hscroll > .gcard { transform: rotate(calc(var(--tilt) * .7)); } }
 @media (prefers-reduced-motion: reduce) { .slider .hscroll > .gcard { transition: none; } }
+.badge-card small { display: block; font-weight: 700; opacity: .85; margin-top: 2px; }
+.badge-card .bk { display: block; font-size: 11px; line-height: 1.3; opacity: .65; margin-top: 3px; }

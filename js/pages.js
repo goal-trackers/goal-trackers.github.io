@@ -323,13 +323,16 @@ function renderCelebrate() {
   const u = S.ui;
   let list = liveAch().sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal)));
   if (u.celebUser) list = list.filter(a => a.user_id === u.celebUser);
-  const groups = [['25%', 'bi-flag', '#D5F0F7'], ['50%', 'bi-bullseye', '#E8D3F5'], ['75%', 'bi-rocket-takeoff', '#FBEBB5'], ['100%', 'bi-trophy', '#CFF2D6'], ['Milestone', 'bi-check2-circle', '#FFE1C7'], ['Streak', 'bi-fire', '#F8CFE0']];
-  const badges = groups.map(([j, i, c]) => `<div class="badge-card tint" style="--c:${c}"><i class="bi ${i}"></i><b>${list.filter(a => j === 'Streak' ? /^Streak/.test(a.jenis) : a.jenis === j).length}</b><small>${j}</small></div>`).join('');
+  const groups = [['25%', 'bi-flag', '#D5F0F7', 'Goal mencapai 25%', 'Langkah awal'], ['50%', 'bi-bullseye', '#E8D3F5', 'Goal mencapai 50%', 'Setengah jalan'],
+    ['75%', 'bi-rocket-takeoff', '#FBEBB5', 'Goal mencapai 75%', 'Hampir sampai'], ['100%', 'bi-trophy', '#CFF2D6', 'Goal tercapai 100%', 'Selesai'],
+    ['Milestone', 'bi-check2-circle', '#FFE1C7', 'Tugas / tahapan selesai', 'Milestone'], ['Streak', 'bi-fire', '#F8CFE0', 'Mencatat progres 7 atau 30 hari berturut-turut', 'Hari beruntun']];
+  const badges = groups.map(([j, i, c, ket, nama]) => `<div class="badge-card tint" style="--c:${c}" title="${ket}"><i class="bi ${i}"></i><b>${list.filter(a => j === 'Streak' ? /^Streak/.test(a.jenis) : a.jenis === j).length}</b><small>${j === nama ? j : j + ' · ' + nama}</small><span class="bk">${ket}</span></div>`).join('');
   const chips = `<button class="chip-btn ${!u.celebUser ? 'on' : ''}" data-action="celebUser" data-id="">Semua</button>` +
     S.users.map(x => `<button class="chip-btn ${u.celebUser === x.user_id ? 'on' : ''}" data-action="celebUser" data-id="${x.user_id}">${esc(x.avatar || '')} ${esc(x.nama)}</button>`).join('');
   const icon = j => j === '100%' ? 'bi-trophy' : j === 'Milestone' ? 'bi-check2-circle' : /^Streak/.test(j) ? 'bi-fire' : 'bi-stars';
   $('#page-celebrate').innerHTML = `
     <div class="page-head"><div><p class="eyebrow">${liveAch().length} momen tercatat</p><h1>Galeri Perayaan <span aria-hidden="true">🎉</span></h1></div></div>
+    <p class="tiny muted mb-2">Angka = berapa kali momen itu tercapai. Setiap goal dirayakan saat progresnya menyentuh 25%, 50%, 75% dan 100%; tugas yang dicentang dihitung sebagai Milestone.</p>
     <div class="badges">${badges}</div>
     <div class="chips mt-3">${chips}</div>
     ${list.length ? `<div class="timeline">${list.map(a => {
