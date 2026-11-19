@@ -437,7 +437,7 @@ function arahkanKupon(goalId, silent) {
 /* ── REKENING PENAMPUNG: rekening bank, RDPU, e-wallet, deposito, dll (disimpan sebagai goal Finansial ber-meta rekening) ── */
 const REK_JENIS = {
   Bank: { ic: 'bi-bank', c: '#CFF2D6', ph: 'mis. BSI a.n. Ayah' },
-  RDPU: { ic: 'bi-cash-coin', c: '#D5F0F7', ph: 'mis. RDPU Sucorinvest Money Market' },
+  RDPU: { ic: 'bi-coin-rp', c: '#D5F0F7', ph: 'mis. RDPU Sucorinvest Money Market' },
   'E-Wallet': { ic: 'bi-phone', c: '#E8D3F5', ph: 'mis. GoPay / OVO / DANA' },
   Deposito: { ic: 'bi-safe2', c: '#FBEBB5', ph: 'mis. Deposito Mandiri 12 bln' },
   Dolar: { ic: 'bi-currency-dollar', c: '#E2F4E8', ph: 'mis. Tabungan Dolar BSI', usd: true },
