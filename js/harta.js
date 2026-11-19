@@ -263,14 +263,15 @@ function finHartaHtml() {
   const sCount = {}; bySeri.forEach(h => { sCount[keyOf(h)] = (sCount[keyOf(h)] || 0) + 1; });
   const wCount = {}; byGram.filter(isW).forEach(h => { const w = wOf(h); wCount[w] = (wCount[w] || 0) + 1; });
   const chip = (on, act, attr, label, n) => `<button class="chip-btn ${on ? 'on' : ''} ${n ? '' : 'zero'}" data-action="${act}" ${attr} aria-pressed="${on}">${label} <span class="n">${n || 0}</span></button>`;
-  const sFilter = sList.length > 1 ? `<div class="filter-row"><span class="tiny muted fw-bold">Seri / nama</span><div class="chips jenis-scroll seri-filter" role="tablist" aria-label="Filter seri">
-      ${chip(sSel === 'all', 'hartaSeri', 'data-seri="all"', 'Semua', bySeri.length)}
-      ${sList.map(key => chip(sSel === key, 'hartaSeri', `data-seri="${esc(key)}"`, esc(sLabel[key]), sCount[key])).join('')}
-    </div></div>` : '';
-  const gFilter = isBar && wList.length > 1 ? `<div class="filter-row"><span class="tiny muted fw-bold">Berat</span><div class="chips jenis-scroll gram-filter" role="tablist" aria-label="Filter berat">
-      ${chip(gSel === 'all', 'hartaGram', 'data-gram="all"', 'Semua', byGram.length)}
-      ${wList.map(w => chip(String(gSel) === String(w), 'hartaGram', `data-gram="${w}"`, fmtGram(w) + ' gr', wCount[w])).join('')}
-    </div></div>` : '';
+  const opt = (v, label, n, on) => `<option value="${esc(String(v))}" ${on ? 'selected' : ''} ${n || on ? '' : 'disabled'}>${label} (${n || 0})</option>`;
+  const sSelect = sList.length > 1 ? `<label class="hf-sel"><span>Seri</span><select data-change="hartaSeriSel" aria-label="Filter seri">
+      ${opt('all', 'Semua seri', bySeri.length, sSel === 'all')}${sList.map(key => opt(key, esc(sLabel[key]), sCount[key], sSel === key)).join('')}</select></label>` : '';
+  const gSelect = isBar && wList.length > 1 ? `<label class="hf-sel"><span>Berat</span><select data-change="hartaGramSel" aria-label="Filter berat">
+      ${opt('all', 'Semua berat', byGram.length, gSel === 'all')}${wList.map(w => opt(w, fmtGram(w) + ' gr', wCount[w], String(gSel) === String(w))).join('')}</select></label>` : '';
+  const aktif = sSel !== 'all' || (isBar && gSel !== 'all');
+  const filterBar = sSelect || gSelect ? `<div class="harta-filter">${sSelect}${gSelect}
+      <span class="tiny muted ms-auto">${aktif ? `${shown.length} dari ${items.length} catatan · <button class="link-btn" data-action="hartaReset">Reset</button>` : `${items.length} catatan`}</span></div>` : '';
+  const sFilter = filterBar, gFilter = '';
   const soldK = sold.filter(h => h.jenis === k);
   const modalTxt = s && s.modal ? 'modal ' + fmtShort(s.modal, 'Rp') : '';
   const head = `<div class="card harta-head-card">
@@ -289,8 +290,8 @@ function finHartaHtml() {
   const kosong = '<p class="muted my-3">Tidak ada catatan yang cocok dengan filter ini.</p>';
   let table;
   if (!items.length) table = `<div class="card mt-3">${emptyHtml(t.icon, `Belum ada ${k.toLowerCase()} tercatat.`, `<button class="btn btn-dark btn-sm" data-action="newHarta" data-jenis="${k}">Catat ${k.toLowerCase()} pertama</button>`)}</div>`;
-  else if (finView() === 'list') table = `<div class="goals-layout mt-3">${viewRailHtml()}<div style="min-width:0"><div class="card">${sFilter}${gFilter}${shown.length ? hartaTableHtml(k, shown) : kosong}${note}</div></div></div>`;
-  else table = `<div class="goals-layout mt-3">${viewRailHtml()}<div style="min-width:0">${sFilter || gFilter ? `<div class="card mb-3">${sFilter}${gFilter}</div>` : ''}${shown.length ? finViewBody(shown.map(hartaItemCard)) : `<div class="card">${kosong}</div>`}${note ? `<div class="mt-2">${note}</div>` : ''}</div></div>`;
+  else if (finView() === 'list') table = `<div class="goals-layout mt-3">${viewRailHtml()}<div style="min-width:0">${sFilter}<div class="card">${shown.length ? hartaTableHtml(k, shown) : kosong}${note}</div></div></div>`;
+  else table = `<div class="goals-layout mt-3">${viewRailHtml()}<div style="min-width:0">${sFilter}${shown.length ? finViewBody(shown.map(hartaItemCard)) : `<div class="card">${kosong}</div>`}${note ? `<div class="mt-2">${note}</div>` : ''}</div></div>`;
   const soldHtml = soldK.length ? `<details class="card mt-3"><summary class="fw-bold">Riwayat ${k.toLowerCase()} dijual (${soldK.length})</summary>
     <div class="table-wrap mt-2"><table class="tbl harta-tbl"><thead><tr><th></th><th>Nama</th><th class="num">Jumlah</th><th>Tgl jual</th><th class="num">Harga jual</th><th class="num">Modal</th><th></th></tr></thead><tbody>
     ${soldK.map(h => `<tr><td>${hartaThumb(h, 30)}</td><td><b>${esc(h.nama)}</b></td><td class="num">${fmtGram(h.jumlah)} ${esc(h.satuan)}</td><td>${h.tgl_jual ? fmtDate(h.tgl_jual) : '-'}</td><td class="num">${Number(h.harga_jual) ? fmtVal(h.harga_jual, 'Rp') : '-'}</td><td class="num">${Number(h.harga_beli) ? fmtVal(h.harga_beli, 'Rp') : '-'}</td>
@@ -476,5 +477,10 @@ Object.assign(Changes, {
   hartaStatus: el => { el.form.querySelectorAll('.sold-f').forEach(x => { x.hidden = el.value !== 'Dijual'; }); }
 });
 Object.assign(Inputs, { hartaCalc: debounce(el => hartaPreview(el.form), 150), susutCalc: debounce(el => susutPreview(el.form), 120) });
+Object.assign(Changes, {
+  hartaSeriSel: el => Actions.hartaSeri({ seri: el.value }),
+  hartaGramSel: el => Actions.hartaGram({ gram: el.value })
+});
+Object.assign(Actions, { hartaReset: () => { S.ui.hartaSeri = 'all'; S.ui.hartaGram = 'all'; keepScroll(renderFinance); } });
 Object.assign(Forms, { harta: f => submitHarta(f), hargaHarta: f => submitHarga(f) });
 window.__GT_PARTS = (window.__GT_PARTS || []).concat('JS6');
