@@ -212,28 +212,28 @@ function hartaItemCard(h) {
 }
 
 // ── Tab "Harta" di Pusat Finansial: pilih jenis → tabel kolom harta jenis itu ──
+/** Harga acuan per jenis — pil ringkas (gaya sama dengan kurs dolar): nilai · sumber/tanggal · Perbarui/Ubah */
 function hartaPriceBox(k) {
   const t = HARTA[k], hp = hargaPasar(k), tgl = S.settings['harga_' + k + '_tgl'];
-  if (t.susut) return `<div class="price-box"><div><small class="muted">Penyusutan</small><b>${fmtN(susutRate(k))}% / tahun</b><small class="muted">${S.settings['harga_' + k] === undefined || S.settings['harga_' + k] === '' ? 'nilai bawaan' : 'diatur manual'}</small></div>
-    <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-sliders"></i> Ubah</button></div>`;
+  const pill = (ic, label, sub, btns, note = '') => `<div class="harta-price"><span class="kurs-pill" style="--kp:${t.c}"><i class="bi ${ic}"></i> ${label} ${sub ? `<small class="muted">${sub}</small>` : ''}${btns}</span>${note ? `<small class="d-block muted mt-1">${note}</small>` : ''}</div>`;
+  const ubah = (txt = 'Ubah') => `<button type="button" class="link-btn" data-action="hartaHarga" data-jenis="${k}">${txt}</button>`;
+  if (t.susut) return pill('bi-graph-down-arrow', `Penyusutan ${fmtN(susutRate(k))}%/tahun`, S.settings['harga_' + k] === undefined || S.settings['harga_' + k] === '' ? 'nilai bawaan' : 'manual', ubah());
   if (!t.harga) return '';
   if (k === 'Emas') {
-    const auto = S.settings.harga_Emas_src === 'antam';
-    return `<div class="price-box"><div><small class="muted">Harga buyback Antam (Logam Mulia)</small><b>${hp ? fmtVal(hp, 'Rp') + ' /gr' : 'Belum ada'}</b>
-      <small class="muted">${hp ? (auto ? '<i class="bi bi-arrow-repeat"></i> otomatis · ' : '<i class="bi bi-pencil"></i> manual · ') + (tgl ? fmtDate(tgl) : '') : 'Tekan "Perbarui" untuk mengambil harga hari ini'}</small></div>
-      <div class="d-flex gap-2 flex-wrap"><button class="btn btn-dark btn-sm" data-action="hartaRefreshEmas"><i class="bi bi-arrow-clockwise"></i> Perbarui</button>
-      <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="Emas">Atur manual</button></div></div>`;
+    const man = S.settings.harga_Emas_src === 'manual';
+    return pill('bi-coin', hp ? `Buyback Antam ${fmtVal(hp, 'Rp')}/gr` : 'Buyback Antam belum ada',
+      hp ? `${man ? 'manual' : 'otomatis'}${tgl ? ' · ' + fmtDate(tgl) : ''}` : 'tekan Perbarui',
+      `<button type="button" class="link-btn" data-action="hartaRefreshEmas"><i class="bi bi-arrow-clockwise"></i> Perbarui</button>${ubah()}`);
   }
   if (k === 'Dinar') {
     const est = dinarEstimasi();
-    return `<div class="price-box"><div><small class="muted">Harga dinar per keping</small><b>${hargaDinar() ? fmtVal(Math.round(hargaDinar()), 'Rp') : 'Belum ada'}</b>
-      <small class="muted">${hp ? 'diatur manual' + (tgl ? ' · ' + fmtDate(tgl) : '') : est ? '≈ buyback emas Antam × 4,25 gr × 91,7% (22K)' : 'Atur harga, atau perbarui harga emas di tab Emas'}</small></div>
-      <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="Dinar"><i class="bi bi-tag"></i> ${hp ? 'Ubah' : 'Atur manual'}</button></div>`;
+    return pill('bi-moon-stars', hargaDinar() ? `Dinar ${fmtVal(Math.round(hargaDinar()), 'Rp')}/keping` : 'Harga dinar belum ada',
+      hp ? 'manual' + (tgl ? ' · ' + fmtDate(tgl) : '') : est ? 'otomatis dari buyback emas' : 'atur, atau perbarui harga emas',
+      ubah(hp ? 'Ubah' : 'Atur manual'), !hp && est ? '≈ buyback emas Antam × 4,25 gr × 91,7% (22K)' : '');
   }
-  if (k === 'Tanah') return `<div class="price-box"><div><small class="muted">Harga umum tanah per m²</small><b>${hp ? fmtVal(hp, 'Rp') : 'Belum diatur'}</b><small class="muted">Dipakai untuk tanah yang belum punya harga lokasi sendiri. Harga per lokasi diisi lewat ✏️ Edit di tiap tanah.</small></div>
-    <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-tag"></i> ${hp ? 'Ubah' : 'Atur'}</button></div>`;
-  return `<div class="price-box"><div><small class="muted">Harga ${k.toLowerCase()} per ${t.satuan}</small><b>${hp ? fmtVal(hp, 'Rp') : 'Belum diatur'}</b><small class="muted">${hp && tgl ? 'diatur ' + fmtDate(tgl) : 'untuk taksiran nilai'}</small></div>
-    <button class="btn btn-soft btn-sm" data-action="hartaHarga" data-jenis="${k}"><i class="bi bi-tag"></i> ${hp ? 'Ubah' : 'Atur'}</button></div>`;
+  if (k === 'Tanah') return pill('bi-geo-alt', hp ? `Harga umum ${fmtVal(hp, 'Rp')}/m²` : 'Harga umum tanah belum diatur', hp ? 'manual' + (tgl ? ' · ' + fmtDate(tgl) : '') : '',
+    ubah(hp ? 'Ubah' : 'Atur'), 'Dipakai untuk tanah yang belum punya harga lokasi sendiri — harga per lokasi diisi lewat ✏️ Edit di tiap tanah.');
+  return pill(t.icon, hp ? `Harga ${k.toLowerCase()} ${fmtVal(hp, 'Rp')}/${t.satuan}` : `Harga ${k.toLowerCase()} belum diatur`, hp && tgl ? 'manual · ' + fmtDate(tgl) : 'untuk taksiran nilai', ubah(hp ? 'Ubah' : 'Atur'));
 }
 function finHartaHtml() {
   const owned = hartaOwned();

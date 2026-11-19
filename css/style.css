@@ -1195,3 +1195,8 @@ button.stat:not(.tint) { background: var(--card); }
 .wordmark .wm-rest { margin-left: .26em; }
 .wordmark .wm-o { width: .86em; height: .86em; margin: 0 .03em; }
 .fin-total { font-size: 17px; }
+/* Pil harga acuan harta (warna mengikuti jenis) */
+.harta-price { margin-top: 12px; }
+.harta-price .kurs-pill { background: var(--kp, #E2F4E8); color: #1a1a1a; }
+.harta-price .kurs-pill .link-btn { margin-left: 4px; display: inline-flex; align-items: center; gap: 4px; }
+[data-theme="dark"] .harta-price .kurs-pill { background: color-mix(in srgb, var(--kp) 30%, #232323); color: #F2F2F2; }
