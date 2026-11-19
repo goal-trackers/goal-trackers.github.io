@@ -235,6 +235,12 @@ function hartaPriceBox(k) {
     ubah(hp ? 'Ubah' : 'Atur'), 'Dipakai untuk tanah yang belum punya harga lokasi sendiri — harga per lokasi diisi lewat ✏️ Edit di tiap tanah.');
   return pill(t.icon, hp ? `Harga ${k.toLowerCase()} ${fmtVal(hp, 'Rp')}/${t.satuan}` : `Harga ${k.toLowerCase()} belum diatur`, hp && tgl ? 'manual · ' + fmtDate(tgl) : 'untuk taksiran nilai', ubah(hp ? 'Ubah' : 'Atur'));
 }
+/** Pilihan jenis harta sebagai teks (gaya navbar) + tombol Harta lain — tampil di kanan judul Pusat Finansial */
+function hartaHeadNav() {
+  const sum = hartaSummary(hartaOwned()), k = HARTA[S.ui.hartaJenis] ? S.ui.hartaJenis : 'Emas';
+  return `<div class="harta-nav"><nav class="text-tabs" aria-label="Jenis harta">${Object.keys(HARTA).map(j => `<button class="${j === k ? 'on' : ''}" data-action="hartaPilih" data-jenis="${j}" aria-pressed="${j === k}">${j}${sum[j] ? `<span class="n">${sum[j].n}</span>` : ''}</button>`).join('')}</nav>
+    <button class="btn btn-soft btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button></div>`;
+}
 function finHartaHtml() {
   const owned = hartaOwned();
   const sold = (S.harta || []).filter(h => h.status === 'Dijual');
@@ -298,11 +304,9 @@ function finHartaHtml() {
       <td><button class="icon-btn sm" data-action="editHarta" data-id="${h.harta_id}" aria-label="Edit"><i class="bi bi-pencil"></i></button></td></tr>`).join('')}</tbody></table></div></details>` : '';
   const hsub = ['Emas', 'Tanah'].filter(j => sum[j]).map(j => qtyText(sum[j].qty)).join(' · ');
   return `<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-      <div style="min-width:0"><div class="fw-bold fin-total">Taksiran total semua harta ${fmtVal(total, 'Rp')}${hsub ? ` <span class="tiny muted fw-normal">· ${hsub}</span>` : ''}</div>
+      <div style="min-width:0"><div class="fw-bold fin-total">Taksiran total semua harta ${fmtVal(Math.round(total), 'Rp')}${hsub ? ` <span class="tiny muted fw-normal">· ${hsub}</span>` : ''}</div>
         <p class="tiny muted mb-0" style="max-width:640px">Emas, perak, dinar, tanah, rumah, kendaraan & lainnya — ditaksir dengan harga buyback Antam, harga lokasi, atau penyusutan.</p></div>
-      <div class="d-flex align-items-center gap-2 ms-auto harta-jenis-bar">
-        <label class="hf-sel jenis-sel"><span class="cat-ic" style="--c:${HARTA[k].c}"><i class="bi ${HARTA[k].icon}"></i></span><select data-change="hartaJenisSel" aria-label="Jenis harta">${Object.keys(HARTA).map(j => `<option value="${j}" ${j === k ? 'selected' : ''}>${j} (${sum[j] ? sum[j].n : 0})</option>`).join('')}</select></label>
-        <button class="btn btn-soft btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button></div></div>
+</div>
     ${head}${table}${soldHtml}`;
 }
 

@@ -297,7 +297,7 @@ function renderFinance() {
   const hartaTotal = Object.keys(hs).reduce((s, k) => s + hs[k].nilai, 0);
   const hartaSub = ['Emas', 'Tanah'].filter(k => hs[k]).map(k => qtyText(hs[k].qty)).join(' · ');
   $('#page-finance').innerHTML = `
-    <div class="page-head"><div><p class="eyebrow">Tabungan, investasi, cicilan & harta keluarga</p><h1>Pusat Finansial <span aria-hidden="true">💰</span></h1></div></div>
+    <div class="page-head fin-head"><div><p class="eyebrow">Tabungan, investasi, cicilan & harta keluarga</p><h1>Pusat Finansial <span aria-hidden="true">💰</span></h1></div>${tab === 'harta' ? hartaHeadNav() : ''}</div>
     <div class="fin-tabbar mt-3 mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; return `<h2 class="fin-sec"><span class="tab-ic" style="--tc:${t[4]}"><i class="bi ${t[3]}"></i></span>${t[1]} <span class="n">${t[2]}</span></h2>`; })()}${tab === 'tabungan' ? '<button class="chip-btn fin-add" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>' : ''}</div>
     ${body}`;
   if (tab === 'tabungan') withChart(() => drawTrend('chFin', savingsSeries(monthsBack(today().slice(0, 7), 12))));
@@ -643,7 +643,7 @@ function finAssetsHtml() {
   const kuponInfo = `<div class="rek-hint mb-3"><i class="bi bi-arrow-return-right"></i> ${u ? `Kupon baru otomatis masuk ke <b>${esc(u.judul)}</b> ★` : 'Belum ada rekening penerima kupon.'}
     <button class="link-btn" data-action="finTab" data-tab="rekening">${u ? 'Atur rekening' : 'Tambah rekening'}</button></div>`;
   const actA = S.assets.filter(a => a.status === 'Aktif');
-  return `${finSumHead(`Total investasi aktif ${fmtVal(actA.reduce((s, a) => s + nomRp(a), 0), 'Rp')}`, `kupon bersih ${fmtVal(actA.reduce((s, a) => s + assetInfo(a).net, 0), 'Rp')}/bln`,
+  return `${finSumHead(`Total investasi aktif ${fmtVal(Math.round(actA.reduce((s, a) => s + nomRp(a), 0)), 'Rp')}`, `kupon bersih ${fmtVal(actA.reduce((s, a) => s + assetInfo(a).net, 0), 'Rp')}/bln`,
       'Catat SBN, Sukuk Ritel, ORI, ST, deposito, dll. Kupon bersih tiap bulan otomatis masuk ke rekening pilihan (diproses pukul 07.00 WITA pada tanggal kupon).',
       '<button class="btn btn-dark btn-sm" data-action="newAsset"><i class="bi bi-plus-lg"></i> Tambah Investasi</button>')}
     ${S.assets.some(isUsd) ? `<div class="mb-3">${kursInfoHtml()}</div>` : ''}${kuponInfo}

@@ -1200,3 +1200,14 @@ button.stat:not(.tint) { background: var(--card); }
 .harta-price .kurs-pill { background: var(--kp, #E2F4E8); color: #1a1a1a; }
 .harta-price .kurs-pill .link-btn { margin-left: 4px; display: inline-flex; align-items: center; gap: 4px; }
 [data-theme="dark"] .harta-price .kurs-pill { background: color-mix(in srgb, var(--kp) 30%, #232323); color: #F2F2F2; }
+/* Pilihan jenis harta: teks seperti navbar, di kanan judul halaman */
+.fin-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.harta-nav { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
+.text-tabs { display: flex; gap: 2px; flex-wrap: wrap; }
+.text-tabs button { min-height: 38px; padding: 0 14px; border-radius: 999px; border: 0; background: transparent; font-weight: 700; font-size: 14px; color: var(--muted); white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.text-tabs button:hover { color: var(--text); background: rgba(17,17,17,.05); }
+.text-tabs button.on { background: #111; color: #fff; }
+.text-tabs .n { font-size: 11px; font-weight: 700; opacity: .6; }
+[data-theme="dark"] .text-tabs button:hover { background: rgba(255,255,255,.08); }
+[data-theme="dark"] .text-tabs button.on { background: #F2F2F2; color: #111; }
+@media (max-width: 767px) { .harta-nav { justify-content: flex-start; width: 100%; } .text-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; } .text-tabs::-webkit-scrollbar { display: none; } }
