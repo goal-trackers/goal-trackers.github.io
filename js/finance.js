@@ -469,7 +469,8 @@ function finRekHtml() {
     return Math.abs(sel) >= 1000 ? ` <span style="color:${sel > 0 ? 'var(--green-ink,#1B7F3A)' : 'var(--red-ink)'}">(${sel > 0 ? '+' : '−'}${fmtShort(Math.abs(sel), 'Rp')} kurs)</span>` : ''; };
   const btns = (g, big) => `<button class="btn ${big ? 'btn-mint' : 'btn-soft'} btn-sm" data-action="${isUsdRek(g) ? 'usdTx' : 'logProgress'}" data-id="${g.goal_id}"><i class="bi bi-arrow-left-right"></i> Setor / tarik</button>
       <button class="btn btn-soft btn-sm" data-action="rekHist" data-id="${g.goal_id}"><i class="bi bi-clock-history"></i> Riwayat</button>
-      ${canEdit(g) ? `<button class="btn btn-soft btn-sm" data-action="rekEdit" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>` : ''}`;
+      ${canEdit(g) ? `<button class="btn btn-soft btn-sm" data-action="rekEdit" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>` : ''}
+      ${canDelete(g) ? `<button class="btn btn-soft btn-sm rek-del" data-action="rekHapus" data-id="${g.goal_id}" aria-label="Hapus ${esc(g.judul)}"><i class="bi bi-trash3"></i> Hapus</button>` : ''}`;
   const cards = list.map(g => { const r = REK_JENIS[rekJenis(g)] || REK_JENIS.Lainnya, x = info(g);
     return `<div class="card tint fin-note rek-card" style="--c:${r.c}">
       <div class="d-flex align-items-center gap-3">
@@ -495,6 +496,7 @@ function finRekHtml() {
         <button class="icon-btn sm" data-action="${isUsdRek(g) ? 'usdTx' : 'logProgress'}" data-id="${g.goal_id}" title="Setor / tarik" aria-label="Setor atau tarik ${esc(g.judul)}"><i class="bi bi-arrow-left-right"></i></button>
         <button class="icon-btn sm" data-action="rekHist" data-id="${g.goal_id}" title="Riwayat" aria-label="Riwayat ${esc(g.judul)}"><i class="bi bi-clock-history"></i></button>
         ${canEdit(g) ? `<button class="icon-btn sm" data-action="rekEdit" data-id="${g.goal_id}" title="Edit" aria-label="Edit ${esc(g.judul)}"><i class="bi bi-pencil"></i></button>` : ''}
+        ${canDelete(g) ? `<button class="icon-btn sm" data-action="rekHapus" data-id="${g.goal_id}" title="Hapus" aria-label="Hapus ${esc(g.judul)}"><i class="bi bi-trash3"></i></button>` : ''}
       </div></div>`; }).join('');
   return `<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
       <div><div class="fw-bold">Total saldo ${fmtVal(saldo, 'Rp')} <span class="tiny muted fw-normal">· kupon masuk bulan ini ${fmtShort(bulanIni, 'Rp')}</span></div>${intro}${list.some(isUsdRek) ? `<div class="mt-2">${kursInfoHtml()}</div>` : ''}</div>${add}</div>
@@ -552,7 +554,7 @@ function openRekForm(id) {
     ${g ? '' : `<label class="field"><span id="rekSaldoLbl">Saldo saat ini (${jenis === 'Dolar' ? 'USD' : 'Rp'}) <small>(opsional)</small></span><input name="saldo" inputmode="decimal" ${jenis === 'Dolar' ? '' : 'data-money'} placeholder="0"></label>`}
     <div id="rekKurs" class="mb-3" ${jenis === 'Dolar' ? '' : 'hidden'}>${kursInfoHtml()}<small class="d-block muted mt-1">Saldo disimpan dalam USD dan dinilai ke Rupiah dengan kurs hari ini.</small></div>
     <label class="check-row"><input type="checkbox" name="utama" ${main ? 'checked' : ''} ${main && g ? 'disabled' : ''}> <span>Jadikan <b>penerima kupon utama</b> <small class="muted d-block">Kupon investasi baru otomatis diarahkan ke rekening ini.</small></span></label>
-    <div class="sheet-foot">${g && !main ? `<button type="button" class="btn btn-soft" data-action="rekArsip" data-id="${g.goal_id}"><i class="bi bi-archive"></i> Arsipkan</button>` : `<button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button>`}<button class="btn btn-dark" type="submit">Simpan</button></div>
+    <div class="sheet-foot">${g && canDelete(g) ? `<button type="button" class="btn btn-soft rek-del" data-action="rekHapus" data-id="${g.goal_id}"><i class="bi bi-trash3"></i> Hapus</button>` : `<button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button>`}<button class="btn btn-dark" type="submit">Simpan</button></div>
   </form>`);
 }
 function goalSaveArgs_(g) {
@@ -865,6 +867,21 @@ Object.assign(Actions, {
   },
   utamaArahkan: () => { const g = utamaGoal(); if (g) { arahkanKupon(g.goal_id); renderAll(); } },
   rekBaru: () => openRekForm(),
+  rekHapus: d => { const g = goalById(d.id); if (!g) return;
+    const linked = S.assets.filter(a => a.goal_tujuan_id === g.goal_id);
+    const main = !!parseMeta(g.meta).utama;
+    confirmBox({ title: `Hapus rekening "${g.judul}"?`, text: `Saldo dan seluruh riwayat setor/tarik rekening ini ikut terhapus permanen.${linked.length ? ` ${linked.length} investasi yang mengirim kupon ke sini akan dilepas (tidak diarahkan) — atur ulang tujuan kuponnya nanti.` : ''}`, ok: 'Hapus permanen', danger: true }, () => {
+      const id = g.goal_id;
+      closeSheet();
+      S.rekening = (S.rekening || []).filter(x => x.goal_id !== id);
+      ['logs', 'achievements', 'reactions', 'notifications'].forEach(k => { S[k] = S[k].filter(x => x.goal_id !== id); });
+      linked.forEach(a => { a.goal_tujuan_id = ''; a.diubah_pada = nowIso(); Outbox.push('saveAsset', [Object.assign({}, a)]); });
+      Outbox.push('deleteGoal', [id]);
+      const next = main && rekList()[0];
+      if (next) setUtama_(next.goal_id);
+      saveSnapshot(); renderAll();
+      toast(`Rekening dihapus${next ? ` — penerima kupon utama kini ${next.judul}` : ''}`);
+    }); },
   rekHist: d => { const g = goalById(d.id); if (!g) return;
     const logs = S.logs.filter(l => l.goal_id === g.goal_id).sort((a, b) => String(b.tanggal + b.dibuat_pada).localeCompare(String(a.tanggal + a.dibuat_pada)));
     openSheet(`Riwayat — ${esc(g.judul)}`, `<div class="rek-hist">${logs.length ? logs.map(l => `<div class="rek-hist-row"><div><b>${fmtDate(l.tanggal)}</b><small class="d-block muted">${esc(l.catatan || (Number(l.nilai_tambah) >= 0 ? 'Setoran' : 'Penarikan'))} · ${esc(userById(l.user_id).nama || '')}</small></div>
