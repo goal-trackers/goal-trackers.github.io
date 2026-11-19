@@ -3,11 +3,41 @@
 const ASSET_TYPES = ['SBN', 'SR', 'ORI', 'ST', 'SBR', 'Deposito', 'Obligasi', 'Lainnya'];
 const LOAN_METODE = ['Tanpa bunga', 'Flat', 'Anuitas'];
 const JENJANG = ['TK', 'SD', 'SMP', 'SMA', 'Kuliah'];
-const TPL = {
+const TPL_BASE = {
   liburan: { label: 'Rencana Liburan', emoji: '🏖️', cat: 'cat-liburan', judul: 'Rencana Liburan', hint: 'Target = total dana yang dibutuhkan. Tanggal pelaksanaan ditetapkan setelah dana terkumpul.' },
   darurat: { label: 'Dana Darurat', emoji: '🛟', cat: 'cat-darurat', judul: 'Dana Darurat Keluarga', hint: 'Idealnya 6–12 × pengeluaran bulanan rumah tangga.' },
   sekolah: { label: 'Tabungan Sekolah Anak', emoji: '🎓', cat: 'cat-pendidikan', judul: 'Dana Sekolah Anak', hint: 'Target sudah memperhitungkan kenaikan biaya pendidikan per tahun.' }
 };
+/** Template aktif = daftar dari Pengaturan (Settings.goal_templates) atau bawaan bila belum diatur.
+ *  Template bawaan (liburan/darurat/sekolah) tetap punya kalkulator khusus; template baru memakai id "tp-…". */
+let _tplRaw = {}, _tplObj = null;
+function tplAll() {
+  const raw = S.settings ? S.settings.goal_templates : undefined;
+  if (raw === _tplRaw && _tplObj) return _tplObj;
+  _tplRaw = raw;
+  let arr = null;
+  try { arr = raw ? JSON.parse(raw) : null; } catch (e) { arr = null; }
+  if (!Array.isArray(arr)) arr = Object.keys(TPL_BASE).map(k => ({ id: k, base: k }));
+  const o = {};
+  arr.forEach(t => {
+    if (!t || !t.id) return;
+    const b = t.base && TPL_BASE[t.base];
+    o[t.id] = b ? Object.assign({}, b, { tipe: 'Finansial', jenis: 'Bersama' }, clean_(t), { base: t.base })
+      : Object.assign({ tipe: 'Finansial', jenis: 'Bersama', target: 0, satuan: '', tugas: [] }, t);
+  });
+  _tplObj = o;
+  return o;
+}
+const clean_ = t => { const o = {}; ['label', 'judul', 'cat', 'hint'].forEach(k => { if (t[k]) o[k] = t[k]; }); return o; };
+const tplListRaw = () => Object.keys(tplAll()).map(k => { const t = tplAll()[k];
+  return t.base ? { id: k, base: t.base, label: t.label, judul: t.judul, cat: t.cat, hint: t.hint }
+    : { id: k, label: t.label, judul: t.judul, cat: t.cat, hint: t.hint, tipe: t.tipe, jenis: t.jenis, target: t.target, satuan: t.satuan, tugas: t.tugas || [] }; });
+const TPL = new Proxy({}, {
+  get: (_, k) => tplAll()[k],
+  has: (_, k) => k in tplAll(),
+  ownKeys: () => Reflect.ownKeys(tplAll()),
+  getOwnPropertyDescriptor: (_, k) => { const o = tplAll(); return k in o ? { value: o[k], enumerable: true, configurable: true, writable: true } : undefined; }
+});
 
 // ── Tanggal: tambah k bulan, tanggal disesuaikan ke hari tertentu ──
 function addMonthsDay(iso, k, day) {
@@ -72,7 +102,7 @@ function tplIc(k, cls = 'cat-ic') {
 }
 function tplBoxHtml(tpl, m) {
   if (!TPL[tpl]) return '';
-  const box = inner => `<div class="card mb-3" style="box-shadow:none;background:var(--soft)"><p class="tiny mb-2"><i class="bi bi-lightbulb"></i> ${esc(TPL[tpl].hint)}</p>${inner}</div>`;
+  const box = inner => `<div class="card mb-3" style="box-shadow:none;background:var(--soft)"><p class="tiny ${inner ? 'mb-2' : 'mb-0'}"><i class="bi bi-lightbulb"></i> ${esc(TPL[tpl].hint || '')}</p>${inner}</div>`;
   if (tpl === 'liburan') {
     return box(`<label class="field mb-0"><span>Tujuan / destinasi</span><input name="tpl_tujuan" maxlength="60" value="${esc(m.tujuan || '')}" placeholder="mis. Batu, Malang"></label>`);
   }
@@ -82,6 +112,7 @@ function tplBoxHtml(tpl, m) {
       <label class="field"><span>Berapa bulan?</span><select name="tpl_bulan" data-change="tplCalc">${[3, 6, 9, 12].map(b => `<option value="${b}" ${Number(m.bulan || 6) === b ? 'selected' : ''}>${b} bulan</option>`).join('')}</select></label>
     </div><p class="tiny mb-0 fw-bold" id="tplResult"></p>`);
   }
+  if (tpl !== 'sekolah') return TPL[tpl].hint ? box('') : '';
   const y = new Date().getFullYear();
   return box(`<div class="grid-2">
       <label class="field"><span>Nama anak</span><input name="tpl_anak" maxlength="40" value="${esc(m.anak || '')}" placeholder="mis. Aisyah"></label>
@@ -98,14 +129,19 @@ function tplPick(tpl) {
   f.template.value = tpl;
   $$('[data-action=tplPick]', f).forEach(b => b.classList.toggle('on', b.dataset.tpl === tpl));
   $('#tplBox').innerHTML = tplBoxHtml(tpl, {});
-  if (!TPL[tpl]) return;
-  const fin = f.querySelector('input[name=tipe_target][value=Finansial]');
-  fin.checked = true;
-  goalFormTipeChanged(f);
-  const jb = f.querySelector('input[name=jenis][value=Bersama]');
-  if (jb && !jb.disabled) { jb.checked = true; $('#visField').hidden = true; }
-  if ([...f.kategori_id.options].some(o => o.value === TPL[tpl].cat)) f.kategori_id.value = TPL[tpl].cat;
-  if (!f.judul.value || Object.keys(TPL).some(k => TPL[k].judul === f.judul.value)) f.judul.value = TPL[tpl].judul;
+  const T = TPL[tpl];
+  if (!T) return;
+  const tr = f.querySelector(`input[name=tipe_target][value=${T.tipe || 'Finansial'}]`);
+  if (tr) { tr.checked = true; goalFormTipeChanged(f); }
+  const jb = f.querySelector(`input[name=jenis][value=${T.jenis === 'Pribadi' ? 'Pribadi' : 'Bersama'}]`);
+  if (jb && !jb.disabled) { jb.checked = true; $('#visField').hidden = jb.value === 'Bersama'; }
+  if ([...f.kategori_id.options].some(o => o.value === T.cat)) f.kategori_id.value = T.cat;
+  if (T.judul && (!f.judul.value || Object.keys(TPL).some(k => TPL[k].judul === f.judul.value))) f.judul.value = T.judul;
+  if (!T.base) {
+    if (T.target && T.tipe !== 'Checklist') f.nilai_target.value = fmtN(T.target);
+    if (T.satuan && f.satuan && T.tipe !== 'Finansial' && T.tipe !== 'Checklist') f.satuan.value = T.satuan;
+    if (T.tugas && T.tugas.length) $('#msList').innerHTML = T.tugas.map(m => msRow({ judul: m.judul, nilai_target: m.nilai || '' }, T.tipe !== 'Checklist')).join('');
+  }
   recalcTpl(f);
 }
 function recalcTpl(f) {
@@ -773,6 +809,96 @@ renderDashboard = withRows_('#page-dashboard', renderDashboard);
 renderGoals = withRows_('#page-goals', renderGoals);
 renderDetail = withRows_('#page-detail', renderDetail);
 renderReports = withRows_('#page-reports', renderReports);
+
+// ============================================================
+// PENGATURAN: TEMPLATE GOAL (tambah / edit / hapus)
+// ============================================================
+const TIPE_LBL = { Finansial: 'Tabungan (Rp)', Angka: 'Angka', Checklist: 'Checklist', Kebiasaan: 'Kebiasaan' };
+function tplSettingsCard() {
+  const list = Object.keys(TPL);
+  const rows = list.map(k => { const t = TPL[k];
+    const sub = t.base ? 'Bawaan · kalkulator otomatis' : `${TIPE_LBL[t.tipe] || t.tipe}${t.target && t.tipe !== 'Checklist' ? ' · ' + (t.tipe === 'Finansial' ? fmtShort(t.target, 'Rp') : fmtN(t.target) + ' ' + esc(t.satuan || '')) : ''}${t.tugas && t.tugas.length ? ' · ' + t.tugas.length + (t.tipe === 'Checklist' ? ' tugas' : ' tahapan') : ''}`;
+    return `<div class="cat-item">${tplIc(k, 'ic tint')}<span class="flex-grow-1" style="min-width:0"><b class="d-block">${esc(t.label)}</b><small class="muted tiny">${sub}</small></span>
+      <span class="d-flex gap-1"><button class="icon-btn sm" data-action="tplEdit" data-id="${esc(k)}" aria-label="Edit ${esc(t.label)}"><i class="bi bi-pencil"></i></button>
+      <button class="icon-btn sm" data-action="tplDelete" data-id="${esc(k)}" aria-label="Hapus ${esc(t.label)}"><i class="bi bi-trash3"></i></button></span></div>`; }).join('');
+  const missing = Object.keys(TPL_BASE).filter(k => !TPL[k]);
+  return `<div class="card"><h3>Template Goal <button class="btn btn-soft btn-sm" data-action="tplEdit" data-id=""><i class="bi bi-plus-lg"></i> Baru</button></h3>
+    <p class="tiny muted">Muncul di "Mulai dari template" saat membuat goal baru.</p>
+    ${rows || '<p class="tiny muted mb-0">Belum ada template.</p>'}
+    ${missing.length ? `<button class="btn btn-link btn-sm px-0 mt-2" data-action="tplRestore"><i class="bi bi-arrow-counterclockwise"></i> Pulihkan template bawaan (${missing.map(k => TPL_BASE[k].label).join(', ')})</button>` : ''}</div>`;
+}
+function openTplForm(id) {
+  const ex = id && TPL[id];
+  const t = ex || { label: '', judul: '', cat: (activeCats()[0] || {}).kategori_id, hint: '', tipe: 'Finansial', jenis: 'Bersama', target: 0, satuan: '', tugas: [] };
+  const isBase = !!(ex && ex.base);
+  const r = (name, v, l, cur) => `<label><input type="radio" name="${name}" value="${v}" ${cur === v ? 'checked' : ''} ${name === 'tipe' ? 'data-change="tplFormTipe"' : ''}><span>${l}</span></label>`;
+  const tugas = (t.tugas || []).map(m => m.nilai ? `${m.judul} = ${fmtN(m.nilai)}` : m.judul).join('\n');
+  openSheet(ex ? 'Edit Template' : 'Template Baru', `
+  <form data-form="tplSave" novalidate>
+    <input type="hidden" name="id" value="${esc(id || '')}">
+    <label class="field"><span>Nama template</span><input name="label" maxlength="40" required value="${esc(t.label)}" placeholder="mis. Tabungan Qurban"><em class="field-err"></em></label>
+    <label class="field"><span>Judul goal bawaan</span><input name="judul" maxlength="80" value="${esc(t.judul || '')}" placeholder="mis. Tabungan Qurban 2027"></label>
+    <label class="field"><span>Kategori</span><select name="cat">${activeCats().map(c => `<option value="${c.kategori_id}" ${t.cat === c.kategori_id ? 'selected' : ''}>${esc(c.nama)}</option>`).join('')}</select></label>
+    ${isBase ? `<p class="tiny muted">Template bawaan: tipe Tabungan dengan kalkulator otomatis, jadi tipe & target tidak bisa diubah di sini.</p>` : `
+    <div class="field"><span>Jenis</span><div class="seg">${r('jenis', 'Bersama', '<i class="bi bi-people"></i> Bersama', t.jenis)}${r('jenis', 'Pribadi', '<i class="bi bi-person"></i> Pribadi', t.jenis)}</div></div>
+    <div class="field"><span>Tipe target</span><div class="seg" style="flex-wrap:wrap">${['Finansial', 'Angka', 'Checklist', 'Kebiasaan'].map(x => r('tipe', x, TIPE_LBL[x], t.tipe)).join('')}</div></div>
+    <div class="grid-2" id="tplTarget" ${t.tipe === 'Checklist' ? 'hidden' : ''}>
+      <label class="field"><span id="tplTargetLbl">${t.tipe === 'Finansial' ? 'Target (Rp)' : 'Nilai target'} <small>(opsional)</small></span><input name="target" inputmode="decimal" ${t.tipe === 'Finansial' ? 'data-money' : ''} value="${t.target ? fmtN(t.target) : ''}"></label>
+      <label class="field" id="tplUnit" ${t.tipe === 'Finansial' ? 'hidden' : ''}><span>Satuan</span><input name="satuan" maxlength="20" list="unitList" value="${esc(t.satuan || '')}" placeholder="kali"></label>
+    </div>
+    <label class="field"><span id="tplTugasLbl">${t.tipe === 'Checklist' ? 'Daftar tugas' : 'Tahapan'} <small>(opsional · satu per baris${t.tipe === 'Checklist' ? '' : ', nilai pakai "=" mis. Tiket = 5.000.000'})</small></span><textarea name="tugas" rows="4" placeholder="${t.tipe === 'Checklist' ? 'Bikin paspor\nPesan tiket' : 'Tiket pesawat = 5.000.000\nHotel = 3.000.000'}">${esc(tugas)}</textarea></label>`}
+    <label class="field"><span>Petunjuk <small>(opsional)</small></span><textarea name="hint" rows="2" maxlength="240" placeholder="mis. Target = harga hewan qurban tahun depan.">${esc(t.hint || '')}</textarea></label>
+    <div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button><button class="btn btn-dark" type="submit">Simpan</button></div>
+  </form>`);
+}
+function saveTplList(list, msg) {
+  S.settings.goal_templates = JSON.stringify(list);
+  saveSnapshot(); renderAll(); if (msg) toast(msg);
+  Outbox.push('saveTemplates', [list]);
+}
+Object.assign(Actions, {
+  tplEdit: d => openTplForm(d.id),
+  tplDelete: d => {
+    const t = TPL[d.id]; if (!t) return;
+    confirmBox({ title: `Hapus template "${t.label}"?`, text: 'Goal yang sudah dibuat dari template ini tidak ikut terhapus.', ok: 'Hapus', danger: true }, () => {
+      saveTplList(tplListRaw().filter(x => x.id !== d.id), 'Template dihapus');
+    });
+  },
+  tplRestore: () => {
+    const list = tplListRaw();
+    Object.keys(TPL_BASE).forEach(k => { if (!list.some(x => x.id === k)) list.push({ id: k, base: k }); });
+    saveTplList(list, 'Template bawaan dipulihkan');
+  }
+});
+Object.assign(Changes, {
+  tplFormTipe: el => {
+    const f = el.form, tipe = el.value;
+    $('#tplTarget', f).hidden = tipe === 'Checklist';
+    $('#tplUnit', f).hidden = tipe === 'Finansial';
+    $('#tplTargetLbl', f).innerHTML = (tipe === 'Finansial' ? 'Target (Rp)' : 'Nilai target') + ' <small>(opsional)</small>';
+    if (tipe === 'Finansial') f.target.setAttribute('data-money', ''); else f.target.removeAttribute('data-money');
+    $('#tplTugasLbl', f).innerHTML = (tipe === 'Checklist' ? 'Daftar tugas' : 'Tahapan') + ` <small>(opsional · satu per baris${tipe === 'Checklist' ? '' : ', nilai pakai "=" mis. Tiket = 5.000.000'})</small>`;
+  }
+});
+Object.assign(Forms, {
+  tplSave: f => {
+    const label = f.label.value.trim();
+    if (!label) { const fd = f.label.closest('.field'); fd.classList.add('invalid'); fd.querySelector('.field-err').textContent = 'Nama template wajib diisi.'; return; }
+    const id = f.id.value || ('tp-' + Date.now().toString(36));
+    const list = tplListRaw();
+    const ex = list.find(x => x.id === id);
+    const rec = { id, label, judul: f.judul.value.trim(), cat: f.cat.value, hint: f.hint.value.trim() };
+    if (ex && ex.base) rec.base = ex.base;
+    else {
+      const tipe = (f.querySelector('input[name=tipe]:checked') || {}).value || 'Finansial';
+      Object.assign(rec, { tipe, jenis: (f.querySelector('input[name=jenis]:checked') || {}).value || 'Bersama',
+        target: tipe === 'Checklist' ? 0 : parseNum(f.target.value, tipe === 'Finansial') || 0, satuan: f.satuan.value.trim(),
+        tugas: f.tugas.value.split('\n').map(x => x.trim()).filter(Boolean).slice(0, 30).map(x => { const [j, v] = x.split('='); return { judul: j.trim().slice(0, 80), nilai: tipe === 'Checklist' ? 0 : parseNum(v || '', tipe === 'Finansial') || 0 }; }).filter(m => m.judul) });
+    }
+    if (ex) Object.keys(ex).forEach(k => delete ex[k]), Object.assign(ex, rec); else list.push(rec);
+    closeSheet(); saveTplList(list, 'Template disimpan');
+  }
+});
 
 try {
   boot();

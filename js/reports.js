@@ -294,6 +294,7 @@ function renderSettings() {
         <p class="tiny muted mt-2 mb-0">Tampilan bawaan halaman Goals.</p>
       </div>
       <div class="card"><h3>Kategori <button class="btn btn-soft btn-sm" data-action="catEdit" data-id=""><i class="bi bi-plus-lg"></i> Baru</button></h3>${cats}</div>
+      ${typeof tplSettingsCard === 'function' ? tplSettingsCard() : ''}
       <div class="card"><h3>Satuan Kustom</h3>
         <div class="unit-tags">${units().map(x => `<span class="chip">${esc(x)}<button data-action="unitDel" data-unit="${esc(x)}" aria-label="Hapus satuan ${esc(x)}"><i class="bi bi-x"></i></button></span>`).join('')}</div>
         <form data-form="unit" class="d-flex gap-2"><input class="input" name="unit" maxlength="20" placeholder="mis. liter, sesi" aria-label="Satuan baru"><button class="btn btn-dark btn-sm" type="submit">Tambah</button></form>
