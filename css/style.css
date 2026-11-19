@@ -1069,3 +1069,13 @@ button.stat:not(.tint) { background: var(--card); }
 .fin-tabbar .tabs { margin: 0; min-width: 0; }
 .fin-tabbar .fin-add { min-height: 42px; box-shadow: 0 6px 16px rgba(17,17,17,.06); }
 @media (max-width: 767px) { .fin-tabbar .fin-add { margin-left: auto; } }
+
+/* Pil tab tanpa bayangan (semua menu) — cukup garis tipis */
+.tabs button, .tabs button:hover, .tabs button.on,
+[data-theme="dark"] .tabs button, [data-theme="dark"] .tabs button.on { box-shadow: none !important; transform: none; }
+.tabs button:not(.on) { border: 1px solid var(--line) !important; }
+.tabs button.on { border: 1px solid transparent !important; }
+.tabs button:hover:not(.on) { background: #F4F4F2 !important; }
+[data-theme="dark"] .tabs button:hover:not(.on) { background: #383838 !important; }
+.tabs { padding: 2px 0; }
+.fin-tabbar .fin-add { box-shadow: none; }
