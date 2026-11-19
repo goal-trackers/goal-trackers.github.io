@@ -298,8 +298,9 @@ function finHartaHtml() {
       <td><button class="icon-btn sm" data-action="editHarta" data-id="${h.harta_id}" aria-label="Edit"><i class="bi bi-pencil"></i></button></td></tr>`).join('')}</tbody></table></div></details>` : '';
   return `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
       <p class="tiny muted mb-0">Taksiran total semua harta <b style="color:var(--text);font-size:16px">${fmtShort(total, 'Rp')}</b></p>
-      <button class="btn btn-soft btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button></div>
-    <div class="chips jenis-scroll mb-3" role="tablist" aria-label="Jenis harta">${tabs}</div>
+      <div class="d-flex align-items-center gap-2 ms-auto harta-jenis-bar">
+        <label class="hf-sel jenis-sel"><span class="cat-ic" style="--c:${HARTA[k].c}"><i class="bi ${HARTA[k].icon}"></i></span><select data-change="hartaJenisSel" aria-label="Jenis harta">${Object.keys(HARTA).map(j => `<option value="${j}" ${j === k ? 'selected' : ''}>${j} (${sum[j] ? sum[j].n : 0})</option>`).join('')}</select></label>
+        <button class="btn btn-soft btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button></div></div>
     ${head}${table}${soldHtml}`;
 }
 
@@ -479,6 +480,7 @@ Object.assign(Changes, {
 Object.assign(Inputs, { hartaCalc: debounce(el => hartaPreview(el.form), 150), susutCalc: debounce(el => susutPreview(el.form), 120) });
 Object.assign(Changes, {
   hartaSeriSel: el => Actions.hartaSeri({ seri: el.value }),
+  hartaJenisSel: el => Actions.hartaPilih({ jenis: el.value }),
   hartaGramSel: el => Actions.hartaGram({ gram: el.value })
 });
 Object.assign(Actions, { hartaReset: () => { S.ui.hartaSeri = 'all'; S.ui.hartaGram = 'all'; keepScroll(renderFinance); } });

@@ -1143,3 +1143,7 @@ button.stat:not(.tint) { background: var(--card); }
 @media (max-width: 767px) { .goals-toolbar .toolbar-row { flex-wrap: wrap; overflow: visible; } .goals-toolbar .toolbar-row select { flex: 1 1 calc(50% - 6px); } .goals-toolbar .toolbar-row select[data-change=goalCatSel] { flex-basis: 100%; } }
 @media (max-width: 767px) { .goals-toolbar .toolbar-row select { width: 0; min-width: 0; box-sizing: border-box; } .goals-toolbar .toolbar-row { gap: 8px; } }
 .goals-toolbar > *, .goals-toolbar .toolbar-top > * { min-width: 0; max-width: 100%; }
+.jenis-sel { padding-left: 4px; }
+.jenis-sel .cat-ic { width: 32px; height: 32px; font-size: 14px; }
+.harta-jenis-bar .btn { min-height: 40px; }
+@media (max-width: 560px) { .harta-jenis-bar { width: 100%; } .harta-jenis-bar .jenis-sel { flex: 1; } .harta-jenis-bar .jenis-sel select { width: 100%; max-width: none; } }
