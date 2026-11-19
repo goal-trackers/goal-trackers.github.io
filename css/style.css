@@ -1165,3 +1165,22 @@ button.stat:not(.tint) { background: var(--card); }
 [data-theme="dark"] .card.fin-note .icon-btn, [data-theme="dark"] .card.fin-note .chip.tint, [data-theme="dark"] .card.fin-note .badge-s { background: rgba(0,0,0,.25); }
 /* Ikon kepala harta: gambar batangan/koin tanpa kotak warna di belakangnya */
 .harta-ic:has(svg) { background: transparent !important; box-shadow: none; }
+
+/* Navbar atas: teks saja, tanpa ikon */
+@media (min-width: 992px) {
+  .top-nav { gap: 2px; }
+  .tn .tn-ic { display: none !important; }
+  .tn span, .tn.active span { display: inline !important; }
+  .tn, .tn.active { padding: 0 16px !important; min-height: 40px; font-size: 14.5px; font-weight: 700; color: rgba(255,255,255,.72); background: transparent; }
+  .tn:hover { color: #fff; background: rgba(255,255,255,.08); }
+  .tn.active { color: #111; background: #fff; }
+  .tn.active .tn-caret { opacity: .6; }
+  .tn-add { margin-left: 6px; color: #fff; border: 1px solid rgba(255,255,255,.28); }
+  .tn-add:hover { background: rgba(255,255,255,.12); }
+}
+@media (min-width: 992px) and (max-width: 1180px) { .tn, .tn.active { padding: 0 11px !important; font-size: 13.5px; } }
+@media (min-width: 992px) {
+  .top-nav .tn .tn-ic, .top-nav .tn.active .tn-ic { display: none !important; }
+  .tn { white-space: nowrap; }
+}
+@media (min-width: 992px) and (max-width: 1180px) { .topbar .brand-text { display: none; } }
