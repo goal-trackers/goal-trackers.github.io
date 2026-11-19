@@ -1097,3 +1097,6 @@ button.stat:not(.tint) { background: var(--card); }
 @media (max-width: 560px) { .rek-row { flex-wrap: wrap; } .rek-row .rek-saldo { margin-left: 58px; } }
 .check-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--soft); margin-bottom: 12px; cursor: pointer; font-size: 14px; }
 .check-row input { width: 18px; height: 18px; margin-top: 2px; accent-color: #111; flex: none; }
+.kurs-pill { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 6px 12px; border-radius: 999px; background: #E2F4E8; color: #14532D; font-size: 13px; font-weight: 700; }
+.kurs-pill .link-btn { min-height: 0; padding: 0 4px; font-weight: 800; text-decoration: underline; color: inherit; }
+[data-theme="dark"] .kurs-pill { background: #1F3A2A; color: #CFF2D6; }

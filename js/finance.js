@@ -1,6 +1,19 @@
 /* GOAL TRACKERS — js/finance.js (5/5): Keuangan — template rencana, tanggal pelaksanaan, investasi (SBN/SR), pinjaman, start aplikasi */
 
-const ASSET_TYPES = ['SBN', 'SR', 'ORI', 'ST', 'SBR', 'Deposito', 'Obligasi', 'Lainnya'];
+const ASSET_TYPES = ['SBN', 'SR', 'ORI', 'ST', 'SBR', 'Deposito', 'Obligasi', 'USD', 'Lainnya'];
+const ASSET_LABEL = { USD: 'USD — Tabungan Dolar' };
+/* ── Tabungan dolar: nominal disimpan dalam USD, dinilai ke Rupiah dengan kurs (Settings.kurs_USD) ── */
+const isUsd = a => a && a.jenis === 'USD';
+const kursUsd = () => Number(S.settings && S.settings.kurs_USD) || 16000;
+const nomRp = a => Number(a.nominal) * (isUsd(a) ? kursUsd() : 1);
+const fmtUsd = n => 'US$ ' + Number(n || 0).toLocaleString('id-ID', { maximumFractionDigits: 2 });
+const parseUsd = v => { v = String(v || '').replace(/[^\d.,]/g, ''); if (v.includes(',')) v = v.replace(/\./g, '').replace(',', '.'); else if (/^\d{1,3}(\.\d{3})+$/.test(v)) v = v.replace(/\./g, ''); return Number(v) || 0; };
+const nomText = (a, short) => isUsd(a) ? `${fmtUsd(a.nominal)} <span class="muted tiny">≈ ${fmtShort(nomRp(a), 'Rp')}</span>` : (short ? fmtShort(a.nominal, 'Rp') : fmtVal(a.nominal, 'Rp'));
+function kursInfoHtml() {
+  const s = S.settings || {}, man = s.kurs_USD_src === 'manual';
+  return `<span class="kurs-pill"><i class="bi bi-currency-dollar"></i> Kurs ${fmtVal(kursUsd(), 'Rp')}/USD <small class="muted">${s.kurs_USD ? (man ? 'manual' : 'otomatis') + (s.kurs_USD_tgl ? ' · ' + fmtDate(s.kurs_USD_tgl) : '') : 'perkiraan'}</small>
+    <button type="button" class="link-btn" data-action="kursEdit">Ubah</button></span>`;
+}
 const LOAN_METODE = ['Tanpa bunga', 'Flat', 'Anuitas'];
 const JENJANG = ['TK', 'SD', 'SMP', 'SMA', 'Kuliah'];
 const TPL_BASE = {
@@ -52,7 +65,8 @@ const ownerName = id => id ? userById(id).nama : 'Bersama';
 // ── Perhitungan investasi ──
 function assetInfo(a) {
   const n = Math.max(1, Number(a.tenor_bulan) || 1), t = today();
-  const net = Math.round(Number(a.nominal) * Number(a.kupon_persen) / 100 / 12 * (1 - Number(a.pajak_persen || 0) / 100));
+  const netAsli = Number(a.nominal) * Number(a.kupon_persen) / 100 / 12 * (1 - Number(a.pajak_persen || 0) / 100);
+  const net = Math.round(isUsd(a) ? netAsli * kursUsd() : netAsli);
   let k = 0;
   for (let i = 1; i <= n; i++) { if (addMonthsDay(a.tgl_mulai, i, a.tgl_kupon) <= t) k = i; else break; }
   const maturity = addMonthsDay(a.tgl_mulai, n, a.tgl_kupon);
@@ -221,7 +235,7 @@ function financeAgendaHtml() {
   S.assets.filter(a => a.status === 'Aktif').forEach(a => {
     const i = assetInfo(a);
     if (i.next && dayDiff(t, i.next) <= 10) ev.push({ d: i.next, c: '#CFF2D6', head: '💸 Kupon masuk', body: a.nama + ' · ' + fmtShort(i.net, 'Rp'), foot: dayDiff(t, i.next) ? 'Sisa ' + dayDiff(t, i.next) + ' hari' : 'Hari ini', act: 'data-action="nav" data-page="finance" data-fintab="investasi"' });
-    if (dayDiff(t, i.maturity) >= 0 && dayDiff(t, i.maturity) <= 60) ev.push({ d: i.maturity, c: '#FBEBB5', head: '🏦 Jatuh tempo', body: a.nama + ' · pokok ' + fmtShort(a.nominal, 'Rp') + ' kembali', foot: 'Sisa ' + dayDiff(t, i.maturity) + ' hari', act: 'data-action="nav" data-page="finance" data-fintab="investasi"' });
+    if (dayDiff(t, i.maturity) >= 0 && dayDiff(t, i.maturity) <= 60) ev.push({ d: i.maturity, c: '#FBEBB5', head: '🏦 Jatuh tempo', body: a.nama + ' · pokok ' + (isUsd(a) ? fmtUsd(a.nominal) : fmtShort(a.nominal, 'Rp')) + ' kembali', foot: 'Sisa ' + dayDiff(t, i.maturity) + ' hari', act: 'data-action="nav" data-page="finance" data-fintab="investasi"' });
   });
   S.loans.filter(l => l.status !== 'Lunas').forEach(l => {
     const i = loanInfo(l);
@@ -237,7 +251,7 @@ function finExtraHtml() {
   const loans = S.loans.filter(l => l.status !== 'Lunas' && !loanInfo(l).done);
   const hx = hartaExtraHtml();
   if (!act.length && !loans.length) return hx;
-  return `${act.length ? `<div class="fin-row tiny"><span class="muted">Investasi aktif</span><strong>${fmtShort(act.reduce((s, a) => s + Number(a.nominal), 0), 'Rp')} · kupon ${fmtShort(act.reduce((s, a) => s + assetInfo(a).net, 0), 'Rp')}/bln</strong></div>` : ''}
+  return `${act.length ? `<div class="fin-row tiny"><span class="muted">Investasi aktif</span><strong>${fmtShort(act.reduce((s, a) => s + nomRp(a), 0), 'Rp')} · kupon ${fmtShort(act.reduce((s, a) => s + assetInfo(a).net, 0), 'Rp')}/bln</strong></div>` : ''}
     ${loans.length ? `<div class="fin-row tiny"><span class="muted">Sisa cicilan</span><strong>${fmtShort(loans.reduce((s, l) => s + loanInfo(l).sisaBayar, 0), 'Rp')}</strong></div>` : ''}${hx}`;
 }
 
@@ -249,7 +263,7 @@ function renderFinance() {
   const tab = S.ui.finTab || 'tabungan';
   const f = finSummary();
   const act = S.assets.filter(a => a.status === 'Aktif');
-  const invest = act.reduce((s, a) => s + Number(a.nominal), 0);
+  const invest = act.reduce((s, a) => s + nomRp(a), 0);
   const kupon = act.reduce((s, a) => s + assetInfo(a).net, 0);
   const runLoans = S.loans.filter(l => l.status !== 'Lunas' && !loanInfo(l).done);
   const sisaPinjam = runLoans.reduce((s, l) => s + loanInfo(l).sisaBayar, 0);
@@ -306,7 +320,7 @@ function finViewBody(cards, listHtml) {
 const ASSET_BADGE = {
   SR: ['#8B1A8F', '#F1DDF2', 'SUKUK RITEL'], ST: ['#1B4F8A', '#DCE8F6', 'SUKUK TAB.'], ORI: ['#B42318', '#FDECEA', 'OBLIGASI RI'],
   SBR: ['#A15C07', '#FEF3E2', 'SAVINGS BOND'], SBN: ['#1D4ED8', '#E6EEFD', 'SURAT NEGARA'], Deposito: ['#6D28D9', '#F0E9FD', 'DEPOSITO'],
-  Obligasi: ['#334155', '#EEF1F5', 'OBLIGASI'], Lainnya: ['#475569', '#EEF1F5', 'INVESTASI']
+  Obligasi: ['#334155', '#EEF1F5', 'OBLIGASI'], USD: ['#1E7A46', '#E2F4E8', 'TABUNGAN USD'], Lainnya: ['#475569', '#EEF1F5', 'INVESTASI']
 };
 /** Ikon gambar per jenis (diunggah pengguna). Jenis lain memakai lencana gambar sendiri. */
 const ASSET_IMG = { ST: 'img/ins-st.png' };
@@ -531,7 +545,7 @@ function finAssetsHtml() {
           <div class="d-flex gap-2 align-items-center flex-wrap"><span class="asset-logo" title="${esc(a.jenis)}">${assetBadgeSvg(a, 38)}</span>${st}</div>
           <div style="font-size:18px;font-weight:800" class="mt-1">${esc(a.nama)}</div>
           <div class="tiny muted">${esc(ownerName(a.pemilik_id))} · kupon ${fmtN(a.kupon_persen)}%/thn · pajak ${fmtN(a.pajak_persen)}%</div>
-          <div class="mt-1"><b>${fmtVal(a.nominal, 'Rp')}</b></div>
+          <div class="mt-1"><b>${nomText(a)}</b></div>
         </div>
       </div>
       <div class="kv mt-3">
@@ -548,8 +562,9 @@ function finAssetsHtml() {
   });
   const rowsA = `<div class="glist">${list.map(a => { const i = assetInfo(a); return finRow({ act: `data-action="editAsset" data-id="${a.aset_id}"`, raw: assetBadgeSvg(a, 44), title: a.nama, tint: (ASSET_BADGE[a.jenis] || ASSET_BADGE.Lainnya)[1], fg: (ASSET_BADGE[a.jenis] || ASSET_BADGE.Lainnya)[0],
     badge: a.status !== 'Aktif' ? `<span class="badge-s s-done" style="padding:2px 8px">${esc(a.status)}</span>` : '<span class="badge-s s-active" style="padding:2px 8px">Aktif</span>',
-    sub: `${esc(a.jenis)} · ${fmtShort(a.nominal, 'Rp')} · kupon ${fmtShort(i.net, 'Rp')}/bln · ${i.k}/${i.n} bln`, pct: i.pct, right: Math.round(i.pct) + '%' }); }).join('')}</div>`;
+    sub: `${esc(a.jenis)} · ${isUsd(a) ? fmtUsd(a.nominal) + ' ≈ ' + fmtShort(nomRp(a), 'Rp') : fmtShort(a.nominal, 'Rp')} · ${isUsd(a) ? 'bunga' : 'kupon'} ${fmtShort(i.net, 'Rp')}/bln · ${i.k}/${i.n} bln`, pct: i.pct, right: Math.round(i.pct) + '%' }); }).join('')}</div>`;
   return `${utamaCardHtml()}<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+      ${S.assets.some(isUsd) ? `<div class="w-100">${kursInfoHtml()}</div>` : ''}
       <p class="tiny muted mb-0" style="max-width:560px">Catat SBN, Sukuk Ritel, ORI, ST, deposito, dll. Kupon bersih tiap bulan otomatis masuk ke tabungan pilihan (diproses pukul 07.00 WITA pada tanggal kupon).</p>
       <button class="btn btn-dark btn-sm" data-action="newAsset"><i class="bi bi-plus-lg"></i> Tambah Investasi</button></div>
     ${list.length ? finLayout(cards, rowsA) : `<div class="card">${emptyHtml('bi-bank', 'Belum ada investasi tercatat.', '<button class="btn btn-dark btn-sm" data-action="newAsset">Tambah investasi pertama</button>')}</div>`}`;
@@ -601,15 +616,16 @@ function openAssetForm(id) {
   <form data-form="asset" novalidate>
     <input type="hidden" name="aset_id" value="${esc(a.aset_id)}">
     <div class="grid-2">
-      <label class="field"><span>Jenis</span><select name="jenis">${ASSET_TYPES.map(t => `<option ${a.jenis === t ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label class="field"><span>Jenis</span><select name="jenis" data-change="assetJenis">${ASSET_TYPES.map(t => `<option value="${t}" ${a.jenis === t ? 'selected' : ''}>${ASSET_LABEL[t] || t}</option>`).join('')}</select></label>
       <label class="field"><span>Seri / nama</span><input name="nama" maxlength="60" required value="${esc(a.nama)}" placeholder="mis. SR019"><em class="field-err"></em></label>
-      <label class="field"><span>Nominal (Rp)</span><input name="nominal" inputmode="numeric" data-money data-input="assetCalc" value="${a.nominal ? fmtN(a.nominal) : ''}" placeholder="50.000.000"><em class="field-err"></em></label>
+      <label class="field"><span id="nomLbl">${isUsd(a) ? 'Saldo (USD)' : 'Nominal (Rp)'}</span><input name="nominal" inputmode="decimal" ${isUsd(a) ? '' : 'data-money'} data-input="assetCalc" value="${a.nominal ? (isUsd(a) ? Number(a.nominal).toLocaleString('id-ID', { maximumFractionDigits: 2 }) : fmtN(a.nominal)) : ''}" placeholder="${isUsd(a) ? '1.500' : '50.000.000'}"><em class="field-err"></em></label>
       <label class="field"><span>Kupon / bunga per tahun (%)</span><input name="kupon_persen" inputmode="decimal" data-input="assetCalc" value="${esc(a.kupon_persen)}" placeholder="5"><em class="field-err"></em></label>
       <label class="field"><span>Tenor (bulan)</span><input name="tenor_bulan" type="number" min="1" max="600" data-input="assetCalc" value="${esc(a.tenor_bulan)}"></label>
       <label class="field"><span>Pajak kupon (%)</span><input name="pajak_persen" inputmode="decimal" data-input="assetCalc" value="${esc(a.pajak_persen)}"></label>
       <label class="field"><span>Tanggal mulai (setelmen)</span><input type="date" name="tgl_mulai" data-change="assetCalc" value="${esc(a.tgl_mulai)}"></label>
       <label class="field"><span>Kupon dibayar tiap tanggal</span><input name="tgl_kupon" type="number" min="1" max="31" data-input="assetCalc" value="${esc(a.tgl_kupon)}"></label>
     </div>
+    <div id="kursBox" class="mb-3" ${isUsd(a) ? '' : 'hidden'}>${kursInfoHtml()}<small class="d-block muted mt-1">Bunga dolar dikonversi ke Rupiah dengan kurs ini saat dicatat ke tabungan.</small></div>
     <label class="field"><span>Kupon bulanan masuk ke tabungan</span><select name="goal_tujuan_id"><option value="">— tidak diarahkan —</option>${goals.map(g => `<option value="${g.goal_id}" ${a.goal_tujuan_id === g.goal_id ? 'selected' : ''}>${isRek(g) ? esc(rekJenis(g)) + ' · ' : ''}${esc(g.judul)}${parseMeta(g.meta).utama ? ' ★' : ''}</option>`).join('')}</select>
       <small>Setiap tanggal kupon, kupon bersih otomatis dicatat sebagai setoran ke tabungan ini.</small></label>
     <div class="grid-2">
@@ -625,7 +641,7 @@ function openAssetForm(id) {
 function assetFromForm(f) {
   return {
     aset_id: f.aset_id.value, nama: f.nama.value.trim(), jenis: f.jenis.value, pemilik_id: f.pemilik_id.value,
-    nominal: parseNum(f.nominal.value, true), kupon_persen: parseNum(f.kupon_persen.value), pajak_persen: parseNum(f.pajak_persen.value),
+    nominal: f.jenis.value === 'USD' ? parseUsd(f.nominal.value) : parseNum(f.nominal.value, true), kupon_persen: parseNum(f.kupon_persen.value), pajak_persen: parseNum(f.pajak_persen.value),
     tenor_bulan: parseInt(f.tenor_bulan.value, 10) || 0, tgl_mulai: f.tgl_mulai.value, tgl_kupon: parseInt(f.tgl_kupon.value, 10) || 1,
     goal_tujuan_id: f.goal_tujuan_id.value, status: f.status.value, catatan: f.catatan.value.trim()
   };
@@ -636,7 +652,7 @@ function assetPreview(f) {
   const a = assetFromForm(f);
   if (!(a.nominal > 0) || !(a.tenor_bulan > 0) || !a.tgl_mulai) { el.textContent = 'Isi nominal, kupon, tenor & tanggal untuk melihat perhitungan.'; return; }
   const i = assetInfo(a);
-  el.textContent = `Kupon bersih ±${fmtVal(i.net, 'Rp')}/bln · sudah berjalan ${i.k} dari ${i.n} bulan · dana pokok kembali ${fmtDate(i.maturity)}`;
+  el.textContent = `${isUsd(a) ? `Saldo ${fmtUsd(a.nominal)} ≈ ${fmtVal(nomRp(a), 'Rp')} · bunga bersih ±${fmtUsd(Math.round(i.net / kursUsd() * 100) / 100)} (≈ ${fmtVal(i.net, 'Rp')})/bln` : `Kupon bersih ±${fmtVal(i.net, 'Rp')}/bln`} · sudah berjalan ${i.k} dari ${i.n} bulan · dana pokok kembali ${fmtDate(i.maturity)}`;
 }
 function submitAsset(f) {
   const a = assetFromForm(f);
@@ -740,7 +756,7 @@ function setExecDate(id, val) {
 function assetRowsExport() {
   return S.assets.map(a => {
     const i = assetInfo(a);
-    return { 'Jenis': a.jenis, 'Seri': a.nama, 'Pemilik': ownerName(a.pemilik_id), 'Nominal (Rp)': Number(a.nominal), 'Kupon (%/thn)': Number(a.kupon_persen), 'Pajak (%)': Number(a.pajak_persen),
+    return { 'Jenis': a.jenis, 'Seri': a.nama, 'Pemilik': ownerName(a.pemilik_id), 'Nominal (Rp)': Math.round(nomRp(a)), 'Nominal asli': isUsd(a) ? fmtUsd(a.nominal) : '', 'Kupon (%/thn)': Number(a.kupon_persen), 'Pajak (%)': Number(a.pajak_persen),
       'Tenor (bln)': i.n, 'Sudah berjalan (bln)': i.k, 'Sisa (bln)': i.left, 'Kupon bersih/bln (Rp)': i.net, 'Mulai': a.tgl_mulai, 'Jatuh tempo': i.maturity,
       'Kupon ke tabungan': (goalById(a.goal_tujuan_id) || {}).judul || '-', 'Status': a.status };
   });
@@ -774,6 +790,13 @@ Object.assign(Actions, {
     confirmBox({ title: `Arsipkan "${g.judul}"?`, text: 'Rekening disembunyikan dari daftar. Riwayat saldonya tetap tersimpan dan bisa dibuka dari Goals (filter Diarsipkan).', ok: 'Arsipkan' }, () => {
       closeSheet(); g.status = 'Arsip'; saveSnapshot(); renderAll(); Outbox.push('setGoalArchived', [g.goal_id, true]); toast('Rekening diarsipkan'); }); },
   editAsset: d => openAssetForm(d.id),
+  kursEdit: () => {
+    const s = S.settings || {};
+    openSheet('Kurs Dolar (USD → Rp)', `<form data-form="kurs" novalidate>
+      <p class="tiny muted">Saat ini ${fmtVal(kursUsd(), 'Rp')}/USD${s.kurs_USD_src === 'manual' ? ' (diatur manual)' : ' (otomatis dari open.er-api.com, diperbarui harian)'}.</p>
+      <label class="field"><span>Kurs manual (Rp per 1 USD)</span><input name="kurs" inputmode="numeric" data-money placeholder="${fmtN(kursUsd())}"><small>Kosongkan lalu Simpan untuk kembali ke kurs otomatis.</small></label>
+      <div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button><button class="btn btn-dark" type="submit">Simpan</button></div></form>`);
+  },
   delAsset: d => confirmBox({ title: 'Hapus investasi ini?', text: 'Catatan investasi & riwayat kupon otomatisnya dihapus. Setoran yang sudah masuk ke tabungan tetap ada.', ok: 'Hapus', danger: true }, () => {
     S.assets = S.assets.filter(x => x.aset_id !== d.id); S.assetIncome = S.assetIncome.filter(x => x.aset_id !== d.id);
     saveSnapshot(); renderAll(); toast('Investasi dihapus'); Outbox.push('deleteAsset', [d.id]);
@@ -795,6 +818,15 @@ Object.assign(Actions, {
 const _navOrig = Actions.nav;
 Actions.nav = (d, el, e) => { if (d.fintab) S.ui.finTab = d.fintab; _navOrig(d, el, e); };
 Object.assign(Changes, {
+  assetJenis: el => {
+    const f = el.form, usd = el.value === 'USD';
+    $('#nomLbl', f).textContent = usd ? 'Saldo (USD)' : 'Nominal (Rp)';
+    const n = f.nominal; if (usd) n.removeAttribute('data-money'); else n.setAttribute('data-money', '');
+    n.placeholder = usd ? '1.500' : '50.000.000'; n.value = '';
+    $('#kursBox', f).hidden = !usd;
+    if (usd) { f.pajak_persen.value = 20; if (Number(f.tenor_bulan.value) < 60) f.tenor_bulan.value = 120; if (!f.nama.value) f.nama.value = 'Tabungan Dolar'; }
+    assetPreview(f);
+  },
   rekJenis: el => { const f = el.form; $$('input[name=jenis]', f).forEach(x => x.closest('label').classList.toggle('on', x.checked)); f.nama.placeholder = REK_JENIS[el.value].ph; },
   tplCalc: el => recalcTpl(el.form),
   assetCalc: el => assetPreview(el.form),
@@ -806,6 +838,13 @@ Object.assign(Inputs, {
   loanCalc: debounce(el => loanPreview(el.form), 150)
 });
 Object.assign(Forms, {
+  kurs: f => {
+    const n = parseNum(f.kurs.value, true);
+    if (n && (n < 1000 || n > 100000)) { toast('Kurs tidak wajar.', 'error'); return; }
+    if (n) Object.assign(S.settings, { kurs_USD: n, kurs_USD_src: 'manual', kurs_USD_tgl: today() }); else S.settings.kurs_USD_src = 'auto';
+    saveSnapshot(); closeSheet(); renderAll(); toast(n ? 'Kurs disimpan' : 'Kurs kembali otomatis — diperbarui dari server');
+    Outbox.push('saveKursUsd', [n || 0]);
+  },
   rekening: f => submitRek(f),
   asset: f => submitAsset(f),
   loan: f => submitLoan(f),
