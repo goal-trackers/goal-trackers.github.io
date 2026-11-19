@@ -454,7 +454,53 @@ const rekUsd = g => Number(parseMeta(g.meta).usd) || 0;
 const rekRp = g => isUsdRek(g) ? Math.round(rekUsd(g) * kursUsd()) : Number(g.nilai_saat_ini || 0);
 const rekIc = (j, size = 46) => { const r = REK_JENIS[j] || REK_JENIS.Lainnya; return `<span class="rek-ic" style="--c:${r.c};width:${size}px;height:${size}px"><i class="bi ${r.ic}"></i></span>`; };
 function finRekHtml() {
-  return `<p class="tiny muted mb-3" style="max-width:640px">Rekening bank, RDPU, e-wallet, deposito & tabungan dolar. Bukan target — saldo terus bertambah. Satu rekening bisa dipilih sebagai penerima kupon investasi otomatis.</p>${utamaCardHtml()}`;
+  const list = rekList(), u = utamaGoal();
+  const add = `<button class="btn btn-dark btn-sm" data-action="rekBaru"><i class="bi bi-plus-lg"></i> Tambah rekening</button>`;
+  const intro = `<p class="tiny muted mb-0" style="max-width:640px">Rekening bank, RDPU, e-wallet, deposito & tabungan dolar. Bukan target — saldo terus bertambah. Satu rekening bisa dipilih sebagai penerima kupon investasi otomatis.</p>`;
+  if (!list.length) return `<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">${intro}${add}</div>
+    <div class="card">${emptyHtml('bi-bank', 'Belum ada rekening. Tambahkan rekening bank, RDPU, e-wallet, deposito atau tabungan dolar.', add)}</div>`;
+  const ym = today().slice(0, 7), ids = new Set(list.map(g => g.goal_id));
+  const bulanIni = S.assetIncome.filter(x => ids.has(x.goal_id) && String(x.periode || x.tanggal).slice(0, 7) === ym).reduce((s, x) => s + Number(x.jumlah), 0);
+  const saldo = list.reduce((s, g) => s + rekRp(g), 0);
+  const lain = S.assets.filter(a => a.status === 'Aktif' && !ids.has(a.goal_tujuan_id));
+  const info = g => { const linked = S.assets.filter(a => a.status === 'Aktif' && a.goal_tujuan_id === g.goal_id);
+    return { linked, perBulan: linked.reduce((s, a) => s + assetInfo(a).net, 0), main: !!parseMeta(g.meta).utama }; };
+  const selisih = g => { const sel = rekRp(g) - Number(g.nilai_saat_ini || 0);
+    return Math.abs(sel) >= 1000 ? ` <span style="color:${sel > 0 ? 'var(--green-ink,#1B7F3A)' : 'var(--red-ink)'}">(${sel > 0 ? '+' : '−'}${fmtShort(Math.abs(sel), 'Rp')} kurs)</span>` : ''; };
+  const btns = (g, big) => `<button class="btn ${big ? 'btn-mint' : 'btn-soft'} btn-sm" data-action="${isUsdRek(g) ? 'usdTx' : 'logProgress'}" data-id="${g.goal_id}"><i class="bi bi-arrow-left-right"></i> Setor / tarik</button>
+      <button class="btn btn-soft btn-sm" data-action="rekHist" data-id="${g.goal_id}"><i class="bi bi-clock-history"></i> Riwayat</button>
+      ${canEdit(g) ? `<button class="btn btn-soft btn-sm" data-action="rekEdit" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>` : ''}`;
+  const cards = list.map(g => { const r = REK_JENIS[rekJenis(g)] || REK_JENIS.Lainnya, x = info(g);
+    return `<div class="card tint fin-note rek-card" style="--c:${r.c}">
+      <div class="d-flex align-items-center gap-3">
+        ${rekIc(rekJenis(g), 52)}
+        <div class="flex-grow-1" style="min-width:0">
+          <div class="d-flex gap-2 align-items-center flex-wrap"><span class="chip tint tpl-tag" style="--c:${r.c}"><i class="bi ${r.ic}"></i> ${esc(rekJenis(g))}</span>${x.main ? '<span class="badge-s s-done"><i class="bi bi-star-fill"></i> Penerima kupon</span>' : ''}</div>
+          <div class="rek-name">${esc(g.judul)}</div>
+        </div>
+      </div>
+      <div class="rek-big mt-3">${isUsdRek(g) ? `${fmtUsd(rekUsd(g))}<small class="d-block muted">≈ ${fmtVal(rekRp(g), 'Rp')}${selisih(g)}</small>` : fmtVal(g.nilai_saat_ini, 'Rp')}</div>
+      <p class="tiny muted mt-2 mb-3"><i class="bi bi-arrow-return-right"></i> ${x.linked.length ? `${x.linked.length} investasi mengirim kupon · ±${fmtShort(x.perBulan, 'Rp')}/bln` : 'Belum ada kupon yang diarahkan ke sini'}</p>
+      <div class="plan-acts">${btns(g, true)}</div>
+    </div>`; });
+  const rows = list.map(g => { const x = info(g);
+    return `<div class="rek-row">
+      ${rekIc(rekJenis(g))}
+      <div class="flex-grow-1" style="min-width:0">
+        <div class="d-flex align-items-center gap-2 flex-wrap"><b>${esc(g.judul)}</b><span class="tiny muted">${esc(rekJenis(g))}</span>${x.main ? '<span class="badge-s s-done" style="padding:2px 8px;font-size:11px"><i class="bi bi-star-fill"></i> Penerima kupon utama</span>' : ''}</div>
+        <div class="tiny muted">${x.linked.length ? `${x.linked.length} investasi mengirim kupon · ±${fmtShort(x.perBulan, 'Rp')}/bln` : 'Belum ada kupon yang diarahkan ke sini'}</div>
+      </div>
+      <div class="rek-saldo text-end">${isUsdRek(g) ? `${fmtUsd(rekUsd(g))}<small class="d-block muted fw-semibold">≈ ${fmtShort(rekRp(g), 'Rp')}${selisih(g)}</small>` : fmtShort(g.nilai_saat_ini, 'Rp')}</div>
+      <div class="d-flex gap-1">
+        <button class="icon-btn sm" data-action="${isUsdRek(g) ? 'usdTx' : 'logProgress'}" data-id="${g.goal_id}" title="Setor / tarik" aria-label="Setor atau tarik ${esc(g.judul)}"><i class="bi bi-arrow-left-right"></i></button>
+        <button class="icon-btn sm" data-action="rekHist" data-id="${g.goal_id}" title="Riwayat" aria-label="Riwayat ${esc(g.judul)}"><i class="bi bi-clock-history"></i></button>
+        ${canEdit(g) ? `<button class="icon-btn sm" data-action="rekEdit" data-id="${g.goal_id}" title="Edit" aria-label="Edit ${esc(g.judul)}"><i class="bi bi-pencil"></i></button>` : ''}
+      </div></div>`; }).join('');
+  return `<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+      <div><div class="fw-bold">Total saldo ${fmtVal(saldo, 'Rp')} <span class="tiny muted fw-normal">· kupon masuk bulan ini ${fmtShort(bulanIni, 'Rp')}</span></div>${intro}${list.some(isUsdRek) ? `<div class="mt-2">${kursInfoHtml()}</div>` : ''}</div>${add}</div>
+    ${lain.length && u ? `<div class="price-box mb-3"><div><small class="muted">${lain.length} investasi aktif belum mengirim kupon ke rekening mana pun</small><b style="font-size:14px">${lain.map(a => esc(a.nama)).join(', ')}</b></div>
+      <button class="btn btn-dark btn-sm" data-action="utamaArahkan"><i class="bi bi-arrow-down-circle"></i> Arahkan ke ${esc(u.judul)}</button></div>` : ''}
+    ${finLayout(cards, `<div class="card"><div class="rek-list">${rows}</div></div>`)}`;
 }
 function utamaCardHtml() {
   const list = rekList(), u = utamaGoal();
