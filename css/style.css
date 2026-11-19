@@ -878,3 +878,23 @@ button.stat:not(.tint) { background: var(--card); }
 @media (min-width: 768px) {
   #page-goals .chips { flex-wrap: wrap; overflow: visible; row-gap: 10px; }
 }
+
+/* Checklist di kartu: 2 kolom bila kartu cukup lebar */
+.gc-tasks { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); column-gap: 6px; gap: 2px 6px; }
+.gc-tasks > li.tiny { grid-column: 1 / -1; }
+
+/* Peta perjalanan: semua kartu sedikit miring, sudutnya bervariasi */
+.journey .j-item > .gcard { --tilt: 0deg; transform: rotate(var(--tilt)); transition: transform .25s ease, box-shadow .25s ease; box-shadow: 0 14px 34px rgba(17,17,17,.10); }
+.journey .j-item:nth-child(4n+1) > .gcard { --tilt: -1.6deg; }
+.journey .j-item:nth-child(4n+2) > .gcard { --tilt: 1.1deg; }
+.journey .j-item:nth-child(4n+3) > .gcard { --tilt: -0.7deg; }
+.journey .j-item:nth-child(4n+4) > .gcard { --tilt: 1.5deg; }
+.journey .j-col:nth-child(2) .j-item:nth-child(4n+1) > .gcard { --tilt: 1.3deg; }
+.journey .j-col:nth-child(2) .j-item:nth-child(4n+2) > .gcard { --tilt: -1.2deg; }
+.journey .j-col:nth-child(2) .j-item:nth-child(4n+3) > .gcard { --tilt: 0.8deg; }
+.journey .j-col:nth-child(2) .j-item:nth-child(4n+4) > .gcard { --tilt: -1.7deg; }
+.journey .j-item > .gcard:hover { transform: rotate(0deg) translateY(-3px); box-shadow: 0 20px 44px rgba(17,17,17,.14); }
+@media (max-width: 767px) {
+  .journey .j-item > .gcard { --tilt-scale: .6; transform: rotate(calc(var(--tilt) * .6)); }
+}
+@media (prefers-reduced-motion: reduce) { .journey .j-item > .gcard { transition: none; } }
