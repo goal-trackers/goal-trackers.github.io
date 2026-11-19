@@ -1221,3 +1221,8 @@ button.stat:not(.tint) { background: var(--card); }
 .harta-nav-wrap .harta-head-plain { margin: 0; padding: 0 0 0 14px; }
 .harta-nav-wrap .harta-own { font-size: 16px; }
 @media (max-width: 767px) { .harta-nav-wrap { width: 100%; } .harta-nav-wrap .harta-head-plain { padding-left: 0; } }
+/* Harta: ringkasan total (kiri) + ringkasan jenis terpilih (kanan, di bawah pilihan jenis) */
+.harta-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto); gap: 12px 24px; align-items: start; }
+.harta-top .harta-head-plain { margin: -2px 0 0; padding: 0; min-width: 420px; }
+@media (max-width: 991px) { .harta-top { grid-template-columns: 1fr; } .harta-top .harta-head-plain { min-width: 0; } }
+.fin-head { align-items: flex-end; }
