@@ -40,7 +40,7 @@ const pkSet = g => PKAT_SET[pkProfile(g)];
 const pkLook = k => { for (const n in PKAT_SET) if (PKAT_SET[n][k]) return PKAT_SET[n][k]; return PKAT_SET.umum.Lainnya; };
 const pakaiOf = gid => (S.pengeluaran || []).filter(x => x.goal_id === gid);
 /** Semua rencana finansial bisa punya catatan pengeluaran (kecuali Tabungan Utama). */
-const bisaPengeluaran = g => g && g.tipe_target === 'Finansial' && !parseMeta(g.meta).utama;
+const bisaPengeluaran = g => g && g.tipe_target === 'Finansial' && !parseMeta(g.meta).utama && !parseMeta(g.meta).rekening;
 const punyaPengeluaran = g => bisaPengeluaran(g) && (g.template === 'liburan' || pakaiOf(g.goal_id).length > 0);
 function anggaranInfo(g) {
   const list = pakaiOf(g.goal_id);

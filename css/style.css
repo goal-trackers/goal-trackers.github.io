@@ -1087,3 +1087,13 @@ button.stat:not(.tint) { background: var(--card); }
 .tpl-more > summary::before { content: '\F285'; font-family: 'bootstrap-icons'; font-size: 12px; transition: transform .15s; }
 .tpl-more[open] > summary::before { transform: rotate(90deg); }
 .tpl-more > summary::-webkit-details-marker { display: none; }
+
+/* Rekening penampung */
+.rek-ic { border-radius: 14px; display: grid; place-items: center; background: var(--c); color: #1a1a1a; font-size: 20px; flex: none; }
+.rek-list { display: grid; }
+.rek-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.rek-row:first-child { border-top: 0; }
+.rek-saldo { font-weight: 800; font-size: 17px; white-space: nowrap; }
+@media (max-width: 560px) { .rek-row { flex-wrap: wrap; } .rek-row .rek-saldo { margin-left: 58px; } }
+.check-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--soft); margin-bottom: 12px; cursor: pointer; font-size: 14px; }
+.check-row input { width: 18px; height: 18px; margin-top: 2px; accent-color: #111; flex: none; }
