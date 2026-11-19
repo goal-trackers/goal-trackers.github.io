@@ -239,7 +239,7 @@ function openCategoryForm(id) {
   <form data-form="category" novalidate>
     <input type="hidden" name="kategori_id" value="${esc(c.kategori_id)}">
     <label class="field"><span>Nama kategori</span><input name="nama" maxlength="30" required value="${esc(c.nama)}" placeholder="mis. Pendidikan Anak"><em class="field-err"></em></label>
-    <div class="field"><span>Ikon</span><div class="icon-pick">${CAT_ICONS.concat(CAT_ICONS.includes(c.ikon) ? [] : [c.ikon]).map(i => `<label><input type="radio" name="ikon" value="${i}" ${c.ikon === i ? 'checked' : ''} aria-label="${i}"><span><i class="bi ${i}"></i></span></label>`).join('')}</div></div>
+    <div class="field"><span>Ikon</span><div class="icon-pick">${CAT_ICONS.concat(CAT_ICONS.includes(c.ikon) ? [] : [c.ikon]).map(i => `<label><input type="radio" name="ikon" value="${i}" ${c.ikon === i ? 'checked' : ''} aria-label="${ICON_LABEL[i] || i}"><span title="${ICON_LABEL[i] || ''}"><i class="bi ${i}"></i></span></label>`).join('')}</div></div>
     <div class="field"><span>Warna</span><div class="swatches">${PASTELS.map(x => `<label class="swatch" style="--c:${x}"><input type="radio" name="warna" value="${x}" ${c.warna === x ? 'checked' : ''} aria-label="Warna ${x}"></label>`).join('')}</div></div>
     <div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button><button class="btn btn-dark" type="submit">Simpan</button></div>
   </form>`);
