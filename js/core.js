@@ -407,7 +407,7 @@ const goalPct = g => { const t = Number(g.nilai_target) || 0; return t > 0 ? Mat
 const pctInt = g => Math.floor(goalPct(g) + 1e-9);
 const goalColor = g => g.warna || catById(g.kategori_id).warna;
 const goalIcon = g => g.ikon || catById(g.kategori_id).ikon;
-const canEdit = g => g.jenis === 'Bersama' || (S.me && g.pemilik_id === S.me.user_id);
+const canEdit = g => g.jenis === 'Bersama' || (S.me && (g.pemilik_id === S.me.user_id || (S.me.peran === 'Admin' && g.visibilitas === 'Terlihat pasangan')));
 const canLog = g => canEdit(g) && g.status !== 'Arsip';
 const canDelete = g => g.jenis === 'Bersama' ? isAdmin() : g.pemilik_id === S.me.user_id;
 const isAdmin = () => S.me && S.me.peran === 'Admin';
