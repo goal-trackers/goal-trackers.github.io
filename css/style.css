@@ -1079,3 +1079,5 @@ button.stat:not(.tint) { background: var(--card); }
 [data-theme="dark"] .tabs button:hover:not(.on) { background: #383838 !important; }
 .tabs { padding: 2px 0; }
 .fin-tabbar .fin-add { box-shadow: none; }
+.gc-task .v { margin-left: auto; font-size: 12px; font-weight: 700; opacity: .6; white-space: nowrap; padding-left: 6px; }
+.gc-task:disabled { opacity: 1; }
