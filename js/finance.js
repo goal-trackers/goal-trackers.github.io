@@ -404,7 +404,7 @@ function finAssetsHtml() {
     const i = assetInfo(a);
     const g = goalById(a.goal_tujuan_id);
     const st = a.status !== 'Aktif' ? `<span class="badge-s s-done">${esc(a.status)} 🎉</span>` : `<span class="badge-s s-active">Aktif</span>`;
-    return `<div class="card tint fin-note" style="--c:${esc(goalColor(g))}">
+    return `<div class="card">
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${i.pct};--size:88px"><div><b>${i.k}</b><small>dari ${i.n} bln</small></div></div>
         <div class="flex-grow-1" style="min-width:0">
@@ -438,7 +438,7 @@ function finLoansHtml() {
   const list = S.loans.slice().sort((a, b) => (loanInfo(a).done ? 1 : 0) - (loanInfo(b).done ? 1 : 0));
   const cards = list.map(l => {
     const i = loanInfo(l);
-    return `<div class="card tint fin-note" style="--c:${esc(goalColor(g))}">
+    return `<div class="card">
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${i.pct};--size:88px"><div><b>${i.k}</b><small>dari ${i.n} bln</small></div></div>
         <div class="flex-grow-1" style="min-width:0">
