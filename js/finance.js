@@ -657,7 +657,7 @@ function finLoansHtml() {
   const list = S.loans.slice().sort((a, b) => (loanInfo(a).done ? 1 : 0) - (loanInfo(b).done ? 1 : 0));
   const cards = list.map(l => {
     const i = loanInfo(l);
-    return `<div class="card">
+    return `<div class="card tint fin-note" style="--c:#E8D3F5;--fg:#7E3FB3">
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${i.pct};--size:88px"><div><b>${i.k}</b><small>dari ${i.n} bln</small></div></div>
         <div class="flex-grow-1" style="min-width:0">

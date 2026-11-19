@@ -189,7 +189,7 @@ function hartaTableHtml(jenis, items) {
 function hartaItemCard(h) {
   const t = HARTA[h.jenis] || HARTA.Lainnya, n = hartaNilai(h), beli = Number(h.harga_beli) || 0;
   const d = beli && (n.pasar || n.susut) ? n.v - beli : null;
-  return `<div class="card harta-item">
+  return `<div class="card harta-item tint fin-note" style="--c:${t.c}">
     <div class="d-flex align-items-center gap-3">
       <div class="harta-item-pic">${hartaThumb(h, h.jenis === 'Emas' || h.jenis === 'Perak' ? 46 : 50)}</div>
       <div class="flex-grow-1" style="min-width:0">

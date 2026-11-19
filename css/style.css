@@ -1155,3 +1155,11 @@ button.stat:not(.tint) { background: var(--card); }
 .card.fin-note .btn-mint { background: rgba(255,255,255,.6); border-color: transparent; color: var(--text); }
 .card.fin-note .btn-mint:hover { background: rgba(255,255,255,.85); }
 [data-theme="dark"] .card.fin-note .btn-mint { background: rgba(0,0,0,.25); color: var(--text); }
+/* Kartu harta & pinjaman berwarna: elemen di dalamnya putih transparan */
+.card.fin-note .icon-btn { background: rgba(255,255,255,.6); }
+.card.fin-note .icon-btn:hover { background: rgba(255,255,255,.85); }
+.card.fin-note .harta-emoji, .card.fin-note .harta-thumb .tint { background: rgba(255,255,255,.7) !important; }
+.card.fin-note .chip.tint:not(.tpl-tag) { background: rgba(255,255,255,.75); }
+.card.fin-note .badge-s { background: rgba(255,255,255,.8); }
+.card.fin-note .hp-tag { background: rgba(255,255,255,.75); }
+[data-theme="dark"] .card.fin-note .icon-btn, [data-theme="dark"] .card.fin-note .chip.tint, [data-theme="dark"] .card.fin-note .badge-s { background: rgba(0,0,0,.25); }
