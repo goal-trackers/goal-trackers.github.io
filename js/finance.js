@@ -4,14 +4,30 @@ const ASSET_TYPES = ['SBN', 'SR', 'ORI', 'ST', 'SBR', 'Deposito', 'Obligasi', 'U
 const ASSET_LABEL = { USD: 'USD — Tabungan Dolar' };
 /* ── Tabungan dolar: nominal disimpan dalam USD, dinilai ke Rupiah dengan kurs (Settings.kurs_USD) ── */
 const isUsd = a => a && a.jenis === 'USD';
-const kursUsd = () => Number(S.settings && S.settings.kurs_USD) || 16000;
+const kursUsd = () => { const s = S.settings || {};
+  if (s.kurs_USD_src === 'manual' || (s.kurs_USD && s.kurs_USD_tgl === today())) return Number(s.kurs_USD) || 16000;
+  return (S.ui && S.ui.kursLive) || Number(s.kurs_USD) || 16000; };
+/** Kurs harian langsung dari browser (bila server belum memperbarui hari ini) */
+function ensureKurs() {
+  const s = S.settings || {};
+  if (s.kurs_USD_src === 'manual' || s.kurs_USD_tgl === today() || ensureKurs.busy) return;
+  const c = lsGet('gt_kurs', null);
+  if (c && c.tgl === today()) { S.ui.kursLive = c.v; S.ui.kursTgl = c.tgl; return; }
+  ensureKurs.busy = true;
+  fetch('https://open.er-api.com/v6/latest/USD').then(r => r.json()).then(j => {
+    const v = Math.round(Number(j && j.rates && j.rates.IDR));
+    if (v > 1000 && v < 100000) { S.ui.kursLive = v; S.ui.kursTgl = today(); lsSet('gt_kurs', { tgl: today(), v }); renderAll(); }
+  }).catch(() => { }).finally(() => { setTimeout(() => { ensureKurs.busy = false; }, 600000); });
+}
 const nomRp = a => Number(a.nominal) * (isUsd(a) ? kursUsd() : 1);
 const fmtUsd = n => 'US$ ' + Number(n || 0).toLocaleString('id-ID', { maximumFractionDigits: 2 });
 const parseUsd = v => { v = String(v || '').replace(/[^\d.,]/g, ''); if (v.includes(',')) v = v.replace(/\./g, '').replace(',', '.'); else if (/^\d{1,3}(\.\d{3})+$/.test(v)) v = v.replace(/\./g, ''); return Number(v) || 0; };
 const nomText = (a, short) => isUsd(a) ? `${fmtUsd(a.nominal)} <span class="muted tiny">≈ ${fmtShort(nomRp(a), 'Rp')}</span>` : (short ? fmtShort(a.nominal, 'Rp') : fmtVal(a.nominal, 'Rp'));
 function kursInfoHtml() {
   const s = S.settings || {}, man = s.kurs_USD_src === 'manual';
-  return `<span class="kurs-pill"><i class="bi bi-currency-dollar"></i> Kurs ${fmtVal(kursUsd(), 'Rp')}/USD <small class="muted">${s.kurs_USD ? (man ? 'manual' : 'otomatis') + (s.kurs_USD_tgl ? ' · ' + fmtDate(s.kurs_USD_tgl) : '') : 'perkiraan'}</small>
+  ensureKurs();
+  const tgl = man || s.kurs_USD_tgl === today() ? s.kurs_USD_tgl : (S.ui.kursLive ? S.ui.kursTgl : s.kurs_USD_tgl);
+  return `<span class="kurs-pill"><i class="bi bi-currency-dollar"></i> Kurs ${fmtVal(kursUsd(), 'Rp')}/USD <small class="muted">${(s.kurs_USD || S.ui.kursLive) ? (man ? 'manual' : 'hari ini') + (tgl ? ' · ' + fmtDate(tgl) : '') : 'perkiraan'}</small>
     <button type="button" class="link-btn" data-action="kursEdit">Ubah</button></span>`;
 }
 const LOAN_METODE = ['Tanpa bunga', 'Flat', 'Anuitas'];
@@ -422,12 +438,17 @@ const REK_JENIS = {
   RDPU: { ic: 'bi-cash-coin', c: '#D5F0F7', ph: 'mis. RDPU Sucorinvest Money Market' },
   'E-Wallet': { ic: 'bi-phone', c: '#E8D3F5', ph: 'mis. GoPay / OVO / DANA' },
   Deposito: { ic: 'bi-safe2', c: '#FBEBB5', ph: 'mis. Deposito Mandiri 12 bln' },
+  Dolar: { ic: 'bi-currency-dollar', c: '#E2F4E8', ph: 'mis. Tabungan Dolar BSI', usd: true },
   Lainnya: { ic: 'bi-wallet2', c: '#FFE1C7', ph: 'mis. Celengan rumah' }
 };
 const isRek = g => { const m = parseMeta(g && g.meta); return !!(m.utama || m.rekening); };
 const rekJenis = g => { const m = parseMeta(g.meta); return (m.rekening && REK_JENIS[m.rekening.jenis]) ? m.rekening.jenis : 'Bank'; };
 const rekList = () => S.goals.filter(g => g.status !== 'Arsip' && isRek(g))
   .sort((a, b) => (parseMeta(b.meta).utama ? 1 : 0) - (parseMeta(a.meta).utama ? 1 : 0) || String(a.dibuat_pada).localeCompare(String(b.dibuat_pada)));
+const isUsdRek = g => isRek(g) && rekJenis(g) === 'Dolar';
+const rekUsd = g => Number(parseMeta(g.meta).usd) || 0;
+/** Nilai rekening dalam Rupiah hari ini (rekening dolar: saldo USD × kurs hari ini) */
+const rekRp = g => isUsdRek(g) ? Math.round(rekUsd(g) * kursUsd()) : Number(g.nilai_saat_ini || 0);
 const rekIc = (j, size = 46) => { const r = REK_JENIS[j] || REK_JENIS.Lainnya; return `<span class="rek-ic" style="--c:${r.c};width:${size}px;height:${size}px"><i class="bi ${r.ic}"></i></span>`; };
 function utamaCardHtml() {
   const list = rekList(), u = utamaGoal();
@@ -439,7 +460,7 @@ function utamaCardHtml() {
   const ym = today().slice(0, 7), ids = new Set(list.map(g => g.goal_id));
   const inc = S.assetIncome.filter(x => ids.has(x.goal_id));
   const bulanIni = inc.filter(x => String(x.periode || x.tanggal).slice(0, 7) === ym).reduce((s, x) => s + Number(x.jumlah), 0);
-  const saldo = list.reduce((s, g) => s + Number(g.nilai_saat_ini || 0), 0);
+  const saldo = list.reduce((s, g) => s + rekRp(g), 0);
   const lain = S.assets.filter(a => a.status === 'Aktif' && !ids.has(a.goal_tujuan_id));
   const rows = list.map(g => {
     const linked = S.assets.filter(a => a.status === 'Aktif' && a.goal_tujuan_id === g.goal_id);
@@ -451,16 +472,17 @@ function utamaCardHtml() {
         <div class="d-flex align-items-center gap-2 flex-wrap"><b>${esc(g.judul)}</b><span class="tiny muted">${esc(rekJenis(g))}</span>${main ? '<span class="badge-s s-done" style="padding:2px 8px;font-size:11px"><i class="bi bi-star-fill"></i> Penerima kupon utama</span>' : ''}</div>
         <div class="tiny muted">${linked.length ? `${linked.length} investasi mengirim kupon · ±${fmtShort(perBulan, 'Rp')}/bln` : 'Belum ada kupon yang diarahkan ke sini'}</div>
       </div>
-      <div class="rek-saldo">${fmtShort(g.nilai_saat_ini, 'Rp')}</div>
+      ${isUsdRek(g) ? (() => { const sel = rekRp(g) - Number(g.nilai_saat_ini || 0);
+        return `<div class="rek-saldo text-end">${fmtUsd(rekUsd(g))}<small class="d-block muted fw-semibold">≈ ${fmtShort(rekRp(g), 'Rp')}${Math.abs(sel) >= 1000 ? ` <span style="color:${sel > 0 ? 'var(--green-ink,#1B7F3A)' : 'var(--red-ink)'}">(${sel > 0 ? '+' : '−'}${fmtShort(Math.abs(sel), 'Rp')} kurs)</span>` : ''}</small></div>`; })() : `<div class="rek-saldo">${fmtShort(g.nilai_saat_ini, 'Rp')}</div>`}
       <div class="d-flex gap-1">
-        <button class="icon-btn sm" data-action="logProgress" data-id="${g.goal_id}" title="Setor / tarik" aria-label="Setor atau tarik ${esc(g.judul)}"><i class="bi bi-arrow-left-right"></i></button>
+        <button class="icon-btn sm" data-action="${isUsdRek(g) ? 'usdTx' : 'logProgress'}" data-id="${g.goal_id}" title="Setor / tarik" aria-label="Setor atau tarik ${esc(g.judul)}"><i class="bi bi-arrow-left-right"></i></button>
         <button class="icon-btn sm" data-action="openGoal" data-id="${g.goal_id}" title="Riwayat" aria-label="Riwayat ${esc(g.judul)}"><i class="bi bi-clock-history"></i></button>
         ${canEdit(g) ? `<button class="icon-btn sm" data-action="rekEdit" data-id="${g.goal_id}" title="Edit" aria-label="Edit ${esc(g.judul)}"><i class="bi bi-pencil"></i></button>` : ''}
       </div></div>`;
   }).join('');
   return `<div class="card utama-card mb-3">
     <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
-      <div><h3 class="mb-0">Rekening & Penampung Kupon</h3><div class="tiny muted">Total saldo ${fmtVal(saldo, 'Rp')} · kupon masuk bulan ini ${fmtShort(bulanIni, 'Rp')}</div></div>${add}</div>
+      <div><h3 class="mb-0">Rekening & Penampung Kupon</h3><div class="tiny muted">Total saldo ${fmtVal(saldo, 'Rp')} · kupon masuk bulan ini ${fmtShort(bulanIni, 'Rp')}</div>${list.some(isUsdRek) ? `<div class="mt-1">${kursInfoHtml()}</div>` : ''}</div>${add}</div>
     <div class="rek-list">${rows}</div>
     ${lain.length && u ? `<div class="price-box mt-2"><div><small class="muted">${lain.length} investasi aktif belum mengirim kupon ke rekening mana pun</small><b style="font-size:14px">${lain.map(a => esc(a.nama)).join(', ')}</b></div>
       <button class="btn btn-dark btn-sm" data-action="utamaArahkan"><i class="bi bi-arrow-down-circle"></i> Arahkan ke ${esc(u.judul)}</button></div>` : ''}
@@ -475,7 +497,8 @@ function openRekForm(id) {
     <input type="hidden" name="goal_id" value="${g ? g.goal_id : ''}">
     <div class="field"><span>Jenis</span><div class="chips chips-wrap">${Object.keys(REK_JENIS).map(k => `<label class="chip-btn cat-chip ${k === jenis ? 'on' : ''}"><input type="radio" name="jenis" value="${k}" class="visually-hidden" data-change="rekJenis" ${k === jenis ? 'checked' : ''}><span class="cat-ic" style="--c:${REK_JENIS[k].c}"><i class="bi ${REK_JENIS[k].ic}"></i></span>${k}</label>`).join('')}</div></div>
     <label class="field"><span>Nama rekening</span><input name="nama" maxlength="60" required value="${esc(g ? g.judul : '')}" placeholder="${esc(REK_JENIS[jenis].ph)}"><em class="field-err"></em></label>
-    ${g ? '' : `<label class="field"><span>Saldo saat ini (Rp) <small>(opsional)</small></span><input name="saldo" inputmode="numeric" data-money placeholder="0"></label>`}
+    ${g ? '' : `<label class="field"><span id="rekSaldoLbl">Saldo saat ini (${jenis === 'Dolar' ? 'USD' : 'Rp'}) <small>(opsional)</small></span><input name="saldo" inputmode="decimal" ${jenis === 'Dolar' ? '' : 'data-money'} placeholder="0"></label>`}
+    <div id="rekKurs" class="mb-3" ${jenis === 'Dolar' ? '' : 'hidden'}>${kursInfoHtml()}<small class="d-block muted mt-1">Saldo disimpan dalam USD dan dinilai ke Rupiah dengan kurs hari ini.</small></div>
     <label class="field"><span>Target saldo (Rp) <small>(opsional)</small></span><input name="target" inputmode="numeric" data-money value="${g && Number(g.nilai_target) !== 100000000 ? fmtN(g.nilai_target) : ''}" placeholder="100.000.000"></label>
     <label class="check-row"><input type="checkbox" name="utama" ${main ? 'checked' : ''} ${main && g ? 'disabled' : ''}> <span>Jadikan <b>penerima kupon utama</b> <small class="muted d-block">Kupon investasi baru otomatis diarahkan ke rekening ini.</small></span></label>
     <div class="sheet-foot">${g && !main ? `<button type="button" class="btn btn-soft" data-action="rekArsip" data-id="${g.goal_id}"><i class="bi bi-archive"></i> Arsipkan</button>` : `<button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button>`}<button class="btn btn-dark" type="submit">Simpan</button></div>
@@ -517,12 +540,15 @@ function submitRek(f) {
       tgl_pelaksanaan: '', template: '', meta: JSON.stringify(meta) };
     g = Object.assign({}, base, { pemilik_id: S.me.user_id, nilai_saat_ini: 0, status: 'Aktif', dibuat_pada: nowIso(), diubah_pada: nowIso() });
     S.goals.push(g);
+    const usd = jenis === 'Dolar' ? parseUsd(f.saldo && f.saldo.value) : 0;
+    const saldo = jenis === 'Dolar' ? Math.round(usd * kursUsd()) : (f.saldo ? parseNum(f.saldo.value, true) : 0);
+    if (usd > 0) { meta.usd = usd; g.meta = base.meta = JSON.stringify(meta); }
     Outbox.push('saveGoal', [base, []]);
-    const saldo = f.saldo ? parseNum(f.saldo.value, true) : 0;
     if (saldo > 0) {
-      const log = { log_id: uid(), goal_id: g.goal_id, tanggal: t, user_id: S.me.user_id, nilai_tambah: saldo, catatan: 'Saldo awal', foto_url: '', dibuat_pada: nowIso() };
+      const cat = usd > 0 ? `Saldo awal ${fmtUsd(usd)} @ ${fmtVal(kursUsd(), 'Rp')}` : 'Saldo awal';
+      const log = { log_id: uid(), goal_id: g.goal_id, tanggal: t, user_id: S.me.user_id, nilai_tambah: saldo, catatan: cat, foto_url: '', dibuat_pada: nowIso() };
       S.logs.push(log); g.nilai_saat_ini = saldo; syncStatusLocal(g);
-      Outbox.push('addProgress', [{ log_id: log.log_id, goal_id: g.goal_id, nilai_tambah: saldo, catatan: 'Saldo awal', tanggal: t }, null]);
+      Outbox.push('addProgress', [{ log_id: log.log_id, goal_id: g.goal_id, nilai_tambah: saldo, catatan: cat, tanggal: t }, null]);
     }
   }
   if (wantMain && !parseMeta(g.meta).utama) setUtama_(g.goal_id);
@@ -616,7 +642,7 @@ function openAssetForm(id) {
   <form data-form="asset" novalidate>
     <input type="hidden" name="aset_id" value="${esc(a.aset_id)}">
     <div class="grid-2">
-      <label class="field"><span>Jenis</span><select name="jenis" data-change="assetJenis">${ASSET_TYPES.map(t => `<option value="${t}" ${a.jenis === t ? 'selected' : ''}>${ASSET_LABEL[t] || t}</option>`).join('')}</select></label>
+      <label class="field"><span>Jenis</span><select name="jenis" data-change="assetJenis">${ASSET_TYPES.filter(t => t !== 'USD' || a.jenis === 'USD').map(t => `<option value="${t}" ${a.jenis === t ? 'selected' : ''}>${ASSET_LABEL[t] || t}</option>`).join('')}</select></label>
       <label class="field"><span>Seri / nama</span><input name="nama" maxlength="60" required value="${esc(a.nama)}" placeholder="mis. SR019"><em class="field-err"></em></label>
       <label class="field"><span id="nomLbl">${isUsd(a) ? 'Saldo (USD)' : 'Nominal (Rp)'}</span><input name="nominal" inputmode="decimal" ${isUsd(a) ? '' : 'data-money'} data-input="assetCalc" value="${a.nominal ? (isUsd(a) ? Number(a.nominal).toLocaleString('id-ID', { maximumFractionDigits: 2 }) : fmtN(a.nominal)) : ''}" placeholder="${isUsd(a) ? '1.500' : '50.000.000'}"><em class="field-err"></em></label>
       <label class="field"><span>Kupon / bunga per tahun (%)</span><input name="kupon_persen" inputmode="decimal" data-input="assetCalc" value="${esc(a.kupon_persen)}" placeholder="5"><em class="field-err"></em></label>
@@ -785,6 +811,13 @@ Object.assign(Actions, {
   },
   utamaArahkan: () => { const g = utamaGoal(); if (g) { arahkanKupon(g.goal_id); renderAll(); } },
   rekBaru: () => openRekForm(),
+  usdTx: d => { const g = goalById(d.id); if (!g) return;
+    openSheet(`Setor / tarik — ${esc(g.judul)}`, `<form data-form="usdTx" novalidate><input type="hidden" name="goal_id" value="${g.goal_id}">
+      <div class="seg mb-3"><label><input type="radio" name="arah" value="1" checked><span><i class="bi bi-plus-lg"></i> Setor</span></label><label><input type="radio" name="arah" value="-1"><span><i class="bi bi-dash-lg"></i> Tarik</span></label></div>
+      <label class="field"><span>Jumlah (USD)</span><input name="usd" inputmode="decimal" placeholder="100" data-input="usdTxCalc"><em class="field-err"></em><small id="usdTxRp">Saldo sekarang ${fmtUsd(rekUsd(g))}</small></label>
+      <div class="mb-3">${kursInfoHtml()}</div>
+      <label class="field"><span>Catatan <small>(opsional)</small></span><input name="catatan" maxlength="120" placeholder="mis. Beli dolar di teller"></label>
+      <div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button><button class="btn btn-dark" type="submit">Simpan</button></div></form>`); },
   rekEdit: d => openRekForm(d.id),
   rekArsip: d => { const g = goalById(d.id); if (!g) return;
     confirmBox({ title: `Arsipkan "${g.judul}"?`, text: 'Rekening disembunyikan dari daftar. Riwayat saldonya tetap tersimpan dan bisa dibuka dari Goals (filter Diarsipkan).', ok: 'Arsipkan' }, () => {
@@ -827,17 +860,38 @@ Object.assign(Changes, {
     if (usd) { f.pajak_persen.value = 20; if (Number(f.tenor_bulan.value) < 60) f.tenor_bulan.value = 120; if (!f.nama.value) f.nama.value = 'Tabungan Dolar'; }
     assetPreview(f);
   },
-  rekJenis: el => { const f = el.form; $$('input[name=jenis]', f).forEach(x => x.closest('label').classList.toggle('on', x.checked)); f.nama.placeholder = REK_JENIS[el.value].ph; },
+  rekJenis: el => { const f = el.form, usd = el.value === 'Dolar'; $$('input[name=jenis]', f).forEach(x => x.closest('label').classList.toggle('on', x.checked)); f.nama.placeholder = REK_JENIS[el.value].ph;
+    $('#rekKurs', f).hidden = !usd;
+    if (f.saldo) { $('#rekSaldoLbl', f).innerHTML = `Saldo saat ini (${usd ? 'USD' : 'Rp'}) <small>(opsional)</small>`; if (usd) f.saldo.removeAttribute('data-money'); else f.saldo.setAttribute('data-money', ''); f.saldo.value = ''; } },
   tplCalc: el => recalcTpl(el.form),
   assetCalc: el => assetPreview(el.form),
   loanCalc: el => loanPreview(el.form)
 });
 Object.assign(Inputs, {
+  usdTxCalc: el => { const f = el.form, g = goalById(f.goal_id.value), v = parseUsd(el.value); if (!g) return;
+    $('#usdTxRp', f).textContent = v > 0 ? `≈ ${fmtVal(Math.round(v * kursUsd()), 'Rp')} · saldo sekarang ${fmtUsd(rekUsd(g))}` : `Saldo sekarang ${fmtUsd(rekUsd(g))}`; },
   tplCalc: debounce(el => recalcTpl(el.form), 150),
   assetCalc: debounce(el => assetPreview(el.form), 150),
   loanCalc: debounce(el => loanPreview(el.form), 150)
 });
 Object.assign(Forms, {
+  usdTx: f => {
+    const g = goalById(f.goal_id.value); if (!g) return;
+    const arah = Number((f.querySelector('input[name=arah]:checked') || {}).value || 1);
+    const usd = parseUsd(f.usd.value);
+    const bad = msg => { const fd = f.usd.closest('.field'); fd.classList.add('invalid'); fd.querySelector('.field-err').textContent = msg; };
+    if (!(usd > 0)) return bad('Isi jumlah dolar.');
+    if (arah < 0 && usd > rekUsd(g) + 1e-9) return bad(`Saldo hanya ${fmtUsd(rekUsd(g))}.`);
+    const k = kursUsd(), rp = Math.round(usd * k) * arah, t = today();
+    const m = parseMeta(g.meta); m.usd = Math.round((rekUsd(g) + usd * arah) * 100) / 100;
+    g.meta = JSON.stringify(m); g.diubah_pada = nowIso();
+    const cat = `${arah > 0 ? 'Setor' : 'Tarik'} ${fmtUsd(usd)} @ ${fmtVal(k, 'Rp')}${f.catatan.value.trim() ? ' · ' + f.catatan.value.trim() : ''}`;
+    const log = { log_id: uid(), goal_id: g.goal_id, tanggal: t, user_id: S.me.user_id, nilai_tambah: rp, catatan: cat, foto_url: '', dibuat_pada: nowIso() };
+    S.logs.push(log); g.nilai_saat_ini = Math.max(0, Number(g.nilai_saat_ini) + rp); syncStatusLocal(g);
+    saveSnapshot(); closeSheet(); renderAll(); toast(`${arah > 0 ? '+' : '−'}${fmtUsd(usd)} tercatat`);
+    Outbox.push('saveGoal', goalSaveArgs_(g));
+    Outbox.push('addProgress', [{ log_id: log.log_id, goal_id: g.goal_id, nilai_tambah: rp, catatan: cat, tanggal: t }, null]);
+  },
   kurs: f => {
     const n = parseNum(f.kurs.value, true);
     if (n && (n < 1000 || n > 100000)) { toast('Kurs tidak wajar.', 'error'); return; }
