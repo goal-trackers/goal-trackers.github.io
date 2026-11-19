@@ -398,7 +398,7 @@ function renderHeader() {
 // ============================================================
 // HELPER DOMAIN
 // ============================================================
-const goalById = id => S.goals.find(g => g.goal_id === id);
+const goalById = id => S.goals.find(g => g.goal_id === id) || (S.rekening || []).find(g => g.goal_id === id);
 const catById = id => S.categories.find(c => c.kategori_id === id) || { kategori_id: '', nama: 'Lainnya', ikon: 'bi-bookmark', warna: '#D5F0F7' };
 const userById = id => S.users.find(u => u.user_id === id) || { user_id: id, nama: 'Pengguna', avatar: '', warna_profil: '#D5F0F7' };
 const partner = () => S.users.find(u => S.me && u.user_id !== S.me.user_id);
@@ -462,7 +462,7 @@ function emptyHtml(icon, text, extra = '') { return `<div class="empty"><i class
  *  ambang % masih tercapai, dan milestone-nya masih tercentang. Yang tidak berlaku disembunyikan. */
 function achValid(a) {
   const g = goalById(a.goal_id);
-  if (!g) return false;
+  if (!g || (typeof isRek === 'function' && isRek(g))) return false;
   const pct = goalPct(g);
   if (g.status === 'Arsip' && pct < 100) return false;
   const t = /^(\d+)%$/.exec(a.jenis);

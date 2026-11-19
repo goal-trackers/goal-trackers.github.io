@@ -1100,3 +1100,8 @@ button.stat:not(.tint) { background: var(--card); }
 .kurs-pill { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 6px 12px; border-radius: 999px; background: #E2F4E8; color: #14532D; font-size: 13px; font-weight: 700; }
 .kurs-pill .link-btn { min-height: 0; padding: 0 4px; font-weight: 800; text-decoration: underline; color: inherit; }
 [data-theme="dark"] .kurs-pill { background: #1F3A2A; color: #CFF2D6; }
+.rek-hint { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 14px; border-radius: 14px; background: #E2F4E8; color: #14532D; font-size: 13.5px; }
+.rek-hint .link-btn { min-height: 0; padding: 0; font-weight: 800; text-decoration: underline; color: inherit; margin-left: auto; }
+[data-theme="dark"] .rek-hint { background: #1F3A2A; color: #CFF2D6; }
+.rek-hist { display: grid; max-height: 60vh; overflow: auto; }
+.rek-hist-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
