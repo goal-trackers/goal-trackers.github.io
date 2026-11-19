@@ -147,8 +147,13 @@ function renderGoals() {
   const p = partner();
   const tabs = [['semua', 'Semua'], ['saya', 'Milik Saya'], ['pasangan', p ? 'Milik ' + p.nama : 'Pasangan'], ['bersama', 'Bersama']]
     .map(([k, l]) => `<button role="tab" aria-selected="${u.goalTab === k}" class="${u.goalTab === k ? 'on' : ''}" data-action="goalTab" data-tab="${k}">${esc(l)}<span class="n">${count[k]}</span></button>`).join('');
-  const cats = `<button class="chip-btn ${!u.goalCat ? 'on' : ''}" data-action="goalCat" data-id="">Semua kategori</button>` +
-    activeCats().map(c => `<button class="chip-btn cat-chip ${u.goalCat === c.kategori_id ? 'on' : ''}" data-action="goalCat" data-id="${c.kategori_id}"><span class="cat-ic" style="--c:${esc(c.warna || '#D5F0F7')}"><i class="bi ${esc(c.ikon)}"></i></span>${esc(c.nama)}</button>`).join('');
+  // Hitungan kategori mengikuti tab yang dipilih (Semua / Milik Saya / Pasangan / Bersama)
+  const inTab = notArch.filter(g => u.goalTab === 'saya' ? (g.jenis === 'Pribadi' && g.pemilik_id === me)
+    : u.goalTab === 'pasangan' ? (g.jenis === 'Pribadi' && g.pemilik_id !== me)
+    : u.goalTab === 'bersama' ? g.jenis === 'Bersama' : true);
+  const catN = {}; inTab.forEach(g => { catN[g.kategori_id] = (catN[g.kategori_id] || 0) + 1; });
+  const cats = `<button class="chip-btn ${!u.goalCat ? 'on' : ''}" data-action="goalCat" data-id="">Semua kategori<span class="n">${inTab.length}</span></button>` +
+    activeCats().map(c => { const n = catN[c.kategori_id] || 0; return `<button class="chip-btn cat-chip ${u.goalCat === c.kategori_id ? 'on' : ''} ${n ? '' : 'zero'}" data-action="goalCat" data-id="${c.kategori_id}"><span class="cat-ic" style="--c:${esc(c.warna || '#D5F0F7')}"><i class="bi ${esc(c.ikon)}"></i></span>${esc(c.nama)}<span class="n">${n}</span></button>`; }).join('');
   const opt = (v, l, cur) => `<option value="${v}" ${cur === v ? 'selected' : ''}>${l}</option>`;
   const views = [['journey', 'bi-bezier2', 'Peta perjalanan'], ['list', 'bi-list-ul', 'Daftar'], ['grid', 'bi-grid', 'Kartu']]
     .map(([k, i, l]) => `<button class="${u.goalView === k ? 'on' : ''}" data-action="goalView" data-view="${k}" aria-label="${l}" title="${l}" aria-pressed="${u.goalView === k}"><i class="bi ${i}"></i></button>`).join('');
