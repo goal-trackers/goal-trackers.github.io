@@ -1065,3 +1065,7 @@ button.stat:not(.tint) { background: var(--card); }
 .stat-link:hover::after { opacity: .8; transform: translateX(2px); }
 .asset-logo { display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); line-height: 0; flex: none; }
 .asset-logo > svg, .asset-logo > .asset-img { display: block; }
+.fin-tabbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.fin-tabbar .tabs { margin: 0; min-width: 0; }
+.fin-tabbar .fin-add { min-height: 42px; box-shadow: 0 6px 16px rgba(17,17,17,.06); }
+@media (max-width: 767px) { .fin-tabbar .fin-add { margin-left: auto; } }

@@ -233,7 +233,7 @@ function renderFinance() {
         ['tabungan', '', fmtShort(f.month, 'Rp'), 'Setoran bulan ini', 'dashed']]
         .map(([k, c, v, l, cls], i) => `<button type="button" class="stat ${cls} stat-link ${tab === k && i < 4 ? 'on' : ''}" ${c ? `style="--c:${c}"` : ''} data-action="finStat" data-tab="${k}" aria-label="${esc(l)} — buka tab"><b>${v}</b><span>${l}</span></button>`).join('')}
     </div>
-    <div class="tabs mt-3 mb-3" role="tablist">${tabs}</div>
+    <div class="fin-tabbar mt-3 mb-3"><div class="tabs" role="tablist">${tabs}</div>${tab === 'tabungan' ? '<button class="chip-btn fin-add" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>' : ''}</div>
     ${body}`;
   if (tab === 'tabungan') withChart(() => drawTrend('chFin', savingsSeries(monthsBack(today().slice(0, 7), 12))));
   const _hn = document.querySelector('#page-finance .harta-scroll');
@@ -332,11 +332,7 @@ function finSavingsHtml(f) {
     </div>`;
   });
   const cardArr = cards;
-  return `<div class="chips mb-3">
-      ${Object.keys(TPL).map(k => `<button class="chip-btn" data-action="newGoal" data-tpl="${k}">${TPL[k].emoji} ${TPL[k].label}</button>`).join('')}
-      <button class="chip-btn" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>
-    </div>
-    ${list.length ? finLayout(cardArr, `<div class="glist">${list.map(rowItem).join('')}</div>`) : `<div class="card">${emptyHtml('bi-wallet2', 'Belum ada rencana tabungan. Pilih template di atas untuk mulai.')}</div>`}
+  return `    ${list.length ? finLayout(cardArr, `<div class="glist">${list.map(rowItem).join('')}</div>`) : `<div class="card">${emptyHtml('bi-wallet2', 'Belum ada rencana tabungan. Klik “Target tabungan lain” di kanan atas untuk mulai.')}</div>`}
     <div class="card mt-3"><h3>Tren Tabungan 12 Bulan <span class="muted tiny">batang = setoran per bulan · garis = total terkumpul</span></h3><div class="chart-box"><canvas id="chFin" aria-label="Grafik tren tabungan per bulan" role="img"></canvas></div></div>`;
 }
 // ── TABUNGAN UTAMA: rekening penampung kupon / imbalan investasi (SR, SBN, ORI, deposito, dll) ──
