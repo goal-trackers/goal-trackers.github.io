@@ -3,10 +3,10 @@
    lalu total per jenis (mis. emas 15 gram) dihitung otomatis. */
 const HARTA = {
   Emas:      { satuan: 'gram', emoji: '🪙', icon: 'bi-coin',          c: '#FBEBB5', harga: true,  contoh: 'mis. Antam 5 gr',            simpan: 'mis. Brankas rumah / Pegadaian' },
-  Perak:     { satuan: 'gram', emoji: '🥈', icon: 'bi-coin',          c: '#E6E8EE', harga: true,  contoh: 'mis. Perak batangan 100 gr', simpan: 'mis. Brankas rumah' },
-  Dinar:     { satuan: 'keping', emoji: '🟡', icon: 'bi-coin',        c: '#F6E3A1', harga: true,  contoh: 'mis. Dinar 22K 4,25 gr',     simpan: 'mis. Brankas rumah' },
+  Perak:     { satuan: 'gram', emoji: '🥈', icon: 'bi-disc',          c: '#E6E8EE', harga: true,  contoh: 'mis. Perak batangan 100 gr', simpan: 'mis. Brankas rumah' },
+  Dinar:     { satuan: 'keping', emoji: '🟡', icon: 'bi-moon-stars', c: '#FFE1C7', harga: true,  contoh: 'mis. Dinar 22K 4,25 gr',     simpan: 'mis. Brankas rumah' },
   Tanah:     { satuan: 'm²',   emoji: '🌳', icon: 'bi-tree',          c: '#CFF2D6', harga: true,  contoh: 'mis. Tanah kavling Batu',    simpan: 'mis. Jl. Mawar No. 3, Batu' },
-  Rumah:     { satuan: 'unit', emoji: '🏠', icon: 'bi-house-door',    c: '#FFE1C7', harga: false, contoh: 'mis. Rumah Perum Griya',     simpan: 'Alamat' },
+  Rumah:     { satuan: 'unit', emoji: '🏠', icon: 'bi-house-door',    c: '#F8CFE0', harga: false, contoh: 'mis. Rumah Perum Griya',     simpan: 'Alamat' },
   Kendaraan: { satuan: 'unit', emoji: '🚗', icon: 'bi-car-front',     c: '#D5F0F7', harga: false, susut: 5, contoh: 'mis. Motor Vario 2023',      simpan: 'mis. Plat nomor / garasi' },
   Lainnya:   { satuan: 'unit', emoji: '📦', icon: 'bi-box-seam',      c: '#E8D3F5', harga: false, contoh: 'mis. Koleksi, peralatan',    simpan: 'Lokasi' }
 };
@@ -106,11 +106,13 @@ function coinSvg(n, w) {
     <text x="40" y="60" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="6" fill="#6B4508" opacity=".8">22K</text>
   </svg>`;
 }
+/** Ikon bulat berwarna (gaya Pinterest) untuk jenis harta */
+const hIc = k => `<span class="cat-ic" style="--c:${HARTA[k].c}"><i class="bi ${HARTA[k].icon}"></i></span>`;
 function hartaThumb(h, w) {
   if (h.jenis === 'Dinar') return coinSvg(Number(h.jumlah) === 0.5 ? 0.5 : 1, w);
   if ((h.jenis === 'Emas' || h.jenis === 'Perak') && (h.satuan === 'gram' || h.satuan === 'kg')) return barSvg(h.satuan === 'kg' ? Number(h.jumlah) * 1000 : h.jumlah, h.jenis, w);
   const t = HARTA[h.jenis] || HARTA.Lainnya;
-  return `<span class="harta-emoji tint" style="--c:${t.c}">${t.emoji}</span>`;
+  return `<span class="harta-emoji tint" style="--c:${t.c}"><i class="bi ${t.icon}"></i></span>`;
 }
 
 /** Nama seri dari kolom Nama tanpa angka berat: "Certicard Antam 5 gr" → "Certicard Antam". */
@@ -240,7 +242,7 @@ function finHartaHtml() {
   const total = Object.keys(sum).reduce((s, k) => s + sum[k].nilai, 0);
   if (!HARTA[S.ui.hartaJenis]) S.ui.hartaJenis = Object.keys(HARTA).find(k => sum[k]) || 'Emas';
   const k = S.ui.hartaJenis, t = HARTA[k], s = sum[k];
-  const tabs = Object.keys(HARTA).map(j => `<button class="chip-btn ${j === k ? 'on' : ''}" data-action="hartaPilih" data-jenis="${j}" aria-pressed="${j === k}">${HARTA[j].emoji} ${j}${sum[j] ? ` <span class="n">${sum[j].n}</span>` : ''}</button>`).join('');
+  const tabs = Object.keys(HARTA).map(j => `<button class="chip-btn cat-chip ${j === k ? 'on' : ''}" data-action="hartaPilih" data-jenis="${j}" aria-pressed="${j === k}">${hIc(j)}${j}${sum[j] ? ` <span class="n">${sum[j].n}</span>` : ''}</button>`).join('');
   const items = owned.filter(h => h.jenis === k).sort((a, b) => String(b.tgl_beli).localeCompare(String(a.tgl_beli)));
   const isBar = k === 'Emas' || k === 'Perak';
   const wOf = h => Math.round((h.satuan === 'kg' ? Number(h.jumlah) * 1000 : Number(h.jumlah)) * 1000) / 1000;
@@ -273,7 +275,7 @@ function finHartaHtml() {
   const modalTxt = s && s.modal ? 'modal ' + fmtShort(s.modal, 'Rp') : '';
   const head = `<div class="card harta-head-card">
       <div class="harta-head">
-        <div class="harta-ic tint" style="--c:${t.c}" aria-hidden="true">${k === 'Emas' || k === 'Perak' ? barSvg(s ? (s.qty.gram || 0) + (s.qty.kg || 0) * 1000 : 0, k, 46) : k === 'Dinar' ? coinSvg(1, 44) : t.emoji}</div>
+        <div class="harta-ic tint" style="--c:${t.c}" aria-hidden="true">${k === 'Emas' || k === 'Perak' ? barSvg(s ? (s.qty.gram || 0) + (s.qty.kg || 0) * 1000 : 0, k, 46) : k === 'Dinar' ? coinSvg(1, 44) : `<i class="bi ${t.icon}" style="font-size:22px"></i>`}</div>
         <div class="flex-grow-1" style="min-width:0">
           <div class="tiny muted fw-bold">${esc(k)} yang dimiliki · ${s ? s.n : 0} catatan</div>
           <div class="harta-total">${s ? qtyText(s.qty) : '0 ' + t.satuan}</div>
@@ -309,7 +311,7 @@ function openHartaForm(id, jenis) {
   <form data-form="harta" novalidate>
     <input type="hidden" name="harta_id" value="${esc(h.harta_id)}">
     <div class="field"><span>Jenis harta</span><div class="chips chips-wrap">
-      ${Object.keys(HARTA).map(k => `<label class="chip-btn ${h.jenis === k ? 'on' : ''}"><input type="radio" name="jenis" value="${k}" class="visually-hidden" data-change="hartaJenis" ${h.jenis === k ? 'checked' : ''}>${HARTA[k].emoji} ${k}</label>`).join('')}
+      ${Object.keys(HARTA).map(k => `<label class="chip-btn cat-chip ${h.jenis === k ? 'on' : ''}"><input type="radio" name="jenis" value="${k}" class="visually-hidden" data-change="hartaJenis" ${h.jenis === k ? 'checked' : ''}>${hIc(k)}${k}</label>`).join('')}
     </div></div>
     <label class="field"><span>Nama / seri <small>(dipakai untuk filter)</small></span><input name="nama" maxlength="80" list="hartaNamaList" value="${esc(h.nama)}" placeholder="${esc(t.contoh)}">
       <datalist id="hartaNamaList">${[...new Set(['Certicard Antam', 'Retro', 'Gift Series', 'Antam Batik', 'Antam Imlek', 'Antam Idul Fitri', 'UBS', 'Galeri24'].concat((S.harta || []).map(x => seriesOf(x)).filter(x => x !== 'Tanpa seri')))].map(n => `<option value="${esc(n)}">`).join('')}</datalist>
