@@ -1063,3 +1063,5 @@ button.stat:not(.tint) { background: var(--card); }
 .stat-link.on { box-shadow: 0 0 0 2px var(--text) inset; }
 .stat-link::after { content: '\F138'; font-family: 'bootstrap-icons'; position: absolute; right: 12px; top: 10px; font-size: 13px; opacity: .35; transition: opacity .15s, transform .15s; }
 .stat-link:hover::after { opacity: .8; transform: translateX(2px); }
+.asset-logo { display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); line-height: 0; flex: none; }
+.asset-logo > svg, .asset-logo > .asset-img { display: block; }
