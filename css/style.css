@@ -1058,3 +1058,8 @@ button.stat:not(.tint) { background: var(--card); }
   .goals-toolbar .toolbar-row .btn { margin-left: auto; white-space: nowrap; }
 }
 @media (max-width: 767px) { .goals-toolbar .toolbar-row [data-action="newGoal"] { display: none; } .goals-toolbar .toolbar-row select { flex: 1; min-width: 0; } }
+/* Kartu ringkasan Finansial bisa diklik → buka tab terkait */
+.stat.dashed.stat-link { background: transparent; border: 2px dashed var(--line); }
+.stat-link.on { box-shadow: 0 0 0 2px var(--text) inset; }
+.stat-link::after { content: '\F138'; font-family: 'bootstrap-icons'; position: absolute; right: 12px; top: 10px; font-size: 13px; opacity: .35; transition: opacity .15s, transform .15s; }
+.stat-link:hover::after { opacity: .8; transform: translateX(2px); }

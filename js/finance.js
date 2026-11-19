@@ -226,11 +226,12 @@ function renderFinance() {
   $('#page-finance').innerHTML = `
     <div class="page-head"><div><p class="eyebrow">Tabungan, investasi, cicilan & harta keluarga</p><h1>Pusat Finansial <span aria-hidden="true">💰</span></h1></div></div>
     <div class="stats">
-      <div class="stat tint" style="--c:#CFF2D6"><b>${fmtShort(f.saved, 'Rp')}</b><span>Tabungan terkumpul</span></div>
-      <div class="stat tint" style="--c:#D5F0F7"><b>${fmtShort(invest, 'Rp')}</b><span>Investasi aktif · kupon ${fmtShort(kupon, 'Rp')}/bln</span></div>
-      <div class="stat tint" style="--c:#E8D3F5"><b>${fmtShort(sisaPinjam, 'Rp')}</b><span>Sisa cicilan · ${fmtShort(cicilan, 'Rp')}/bln</span></div>
-      <button class="stat tint" style="--c:#FBEBB5" data-action="finTab" data-tab="harta"><b>${fmtShort(hartaTotal, 'Rp')}</b><span>Harta${hartaSub ? ' · ' + hartaSub : ''}</span></button>
-      <div class="stat dashed"><b>${fmtShort(f.month, 'Rp')}</b><span>Setoran bulan ini</span></div>
+      ${[['tabungan', '#CFF2D6', fmtShort(f.saved, 'Rp'), 'Tabungan terkumpul', 'tint'],
+        ['investasi', '#D5F0F7', fmtShort(invest, 'Rp'), `Investasi aktif · kupon ${fmtShort(kupon, 'Rp')}/bln`, 'tint'],
+        ['pinjaman', '#E8D3F5', fmtShort(sisaPinjam, 'Rp'), `Sisa cicilan · ${fmtShort(cicilan, 'Rp')}/bln`, 'tint'],
+        ['harta', '#FBEBB5', fmtShort(hartaTotal, 'Rp'), `Harta${hartaSub ? ' · ' + hartaSub : ''}`, 'tint'],
+        ['tabungan', '', fmtShort(f.month, 'Rp'), 'Setoran bulan ini', 'dashed']]
+        .map(([k, c, v, l, cls], i) => `<button type="button" class="stat ${cls} stat-link ${tab === k && i < 4 ? 'on' : ''}" ${c ? `style="--c:${c}"` : ''} data-action="finStat" data-tab="${k}" aria-label="${esc(l)} — buka tab"><b>${v}</b><span>${l}</span></button>`).join('')}
     </div>
     <div class="tabs mt-3 mb-3" role="tablist">${tabs}</div>
     ${body}`;
@@ -637,6 +638,8 @@ function loanRowsExport() {
 // ── Daftarkan aksi, form & input modul keuangan ──
 Object.assign(Actions, {
   finTab: d => { S.ui.finTab = d.tab; renderFinance(); },
+  finStat: d => { S.ui.finTab = d.tab; renderFinance();
+    const t = document.querySelector('#page-finance .tabs'); if (t && t.getBoundingClientRect().top > innerHeight * .6) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); },
   finView: d => { const t = S.ui.finTab || 'tabungan'; S.ui.finViews = S.ui.finViews || {}; S.ui.finViews[t] = d.view; lsSet('gt_finview_' + t, d.view); renderFinance(); },
   tplPick: d => tplPick(d.tpl || ''),
   newAsset: () => openAssetForm(),
