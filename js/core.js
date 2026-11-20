@@ -239,7 +239,7 @@ function boot() {
   }
 }
 
-function hideSplash() { const s = $('#splash'); if (!s) return; s.classList.add('hide'); setTimeout(() => s.remove(), 300); }
+function hideSplash() { const s = $('#splash'); if (!s) return; const wait = Math.max(0, (window.__opEnd || 0) - Date.now()); setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 600); }, wait); }
 function showLogin(msg) {
   $('#app').hidden = true;
   $('#view-login').hidden = false;
