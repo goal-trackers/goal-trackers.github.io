@@ -229,7 +229,7 @@ function hartaPriceBox(k) {
     const est = dinarEstimasi();
     return pill('bi-moon-stars', hargaDinar() ? `Dinar ${fmtVal(Math.round(hargaDinar()), 'Rp')}/keping` : 'Harga dinar belum ada',
       hp ? 'manual' + (tgl ? ' · ' + fmtDate(tgl) : '') : est ? 'otomatis dari buyback emas' : 'atur, atau perbarui harga emas',
-      ubah(hp ? 'Ubah' : 'Atur manual'), !hp && est ? '≈ buyback emas Antam × 4,25 gr × 91,7% (22K)' : '');
+      ubah(hp ? 'Ubah' : 'Atur manual'));
   }
   if (k === 'Tanah') return pill('bi-geo-alt', hp ? `Harga umum ${fmtVal(hp, 'Rp')}/m²` : 'Harga umum tanah belum diatur', hp ? 'manual' + (tgl ? ' · ' + fmtDate(tgl) : '') : '',
     ubah(hp ? 'Ubah' : 'Atur'));
@@ -243,7 +243,7 @@ function hartaJenisSummary() {
   const jml = s ? (noun ? `${s.n} ${noun} / ${qtyText(s.qty)}` : qtyText(s.qty)) : (noun ? `0 ${noun}` : '0 ' + t.satuan);
   return `<div class="bt-sum">
       <div class="harta-own">${esc(k)} yang dimiliki <b>${jml}</b></div>
-      <div class="tiny muted">${s ? `Taksiran ${fmtShort(s.nilai, 'Rp')}${s.modal ? ` · Modal ${fmtShort(s.modal, 'Rp')}` : ''}` : 'Belum ada catatan'}</div>
+      <div class="tiny muted">${s ? `Taksiran ${fmtShort(s.nilai, 'Rp')}${s.modal ? ` · Modal ${fmtShort(s.modal, 'Rp')}` : ''}` : 'Belum ada catatan'}${k === 'Dinar' && !hargaPasar('Dinar') && dinarEstimasi() ? ' · ≈ buyback emas Antam × 4,25 gr × 91,7% (22K)' : ''}</div>
       <div class="bt-sum-act">${hartaPriceBox(k)}</div>
     </div>`;
 }
