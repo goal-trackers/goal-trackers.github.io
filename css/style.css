@@ -1405,3 +1405,9 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 @keyframes opUp { to { opacity: 1; transform: none; } }
 @keyframes opFade { to { opacity: 1; transform: none; } }
 @keyframes opRipple { 0% { opacity: .9; transform: scale(.8); } 100% { opacity: 0; transform: scale(2.4); } }
+/* Login di HP: hanya kartu putih, sekelilingnya gelap */
+@media (max-width: 991.98px) {
+  .login { background: radial-gradient(120% 80% at 50% 40%, #1d1d1f 0%, #0b0b0c 70%); }
+  .login-panel { background: transparent; margin-top: 0; border-radius: 0; min-height: 100vh; min-height: 100dvh; padding: 24px 18px; }
+  .login-card { box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+}
