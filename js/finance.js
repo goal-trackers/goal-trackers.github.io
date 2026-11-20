@@ -4,21 +4,35 @@ const ASSET_TYPES = ['SBN', 'SR', 'ORI', 'ST', 'SBR', 'Deposito', 'Obligasi', 'U
 const ASSET_LABEL = { USD: 'USD — Tabungan Dolar' };
 /* ── Tabungan dolar: nominal disimpan dalam USD, dinilai ke Rupiah dengan kurs (Settings.kurs_USD) ── */
 const isUsd = a => a && a.jenis === 'USD';
-const kursUsd = () => { const s = S.settings || {};
-  if (s.kurs_USD_src === 'manual' || (s.kurs_USD && s.kurs_USD_tgl === today())) return Number(s.kurs_USD) || 16000;
-  return (S.ui && S.ui.kursLive) || Number(s.kurs_USD) || 16000; };
-/** Kurs harian langsung dari browser (bila server belum memperbarui hari ini) */
-function ensureKurs() {
+/** Waktu kurs dari server (tanggal + "jam HH.mm"), dalam ms */
+const kursSrvAt = () => { const s = S.settings || {}; if (!s.kurs_USD_tgl) return 0;
+  const m = /(\d{1,2})[.:](\d{2})/.exec(String(s.kurs_USD_jam || '')); return new Date(`${s.kurs_USD_tgl}T${m ? m[1].padStart(2, '0') + ':' + m[2] : '07:00'}:00+08:00`).getTime() || 0; };
+/** Kurs yang dipakai: manual → selalu itu; otomatis → yang paling baru antara server & browser */
+const kursUsd = () => { const s = S.settings || {}, srv = Number(s.kurs_USD) || 0;
+  if (s.kurs_USD_src === 'manual') return srv || 16000;
+  const live = S.ui && S.ui.kursLive;
+  if (live && (!srv || (S.ui.kursAt || 0) > kursSrvAt())) return live;
+  return srv || live || 16000; };
+const kursPakaiLive = () => { const s = S.settings || {}; return s.kurs_USD_src !== 'manual' && !!(S.ui && S.ui.kursLive) && (!Number(s.kurs_USD) || (S.ui.kursAt || 0) > kursSrvAt()); };
+/** Kurs terkini langsung dari browser (Coinbase), disegarkan tiap 15 menit; nilai rupiah tabungan dolar ikut berubah */
+function ensureKurs(force) {
   const s = S.settings || {};
-  if (s.kurs_USD_src === 'manual' || s.kurs_USD_tgl === today() || ensureKurs.busy) return;
-  const c = lsGet('gt_kurs', null);
-  if (c && c.tgl === today()) { S.ui.kursLive = c.v; S.ui.kursTgl = c.tgl; return; }
+  if (s.kurs_USD_src === 'manual' || ensureKurs.busy) return;
+  const c = lsGet('gt_kurs', null), fresh = c && c.t && Date.now() - c.t < 15 * 60000;
+  if (c && c.t && (!S.ui.kursAt || c.t > S.ui.kursAt)) { S.ui.kursLive = c.v; S.ui.kursAt = c.t; }
+  if (fresh && !force) return;
   ensureKurs.busy = true;
-  fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD').then(r => r.json()).then(j => {
+  fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD', { cache: 'no-store' }).then(r => r.json()).then(j => {
     const v = Math.round(Number(j && j.data && j.data.rates && j.data.rates.IDR));
-    if (v > 1000 && v < 100000) { S.ui.kursLive = v; S.ui.kursTgl = today(); lsSet('gt_kurs', { tgl: today(), v }); renderAll(); }
-  }).catch(() => { }).finally(() => { setTimeout(() => { ensureKurs.busy = false; }, 600000); });
+    if (v > 1000 && v < 100000) {
+      const before = kursUsd();
+      S.ui.kursLive = v; S.ui.kursAt = Date.now(); lsSet('gt_kurs', { t: S.ui.kursAt, v });
+      if (kursUsd() !== before && S.ui.page === 'finance') keepScroll(renderFinance); else if (kursUsd() !== before) renderAll();
+    }
+  }).catch(() => { }).finally(() => { ensureKurs.busy = false; });
 }
+setInterval(() => { if (document.visibilityState === 'visible' && S.token && ((S.rekening || []).some(g => isUsdRek(g)) || (S.assets || []).some(a => isUsd(a)))) ensureKurs(true); }, 15 * 60000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.token) ensureKurs(); });
 const nomRp = a => Number(a.nominal) * (isUsd(a) ? kursUsd() : 1);
 const fmtUsd = n => 'US$ ' + Number(n || 0).toLocaleString('id-ID', { maximumFractionDigits: 2 });
 const parseUsd = v => { v = String(v || '').replace(/[^\d.,]/g, ''); if (v.includes(',')) v = v.replace(/\./g, '').replace(',', '.'); else if (/^\d{1,3}(\.\d{3})+$/.test(v)) v = v.replace(/\./g, ''); return Number(v) || 0; };
@@ -26,8 +40,9 @@ const nomText = (a, short) => isUsd(a) ? `${fmtUsd(a.nominal)} <span class="mute
 function kursInfoHtml() {
   const s = S.settings || {}, man = s.kurs_USD_src === 'manual';
   ensureKurs();
-  const tgl = man || s.kurs_USD_tgl === today() ? s.kurs_USD_tgl : (S.ui.kursLive ? S.ui.kursTgl : s.kurs_USD_tgl);
-  const jam = !man && tgl === s.kurs_USD_tgl && s.kurs_USD_jam ? ', ' + String(s.kurs_USD_jam).replace(/^jam\s*/, '') : '';
+  const lv = kursPakaiLive(), at = lv ? new Date(S.ui.kursAt) : null;
+  const tgl = lv ? today() : s.kurs_USD_tgl;
+  const jam = lv ? ', ' + String(at.getHours()).padStart(2, '0') + '.' + String(at.getMinutes()).padStart(2, '0') : (!man && s.kurs_USD_jam ? ', ' + String(s.kurs_USD_jam).replace(/^jam\s*/, '') : '');
   return `<span class="kurs-pill"><i class="bi bi-currency-dollar"></i> Kurs ${fmtVal(kursUsd(), 'Rp')}/USD <small class="muted">${(s.kurs_USD || S.ui.kursLive) ? (man ? 'manual' : 'otomatis') + (tgl ? ' · ' + fmtDate(tgl) + jam : '') : 'perkiraan'}</small>
     <button type="button" class="link-btn" data-action="kursRefresh" title="Ambil kurs terbaru"><i class="bi bi-arrow-clockwise"></i> Perbarui</button>
     <button type="button" class="link-btn" data-action="kursEdit">Ubah</button></span>`;
