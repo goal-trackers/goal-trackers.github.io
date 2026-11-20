@@ -1269,3 +1269,15 @@ button.stat:not(.tint) { background: var(--card); }
 @media (max-width: 560px) { .set-tiles { column-width: 150px; column-gap: 12px; } .set-tile { padding: 16px; border-radius: 22px; margin-bottom: 12px; } .set-tile b { font-size: 16px; } .set-go { width: 28px; height: 28px; top: 14px; right: 14px; } }
 .set-tile { transition: box-shadow .18s ease; -webkit-column-break-inside: avoid; }
 .set-tile:hover, .set-tile:focus-visible { transform: none; box-shadow: 0 0 0 2px rgba(17,17,17,.85), 0 12px 26px rgba(17,17,17,.10); }
+/* Filter Seri/Berat sebagai ikon di bawah pilihan tampilan */
+.rail-stack { display: flex; flex-direction: column; gap: 12px; align-self: start; position: sticky; top: 90px; }
+.rail-stack .view-rail { position: static; }
+.rail-filter button { position: relative; }
+.rail-filter button.on-filter { background: #111; color: #fff; }
+.rail-filter .f-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: #E5484D; box-shadow: 0 0 0 2px var(--card); }
+.hf-pop { min-width: 220px; max-height: 70vh; overflow: auto; }
+.hf-pop-h { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 6px 12px 4px; }
+.hf-pop button { padding-left: 14px; }
+.hf-pop button:disabled { opacity: .4; cursor: not-allowed; }
+[data-theme="dark"] .rail-filter button.on-filter { background: #F2F2F2; color: #111; }
+@media (max-width: 767px) { .rail-stack { position: static; flex-direction: row; } }

@@ -301,7 +301,14 @@ function finHartaHtml() {
   const aktif = sSel !== 'all' || (isBar && gSel !== 'all');
   const filterBar = sSelect || gSelect ? `<div class="harta-filter">${sSelect}${gSelect}
       <span class="tiny muted ms-auto">${aktif ? `${shown.length} dari ${items.length} catatan · <button class="link-btn" data-action="hartaReset">Reset</button>` : `${items.length} catatan`}</span></div>` : '';
-  const sFilter = filterBar, gFilter = '';
+  // Filter sebagai ikon di bawah pilihan tampilan; pilihan muncul di samping kanan (popover)
+  window._hfOpts = {
+    seri: sList.length > 1 ? [['all', 'Semua seri', bySeri.length, sSel === 'all']].concat(sList.map(key => [key, sLabel[key], sCount[key] || 0, sSel === key])) : null,
+    gram: isBar && wList.length > 1 ? [['all', 'Semua berat', byGram.length, gSel === 'all']].concat(wList.map(w => [String(w), fmtGram(w) + ' gr', wCount[w] || 0, String(gSel) === String(w)])) : null
+  };
+  const fBtn = (kind, ic, label, on) => window._hfOpts[kind] ? `<button class="${on ? 'on-filter' : ''}" data-action="hfOpen" data-kind="${kind}" aria-label="Filter ${label}" title="Filter ${label}" aria-haspopup="menu"><i class="bi ${ic}"></i>${on ? '<span class="f-dot"></span>' : ''}</button>` : '';
+  const railExtra = (window._hfOpts.seri || window._hfOpts.gram) ? `<div class="view-rail rail-filter" role="group" aria-label="Filter">${fBtn('seri', 'bi-tags', 'seri', sSel !== 'all')}${fBtn('gram', 'bi-speedometer2', 'berat', isBar && gSel !== 'all')}</div>` : '';
+  const sFilter = aktif ? `<div class="harta-filter"><span class="tiny muted">Filter: ${[sSel !== 'all' ? esc(sLabel[sSel] || sSel) : '', isBar && gSel !== 'all' ? fmtGram(Number(gSel)) + ' gr' : ''].filter(Boolean).join(' · ')} — ${shown.length} dari ${items.length} catatan · <button class="link-btn" data-action="hartaReset">Reset</button></span></div>` : '', gFilter = '';
   const soldK = sold.filter(h => h.jenis === k);
   const modalTxt = s && s.modal ? 'modal ' + fmtShort(s.modal, 'Rp') : '';
 
@@ -309,8 +316,8 @@ function finHartaHtml() {
   const kosong = '<p class="muted my-3">Tidak ada catatan yang cocok dengan filter ini.</p>';
   let table;
   if (!items.length) table = `<div class="card mt-3">${emptyHtml(t.icon, `Belum ada ${k.toLowerCase()} tercatat.`, `<button class="btn btn-dark btn-sm" data-action="newHarta" data-jenis="${k}">Catat ${k.toLowerCase()} pertama</button>`)}</div>`;
-  else if (finView() === 'list') table = `<div class="goals-layout mt-3">${viewRailHtml()}<div style="min-width:0">${sFilter}<div class="card">${shown.length ? hartaTableHtml(k, shown) : kosong}${note}</div></div></div>`;
-  else table = `<div class="goals-layout mt-3">${viewRailHtml()}<div style="min-width:0">${sFilter}${shown.length ? finViewBody(shown.map(hartaItemCard)) : `<div class="card">${kosong}</div>`}${note ? `<div class="mt-2">${note}</div>` : ''}</div></div>`;
+  else if (finView() === 'list') table = `<div class="goals-layout mt-3">${viewRailHtml(railExtra)}<div style="min-width:0">${sFilter}<div class="card">${shown.length ? hartaTableHtml(k, shown) : kosong}${note}</div></div></div>`;
+  else table = `<div class="goals-layout mt-3">${viewRailHtml(railExtra)}<div style="min-width:0">${sFilter}${shown.length ? finViewBody(shown.map(hartaItemCard)) : `<div class="card">${kosong}</div>`}${note ? `<div class="mt-2">${note}</div>` : ''}</div></div>`;
   const soldHtml = soldK.length ? `<details class="card mt-3"><summary class="fw-bold">Riwayat ${k.toLowerCase()} dijual (${soldK.length})</summary>
     <div class="table-wrap mt-2"><table class="tbl harta-tbl"><thead><tr><th></th><th>Nama</th><th class="num">Jumlah</th><th>Tgl jual</th><th class="num">Harga jual</th><th class="num">Modal</th><th></th></tr></thead><tbody>
     ${soldK.map(h => `<tr><td>${hartaThumb(h, 30)}</td><td><b>${esc(h.nama)}</b></td><td class="num">${fmtGram(h.jumlah)} ${esc(h.satuan)}</td><td>${h.tgl_jual ? fmtDate(h.tgl_jual) : '-'}</td><td class="num">${Number(h.harga_jual) ? fmtVal(h.harga_jual, 'Rp') : '-'}</td><td class="num">${Number(h.harga_beli) ? fmtVal(h.harga_beli, 'Rp') : '-'}</td>
@@ -492,6 +499,26 @@ Object.assign(Changes, {
   hartaStatus: el => { el.form.querySelectorAll('.sold-f').forEach(x => { x.hidden = el.value !== 'Dijual'; }); }
 });
 Object.assign(Inputs, { hartaCalc: debounce(el => hartaPreview(el.form), 150), susutCalc: debounce(el => susutPreview(el.form), 120) });
+function closeHfPop() { const m = document.getElementById('hfPop'); if (m) m.remove(); }
+function openHfPop(btn, kind) {
+  const was = document.getElementById('hfPop'); closeHfPop(); if (was && was.dataset.kind === kind) return;
+  const opts = (window._hfOpts || {})[kind]; if (!opts) return;
+  const m = document.createElement('div');
+  m.id = 'hfPop'; m.className = 'fin-menu hf-pop'; m.dataset.kind = kind; m.setAttribute('role', 'menu');
+  m.innerHTML = `<div class="hf-pop-h">${kind === 'seri' ? 'Seri / nama' : 'Berat'}</div>` + opts.map(([v, l, n, on]) => `<button role="menuitemradio" aria-checked="${on}" class="${on ? 'on' : ''}" data-action="hfPick" data-kind="${kind}" data-v="${esc(v)}" ${n || on ? '' : 'disabled'}><span class="flex-grow-1 text-start">${esc(l)}</span><span class="n">${n}</span></button>`).join('');
+  document.body.appendChild(m);
+  const r = btn.getBoundingClientRect(), h = m.offsetHeight, w = m.offsetWidth;
+  let left = r.right + 10; if (left + w > innerWidth - 8) left = Math.max(8, r.left - w - 10);
+  m.style.left = left + 'px'; m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.top)) + 'px';
+}
+Object.assign(Actions, {
+  hfOpen: (d, el) => openHfPop(el, d.kind),
+  hfPick: d => { closeHfPop(); if (d.kind === 'seri') Actions.hartaSeri({ seri: d.v }); else Actions.hartaGram({ gram: d.v }); }
+});
+document.addEventListener('click', e => { if (!e.target.closest('#hfPop, [data-action=hfOpen]')) closeHfPop(); }, true);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHfPop(); });
+window.addEventListener('scroll', closeHfPop, { passive: true });
+window.addEventListener('resize', closeHfPop);
 Object.assign(Changes, {
   hartaSeriSel: el => Actions.hartaSeri({ seri: el.value }),
   hartaJenisSel: el => Actions.hartaPilih({ jenis: el.value }),

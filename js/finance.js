@@ -308,9 +308,9 @@ function renderFinance() {
 const finView = () => { const t = S.ui.finTab || 'tabungan'; S.ui.finViews = S.ui.finViews || {};
   return S.ui.finViews[t] || lsGet('gt_finview_' + t, t === 'harta' ? 'list' : 'grid'); };
 /** Pilihan tampilan (peta perjalanan / daftar / kartu) — dipakai semua tab Finansial */
-function viewRailHtml() {
-  return `<div class="view-rail" role="group" aria-label="Pilih tampilan">${[['journey', 'bi-bezier2', 'Peta perjalanan'], ['list', 'bi-list-ul', 'Daftar'], ['grid', 'bi-grid', 'Kartu']]
-    .map(([k, i, l]) => `<button class="${finView() === k ? 'on' : ''}" data-action="finView" data-view="${k}" aria-label="${l}" title="${l}" aria-pressed="${finView() === k}"><i class="bi ${i}"></i></button>`).join('')}</div>`;
+function viewRailHtml(extra = '') {
+  return `${extra ? '<div class="rail-stack">' : ''}<div class="view-rail" role="group" aria-label="Pilih tampilan">${[['journey', 'bi-bezier2', 'Peta perjalanan'], ['list', 'bi-list-ul', 'Daftar'], ['grid', 'bi-grid', 'Kartu']]
+    .map(([k, i, l]) => `<button class="${finView() === k ? 'on' : ''}" data-action="finView" data-view="${k}" aria-label="${l}" title="${l}" aria-pressed="${finView() === k}"><i class="bi ${i}"></i></button>`).join('')}</div>${extra ? extra + '</div>' : ''}`;
 }
 function finViewBody(cards, listHtml) {
   const v = finView();
