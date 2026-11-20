@@ -1231,3 +1231,10 @@ button.stat:not(.tint) { background: var(--card); }
 .fin-tabbar .harta-head-plain .harta-own { font-size: 16px; }
 @media (max-width: 991px) { .fin-tabbar .harta-head-plain { width: 100%; margin: 0; } }
 .fin-tabbar .fin-left { min-width: 0; flex: 1 1 320px; }
+/* Harta: pilihan jenis + ringkasan jenis di kolom kanan, sejajar dengan judul Harta */
+.fin-tabbar .harta-right { display: flex; flex-direction: column; gap: 12px; margin-left: auto; min-width: 0; max-width: 100%; }
+.harta-right .harta-nav-wrap { display: block; }
+.harta-right .harta-head-plain { width: auto !important; margin: 0; padding: 0 0 0 14px; }
+.harta-right .harta-nav { justify-content: flex-start; }
+@media (max-width: 991px) { .fin-tabbar .harta-right { width: 100%; margin-left: 0; } .harta-right .harta-head-plain { padding-left: 0; } }
+.harta-right .harta-head-plain { padding-left: 0; }

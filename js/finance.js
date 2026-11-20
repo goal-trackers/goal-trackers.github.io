@@ -297,10 +297,9 @@ function renderFinance() {
   const hartaTotal = Object.keys(hs).reduce((s, k) => s + hs[k].nilai, 0);
   const hartaSub = ['Emas', 'Tanah'].filter(k => hs[k]).map(k => qtyText(hs[k].qty)).join(' · ');
   $('#page-finance').innerHTML = `
-    <div class="page-head fin-head"><div><p class="eyebrow">Tabungan, investasi, cicilan & harta keluarga</p><h1>Pusat Finansial <span aria-hidden="true">💰</span></h1></div>${tab === 'harta' ? hartaHeadNav() : ''}</div>
-    <div class="fin-tabbar mt-3 mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; const h2 = `<h2 class="fin-sec"><span class="tab-ic" style="--tc:${t[4]}"><i class="bi ${t[3]}"></i></span>${t[1]} <span class="n">${t[2]}</span></h2>`; return tab === 'harta' ? `<div class="fin-left">${h2}${hartaTotalBlock()}</div>` : h2; })()}${tab === 'tabungan' ? '<button class="chip-btn fin-add" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>' : ''}${tab === 'harta' ? hartaJenisSummary() : ''}</div>
+    <div class="page-head fin-head"><div><p class="eyebrow">Tabungan, investasi, cicilan & harta keluarga</p><h1>Pusat Finansial <span aria-hidden="true">💰</span></h1></div></div>
+    <div class="fin-tabbar mt-3 mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; const h2 = `<h2 class="fin-sec"><span class="tab-ic" style="--tc:${t[4]}"><i class="bi ${t[3]}"></i></span>${t[1]} <span class="n">${t[2]}</span></h2>`; return tab === 'harta' ? `<div class="fin-left">${h2}${hartaTotalBlock()}</div>` : h2; })()}${tab === 'tabungan' ? '<button class="chip-btn fin-add" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>' : ''}${tab === 'harta' ? `<div class="harta-right">${hartaHeadNav()}${hartaJenisSummary()}</div>` : ''}</div>
     ${body}`;
-  if (tab === 'harta') alignHartaSummary();
   if (tab === 'tabungan') withChart(() => drawTrend('chFin', savingsSeries(monthsBack(today().slice(0, 7), 12))));
   const _hn = document.querySelector('#page-finance .harta-scroll');
   if (_hn && _hp && _hp[2] === S.ui.hartaJenis) { _hn.scrollTop = _hp[0]; _hn.scrollLeft = _hp[1]; }
