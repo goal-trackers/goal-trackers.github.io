@@ -187,7 +187,7 @@ function submitProgress(form) {
   Outbox.push('addProgress', [
     { log_id: log.log_id, goal_id: log.goal_id, nilai_tambah: n, catatan: log.catatan, tanggal: log.tanggal },
     photo ? { data: photo.data, mime: photo.mime } : null
-  ]);  mirrorKeRekening_(g, n, log.tanggal, log.catatan);
+  ]);  mirrorKeRekening_(g, n, log.tanggal, log.catatan, log.log_id);
 }
 /** Foto profil: potong persegi di tengah, perkecil ke 160 px (±10 KB) */
 function squareAvatar(file, size = 160, q = 0.82) {
@@ -313,16 +313,8 @@ const Actions = {
     toast(`Semangat ${d.emoji} terkirim!`);
     Outbox.push('addReaction', [{ reaksi_id: r.reaksi_id, goal_id: r.goal_id, emoji: r.emoji }]);
   },
-  deleteLog: d => confirmBox({ title: 'Hapus catatan progres?', text: 'Nilai goal akan dikurangi sesuai catatan ini.', ok: 'Hapus', danger: true }, () => {
-    const l = S.logs.find(x => x.log_id === d.id);
-    if (!l) return;
-    const g = goalById(l.goal_id);
-    S.logs = S.logs.filter(x => x.log_id !== d.id);
-    if (g) { g.nilai_saat_ini = Math.max(0, g.nilai_saat_ini - Number(l.nilai_tambah)); syncStatusLocal(g); }
-    saveSnapshot();
-    renderAll();
-    toast('Catatan dihapus');
-    Outbox.push('deleteProgress', [d.id]);
+  deleteLog: d => confirmBox({ title: 'Hapus catatan progres?', text: (() => { const l = S.logs.find(x => x.log_id === d.id), p = l && logPair_(l), pg = p && p.user_id === S.me.user_id && goalById(p.goal_id); return 'Nilai goal akan dikurangi sesuai catatan ini.' + (pg ? ` Saldo ${pg.judul} juga ikut dikurangi.` : ''); })(), ok: 'Hapus', danger: true }, () => {
+    hapusLogBerpasangan_(d.id);
   }),
   goalMore: d => {
     const g = goalById(d.id);

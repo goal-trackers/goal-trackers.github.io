@@ -233,11 +233,43 @@ function pulihkanMirror_(g) {
   const r = g && !isRek(g) && rekTujuan(g); if (!r || mirrorNet_(g, r)) return;
   const n = Number(g.nilai_saat_ini) || 0; if (n > 0) mirrorKeRekening_(g, n, today(), 'dipulihkan');
 }
+/** Pasangan sebuah catatan: setoran target ↔ catatan rekening yang dibuat bersamanya */
+function logPair_(l) {
+  if (!l) return null;
+  const id = String(l.log_id);
+  if (id.startsWith('rk-')) return S.logs.find(x => x.log_id === id.slice(3)) || null;
+  const m = S.logs.find(x => x.log_id === 'rk-' + id); if (m) return m;
+  // Catatan lama (sebelum dipasangkan): cocokkan dari keterangan, jumlah & tanggal
+  const g = goalById(l.goal_id); if (!g) return null;
+  const same = x => x.log_id !== l.log_id && x.user_id === l.user_id && Number(x.nilai_tambah) === Number(l.nilai_tambah) && x.tanggal === l.tanggal;
+  if (isRek(g)) {
+    const mt = /^(Setoran|Penarikan) (.+?)(?: · .*)?$/.exec(String(l.catatan || '')); if (!mt) return null;
+    const src = S.goals.find(x => !isRek(x) && x.judul === mt[2] && parseMeta(x.meta).rek === g.goal_id);
+    return src ? S.logs.find(x => x.goal_id === src.goal_id && same(x)) || null : null;
+  }
+  const r = rekTujuan(g); if (!r) return null;
+  return mirrorLogs_(g, r).find(x => same(x) && !/^Pembatalan /.test(x.catatan || '')) || null;
+}
+/** Hapus satu catatan progres (beserta pasangannya di rekening / target) — saldo keduanya ikut turun */
+function hapusLogBerpasangan_(id) {
+  const l = S.logs.find(x => x.log_id === id); if (!l) return null;
+  const p = logPair_(l), ls = [l].concat(p && p.user_id === S.me.user_id ? [p] : []);
+  ls.forEach(x => {
+    S.logs = S.logs.filter(y => y.log_id !== x.log_id);
+    const g = goalById(x.goal_id);
+    if (g) { g.nilai_saat_ini = Math.max(0, Number(g.nilai_saat_ini) - Number(x.nilai_tambah)); g.diubah_pada = nowIso(); if (!isRek(g)) syncStatusLocal(g); }
+    Outbox.push('deleteProgress', [x.log_id]);
+  });
+  saveSnapshot(); renderAll();
+  const o = ls[1] && goalById(ls[1].goal_id);
+  toast(o ? `Catatan dihapus — saldo ${o.judul} ikut disesuaikan` : 'Catatan dihapus');
+  return l;
+}
 /** Setor/tarik di target tabungan → ikut dicatat di rekening tujuannya */
-function mirrorKeRekening_(g, n, tanggal, catatan) {
+function mirrorKeRekening_(g, n, tanggal, catatan, srcId) {
   if (!g || isRek(g)) return;
   const r = rekTujuan(g); if (!r) return;
-  const log = { log_id: uid(), goal_id: r.goal_id, tanggal: tanggal || today(), user_id: S.me.user_id, nilai_tambah: n,
+  const log = { log_id: srcId ? 'rk-' + srcId : uid(), goal_id: r.goal_id, tanggal: tanggal || today(), user_id: S.me.user_id, nilai_tambah: n,
     catatan: `${n > 0 ? 'Setoran' : 'Penarikan'} ${g.judul}${catatan ? ' · ' + catatan : ''}`.slice(0, 300), foto_url: '', dibuat_pada: nowIso() };
   S.logs.push(log);
   r.nilai_saat_ini = Math.max(0, Number(r.nilai_saat_ini) + n); r.diubah_pada = nowIso();
@@ -941,10 +973,9 @@ Object.assign(Actions, {
       toast(`Rekening dihapus${next ? ` — penerima kupon utama kini ${next.judul}` : ''}`);
     }); },
   rekLogDel: d => { const l = S.logs.find(x => x.log_id === d.id); if (!l) return; const r = goalById(l.goal_id);
-    confirmBox({ title: 'Hapus transaksi ini?', text: `Saldo ${r ? r.judul : 'rekening'} akan ${Number(l.nilai_tambah) >= 0 ? 'dikurangi' : 'ditambah'} ${fmtVal(Math.abs(Number(l.nilai_tambah)), 'Rp')}.`, ok: 'Hapus', danger: true }, () => {
-      S.logs = S.logs.filter(x => x.log_id !== l.log_id);
-      if (r) { r.nilai_saat_ini = Math.max(0, Number(r.nilai_saat_ini) - Number(l.nilai_tambah)); r.diubah_pada = nowIso(); }
-      saveSnapshot(); renderAll(); toast('Transaksi dihapus'); Outbox.push('deleteProgress', [l.log_id]);
+    const pr = logPair_(l), pg = pr && pr.user_id === S.me.user_id && goalById(pr.goal_id);
+    confirmBox({ title: 'Hapus transaksi ini?', text: `Saldo ${r ? r.judul : 'rekening'}${pg ? ' dan ' + pg.judul : ''} akan ${Number(l.nilai_tambah) >= 0 ? 'dikurangi' : 'ditambah'} ${fmtVal(Math.abs(Number(l.nilai_tambah)), 'Rp')}.`, ok: 'Hapus', danger: true }, () => {
+      hapusLogBerpasangan_(l.log_id);
       if (r) Actions.rekHist({ id: r.goal_id });
     }); },
   rekHist: d => { const g = goalById(d.id); if (!g) return;
