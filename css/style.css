@@ -1467,3 +1467,6 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .ayat-id { display: inline; }
 .ayat-ref { display: inline; margin-left: 6px; white-space: nowrap; font-style: normal; }
 .op-tag b { display: inline; margin: 0 0 0 6px; white-space: nowrap; }
+
+/* Tanda nomor ayat ﴿٢٥﴾ lebih kecil agar ukuran & jarak teks Arab seragam di semua ayat */
+.ayat-no { font-size: .62em; vertical-align: .18em; margin: 0 .1em; opacity: .75; }

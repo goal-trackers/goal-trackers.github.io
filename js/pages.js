@@ -59,7 +59,7 @@ function motto(k) {
   const d = Math.floor((Date.now() + 8 * 36e5) / 864e5), ay = AYAT[k] || [], mt = MOTTO[k] || [];
   if (ay.length && (d % 2 === 0 || !mt.length)) {
     const [ar, id, ref] = ay[Math.floor(d / 2) % ay.length];
-    return `<figure class="ayat"><p class="ayat-ar" lang="ar" dir="rtl">${ar}</p><figcaption><span class="ayat-id">“${esc(id)}”</span><span class="ayat-ref">${esc(ref)}</span></figcaption></figure>`;
+    return `<figure class="ayat"><p class="ayat-ar" lang="ar" dir="rtl">${ar.replace(/﴿([^﴾]*)﴾/g, '<span class="ayat-no">﴿$1﴾</span>')}</p><figcaption><span class="ayat-id">“${esc(id)}”</span><span class="ayat-ref">${esc(ref)}</span></figcaption></figure>`;
   }
   return mt.length ? `<p class="motto">${esc(mt[Math.floor(d / 2) % mt.length])}</p>` : '';
 }
