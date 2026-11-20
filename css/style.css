@@ -1360,3 +1360,8 @@ button.stat:not(.tint) { background: var(--card); }
 /* Ikon judul sejajar tengah dengan teks */
 h1:has(> .h-ic), h2:has(> .h-ic) { display: flex; align-items: center; gap: .3em; flex-wrap: wrap; }
 h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 1em; flex: none; position: relative; top: .04em; }
+
+/* Bilah "Versi baru tersedia" */
+.upd-bar { position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%); z-index: 3000; display: flex; align-items: center; gap: 12px; background: #111; color: #fff; padding: 8px 8px 8px 18px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,.25); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.upd-bar button { border: 0; background: #fff; color: #111; font-weight: 700; border-radius: 999px; padding: 7px 16px; }
+@media (min-width: 992px) { .upd-bar { bottom: 28px; } }
