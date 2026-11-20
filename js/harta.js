@@ -106,13 +106,23 @@ function coinSvg(n, w) {
     <text x="40" y="60" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="6" fill="#6B4508" opacity=".8">22K</text>
   </svg>`;
 }
+/** Ikon kendaraan menurut namanya: motor, sepeda, truk/pikap, bus — selain itu mobil */
+function hartaItemIcon(h) {
+  if (h.jenis !== 'Kendaraan') return '';
+  const n = String(h.nama || '') + ' ' + String(h.satuan || '');
+  if (/\b(sepeda\s*motor|motor|motorcycle|skuter|scooter|vespa|nmax|xmax|aerox|lexi|vario|beat|pcx|adv|scoopy|mio|fino|supra|revo|jupiter|vixion|cbr|r15|r25|ninja|klx|crf|satria|genio|filano|fazzio|grand\s*filano)\b/i.test(n)) return 'bi-motor';
+  if (/\b(sepeda|bicycle|bike|gowes)\b/i.test(n)) return 'bi-bicycle';
+  if (/\b(truk|truck|pick\s*-?up|pikap|l300|colt)\b/i.test(n)) return 'bi-truck';
+  if (/\b(bus|minibus|elf)\b/i.test(n)) return 'bi-bus-front';
+  return '';
+}
 /** Ikon bulat berwarna (gaya Pinterest) untuk jenis harta */
 const hIc = k => `<span class="cat-ic" style="--c:${HARTA[k].c}"><i class="bi ${HARTA[k].icon}"></i></span>`;
 function hartaThumb(h, w) {
   if (h.jenis === 'Dinar') return coinSvg(Number(h.jumlah) === 0.5 ? 0.5 : 1, w);
   if ((h.jenis === 'Emas' || h.jenis === 'Perak') && (h.satuan === 'gram' || h.satuan === 'kg')) return barSvg(h.satuan === 'kg' ? Number(h.jumlah) * 1000 : h.jumlah, h.jenis, w);
   const t = HARTA[h.jenis] || HARTA.Lainnya;
-  return `<span class="harta-emoji tint" style="--c:${t.c}"><i class="bi ${t.icon}"></i></span>`;
+  return `<span class="harta-emoji tint" style="--c:${t.c}"><i class="bi ${hartaItemIcon(h) || t.icon}"></i></span>`;
 }
 
 /** Nama seri dari kolom Nama tanpa angka berat: "Certicard Antam 5 gr" → "Certicard Antam". */
