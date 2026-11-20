@@ -81,13 +81,14 @@ function renderDashboard() {
   const theirs = live.filter(g => g.jenis === 'Pribadi' && g.pemilik_id !== me.user_id && goalState(g) !== 'done');
   const f = finSummary();
   const h = new Date().getHours();
-  const greet = 'Assalamualaikum wr. wb.';
+  const greet = 'Assalamualaikum Warohmatullahi Wabarokatuh';
   $('#page-dashboard').innerHTML = `
   <div class="dash">
     <div class="dash-main">
       <div class="page-head">
-        <div><p class="eyebrow">${greet} · ${fmtLong(today())}</p><h1>Halo, ${esc(me.nama)} <span class="h-ic" style="--c:#E8D3F5" aria-hidden="true"><i class="bi bi-house-heart"></i></span></h1></div>
-        <form class="search-pill" data-form="dashSearch" role="search"><i class="bi bi-search"></i><input id="dashSearch" name="q" type="search" placeholder="Cari goal lalu tekan Enter…" aria-label="Cari goal"></form>
+        <div><p class="eyebrow">${greet}</p><h1>Halo, ${esc(me.nama)} <span class="h-ic" style="--c:#E8D3F5" aria-hidden="true"><i class="bi bi-house-heart"></i></span></h1></div>
+        <div class="dash-right"><p class="eyebrow dash-date">${fmtLong(today())}</p>
+        <form class="search-pill" data-form="dashSearch" role="search"><i class="bi bi-search"></i><input id="dashSearch" name="q" type="search" placeholder="Cari goal lalu tekan Enter…" aria-label="Cari goal"></form></div>
       </div>
       <div class="stats">
         <button class="stat tint" style="--c:#D5F0F7" data-action="dashGo" data-status="live" aria-label="Lihat semua goal"><b>${live.length}</b><span>Total Goal</span></button>
