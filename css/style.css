@@ -1417,3 +1417,7 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .dash-right .dash-date { margin: 0; text-align: right; }
 .dash-right .search-pill { width: 100%; }
 @media (max-width: 767px) { .dash-right { width: 100%; align-items: stretch; } .dash-right .dash-date { text-align: left; order: -1; } }
+
+/* Kalimat penyemangat di bawah judul */
+.motto { margin: 6px 0 0; color: var(--muted); font-size: 14.5px; font-weight: 500; line-height: 1.45; max-width: 560px; }
+@media (min-width: 768px) { .motto { font-size: 15.5px; } }

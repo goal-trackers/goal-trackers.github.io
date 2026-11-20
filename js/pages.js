@@ -1,3 +1,35 @@
+/** Kalimat penyemangat — berganti setiap hari, sama sepanjang hari itu */
+const MOTTO = {
+  dash: [
+    'Semangat yah! Langkah kecil hari ini, hasil besar nanti 💪',
+    'Bismillah, mulai hari ini dengan niat baik dan langkah nyata.',
+    'Sedikit demi sedikit, lama-lama jadi bukit. Terus melangkah ya!',
+    'Yang penting konsisten, bukan sempurna. Semangat yah!',
+    'Allah tidak membebani melainkan sesuai kesanggupan. Kita pasti bisa.',
+    'Mimpi besar dimulai dari satu setoran kecil. Ayo lanjutkan!',
+    'Bersama lebih kuat — saling menyemangati sampai tujuan.',
+    'Hari ini kesempatan baru untuk lebih dekat ke tujuan kita.',
+    'Usaha yang istiqamah tidak akan mengkhianati hasil.',
+    'Syukuri yang sudah tercapai, kejar yang belum. Semangat!',
+    'Jangan bandingkan prosesmu dengan orang lain. Fokus ke langkah kita.',
+    'Lelah boleh, menyerah jangan. Sedikit lagi, insyaAllah.'
+  ],
+  goals: [
+    'Bismillah, semoga bisa tercapai ya Allah 🤲',
+    'Satu per satu, insyaAllah semua terwujud pada waktunya.',
+    'Niatkan karena Allah, ikhtiarkan sepenuh hati, tawakkal pada hasilnya.',
+    'Setiap goal yang tercapai adalah bukti doa yang dikabulkan. Alhamdulillah.',
+    'Rencanakan dengan baik, jalani dengan sabar, rayakan dengan syukur.',
+    'Tidak ada yang terlalu jauh jika dijalani bersama, langkah demi langkah.',
+    'Sesungguhnya bersama kesulitan ada kemudahan. Terus ikhtiar ya!',
+    'Goal kecil yang selesai lebih baik dari goal besar yang tak dimulai.',
+    'Ya Allah, mudahkanlah urusan kami dan berkahilah setiap usaha kami.',
+    'Fokus pada yang paling dekat tenggatnya, satu tuntas baru lanjut.',
+    'Doa tanpa usaha itu kosong, usaha tanpa doa itu sombong. Lakukan keduanya.',
+    'Bismillah, hari ini satu langkah lagi menuju mimpi keluarga kita.'
+  ]
+};
+function motto(k) { const l = MOTTO[k] || [], d = Math.floor((Date.now() + 8 * 36e5) / 864e5); return esc(l.length ? l[d % l.length] : ''); }
 /* GOAL TRACKERS — js/pages.js (2/4): Halaman: dashboard, goals, detail, finansial, perayaan */
 // ============================================================
 // HALAMAN: DASHBOARD
@@ -86,7 +118,7 @@ function renderDashboard() {
   <div class="dash">
     <div class="dash-main">
       <div class="page-head">
-        <div><p class="eyebrow">${greet}</p><h1>Halo, ${esc(me.nama)} <span class="h-ic" style="--c:#E8D3F5" aria-hidden="true"><i class="bi bi-house-heart"></i></span></h1></div>
+        <div><p class="eyebrow">${greet}</p><h1>Halo, ${esc(me.nama)} <span class="h-ic" style="--c:#E8D3F5" aria-hidden="true"><i class="bi bi-house-heart"></i></span></h1><p class="motto">${motto('dash')}</p></div>
         <div class="dash-right"><p class="eyebrow dash-date">${fmtLong(today())}</p>
         <form class="search-pill" data-form="dashSearch" role="search"><i class="bi bi-search"></i><input id="dashSearch" name="q" type="search" placeholder="Cari goal lalu tekan Enter…" aria-label="Cari goal"></form></div>
       </div>
@@ -160,7 +192,7 @@ function renderGoals() {
     .map(([k, i, l]) => `<button class="${u.goalView === k ? 'on' : ''}" data-action="goalView" data-view="${k}" aria-label="${l}" title="${l}" aria-pressed="${u.goalView === k}"><i class="bi ${i}"></i></button>`).join('');
   $('#page-goals').innerHTML = `
     <div class="page-head">
-      <div><p class="eyebrow">${count.semua} goal berjalan & selesai</p><h1>Goal Kami <span class="h-ic" style="--c:#D5F0F7" aria-hidden="true"><i class="bi bi-bullseye"></i></span></h1></div>
+      <div><p class="eyebrow">${count.semua} goal berjalan & selesai</p><h1>Goal Kami <span class="h-ic" style="--c:#D5F0F7" aria-hidden="true"><i class="bi bi-bullseye"></i></span></h1><p class="motto">${motto('goals')}</p></div>
       <label class="search-pill"><i class="bi bi-search"></i><input id="goalSearch" type="search" placeholder="Cari judul goal…" value="${esc(u.goalQuery)}" data-input="goalSearch" aria-label="Cari goal"></label>
     </div>
     <div class="toolbar goals-toolbar">
