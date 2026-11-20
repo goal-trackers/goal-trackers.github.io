@@ -29,7 +29,40 @@ const MOTTO = {
     'Bismillah, hari ini satu langkah lagi menuju mimpi keluarga kita.'
   ]
 };
-function motto(k) { const l = MOTTO[k] || [], d = Math.floor((Date.now() + 8 * 36e5) / 864e5); return esc(l.length ? l[d % l.length] : ''); }
+/** Ayat penyemangat: [teks Arab, terjemahan (ringkas, Kemenag), surat & ayat] */
+const AYAT = {
+  dash: [
+    ['فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ﴿٥﴾ إِنَّ مَعَ الْعُسْرِ يُسْرًا ﴿٦﴾', 'Maka sesungguhnya beserta kesulitan ada kemudahan. Sesungguhnya beserta kesulitan itu ada kemudahan.', 'QS Al-Insyirah: 5–6'],
+    ['لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا', 'Allah tidak membebani seseorang melainkan sesuai dengan kesanggupannya.', 'QS Al-Baqarah: 286'],
+    ['وَأَنْ لَيْسَ لِلْإِنْسَانِ إِلَّا مَا سَعَىٰ', 'Dan bahwa manusia hanya memperoleh apa yang telah diusahakannya.', 'QS An-Najm: 39'],
+    ['إِنَّ اللَّهَ لَا يُغَيِّرُ مَا بِقَوْمٍ حَتَّىٰ يُغَيِّرُوا مَا بِأَنْفُسِهِمْ', 'Sesungguhnya Allah tidak akan mengubah keadaan suatu kaum sebelum mereka mengubah keadaan diri mereka sendiri.', 'QS Ar-Ra\'d: 11'],
+    ['وَلَا تَهِنُوا وَلَا تَحْزَنُوا وَأَنْتُمُ الْأَعْلَوْنَ إِنْ كُنْتُمْ مُؤْمِنِينَ', 'Janganlah kamu merasa lemah dan jangan pula bersedih hati, sebab kamu paling tinggi derajatnya jika kamu orang beriman.', 'QS Ali \'Imran: 139'],
+    ['وَلَا تَيْأَسُوا مِنْ رَوْحِ اللَّهِ', 'Dan janganlah kamu berputus asa dari rahmat Allah.', 'QS Yusuf: 87']
+  ],
+  goals: [
+    ['فَإِذَا فَرَغْتَ فَانْصَبْ ﴿٧﴾ وَإِلَىٰ رَبِّكَ فَارْغَبْ ﴿٨﴾', 'Maka apabila engkau telah selesai (dari suatu urusan), tetaplah bekerja keras (untuk urusan yang lain), dan hanya kepada Tuhanmulah engkau berharap.', 'QS Al-Insyirah: 7–8'],
+    ['فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى اللَّهِ', 'Kemudian, apabila engkau telah membulatkan tekad, maka bertawakallah kepada Allah.', 'QS Ali \'Imran: 159'],
+    ['وَمَنْ يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ', 'Dan barang siapa bertawakal kepada Allah, niscaya Allah akan mencukupkan (keperluan)nya.', 'QS At-Talaq: 3'],
+    ['يَا أَيُّهَا الَّذِينَ آمَنُوا اسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ ۚ إِنَّ اللَّهَ مَعَ الصَّابِرِينَ', 'Wahai orang-orang yang beriman! Mohonlah pertolongan (kepada Allah) dengan sabar dan salat. Sungguh, Allah beserta orang-orang yang sabar.', 'QS Al-Baqarah: 153'],
+    ['ادْعُونِي أَسْتَجِبْ لَكُمْ', 'Berdoalah kepada-Ku, niscaya akan Aku perkenankan bagimu.', 'QS Gafir: 60'],
+    ['رَبِّ اشْرَحْ لِي صَدْرِي ﴿٢٥﴾ وَيَسِّرْ لِي أَمْرِي ﴿٢٦﴾', 'Ya Tuhanku, lapangkanlah dadaku, dan mudahkanlah untukku urusanku.', 'QS Taha: 25–26'],
+    ['رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ', 'Ya Tuhan kami, berilah kami kebaikan di dunia dan kebaikan di akhirat, dan lindungilah kami dari azab neraka.', 'QS Al-Baqarah: 201'],
+    ['رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ', 'Ya Tuhan kami, anugerahkanlah kepada kami pasangan kami dan keturunan kami sebagai penyenang hati (kami).', 'QS Al-Furqan: 74']
+  ],
+  celebrate: [
+    ['لَئِنْ شَكَرْتُمْ لَأَزِيدَنَّكُمْ', 'Sesungguhnya jika kamu bersyukur, niscaya Aku akan menambah (nikmat) kepadamu.', 'QS Ibrahim: 7']
+  ]
+};
+MOTTO.celebrate = ['Alhamdulillah, setiap langkah yang tercapai layak disyukuri bersama.', 'Rayakan dengan syukur, lanjutkan dengan semangat baru.'];
+/** Berganti setiap hari: ayat dan kalimat penyemangat bergiliran (hari genap ayat, hari ganjil kalimat) */
+function motto(k) {
+  const d = Math.floor((Date.now() + 8 * 36e5) / 864e5), ay = AYAT[k] || [], mt = MOTTO[k] || [];
+  if (ay.length && (d % 2 === 0 || !mt.length)) {
+    const [ar, id, ref] = ay[Math.floor(d / 2) % ay.length];
+    return `<figure class="ayat"><p class="ayat-ar" lang="ar" dir="rtl">${ar}</p><figcaption><span class="ayat-id">“${esc(id)}”</span><span class="ayat-ref">${esc(ref)}</span></figcaption></figure>`;
+  }
+  return mt.length ? `<p class="motto">${esc(mt[Math.floor(d / 2) % mt.length])}</p>` : '';
+}
 /* GOAL TRACKERS — js/pages.js (2/4): Halaman: dashboard, goals, detail, finansial, perayaan */
 // ============================================================
 // HALAMAN: DASHBOARD
@@ -118,7 +151,7 @@ function renderDashboard() {
   <div class="dash">
     <div class="dash-main">
       <div class="page-head">
-        <div><p class="eyebrow">${greet}</p><h1>Halo, ${esc(me.nama)} <span class="h-ic" style="--c:#E8D3F5" aria-hidden="true"><i class="bi bi-house-heart"></i></span></h1><p class="motto">${motto('dash')}</p></div>
+        <div><p class="eyebrow">${greet}</p><h1>Halo, ${esc(me.nama)} <span class="h-ic" style="--c:#E8D3F5" aria-hidden="true"><i class="bi bi-house-heart"></i></span></h1>${motto('dash')}</div>
         <div class="dash-right"><p class="eyebrow dash-date">${fmtLong(today())}</p>
         <form class="search-pill" data-form="dashSearch" role="search"><i class="bi bi-search"></i><input id="dashSearch" name="q" type="search" placeholder="Cari goal lalu tekan Enter…" aria-label="Cari goal"></form></div>
       </div>
@@ -192,7 +225,7 @@ function renderGoals() {
     .map(([k, i, l]) => `<button class="${u.goalView === k ? 'on' : ''}" data-action="goalView" data-view="${k}" aria-label="${l}" title="${l}" aria-pressed="${u.goalView === k}"><i class="bi ${i}"></i></button>`).join('');
   $('#page-goals').innerHTML = `
     <div class="page-head">
-      <div><p class="eyebrow">${count.semua} goal berjalan & selesai</p><h1>Goal Kami <span class="h-ic" style="--c:#D5F0F7" aria-hidden="true"><i class="bi bi-bullseye"></i></span></h1><p class="motto">${motto('goals')}</p></div>
+      <div><p class="eyebrow">${count.semua} goal berjalan & selesai</p><h1>Goal Kami <span class="h-ic" style="--c:#D5F0F7" aria-hidden="true"><i class="bi bi-bullseye"></i></span></h1>${motto('goals')}</div>
       <label class="search-pill"><i class="bi bi-search"></i><input id="goalSearch" type="search" placeholder="Cari judul goal…" value="${esc(u.goalQuery)}" data-input="goalSearch" aria-label="Cari goal"></label>
     </div>
     <div class="toolbar goals-toolbar">
@@ -366,7 +399,7 @@ function renderCelebrate() {
     S.users.map(x => `<button class="chip-btn ${u.celebUser === x.user_id ? 'on' : ''}" data-action="celebUser" data-id="${x.user_id}">${esc(x.avatar || '')} ${esc(x.nama)}</button>`).join('');
   const icon = j => j === '100%' ? 'bi-trophy' : j === 'Milestone' ? 'bi-check2-circle' : /^Streak/.test(j) ? 'bi-fire' : 'bi-stars';
   $('#page-celebrate').innerHTML = `
-    <div class="page-head"><div><p class="eyebrow">${liveAch().length} momen tercatat</p><h1>Galeri Perayaan <span class="h-ic" style="--c:#FBEBB5" aria-hidden="true"><i class="bi bi-stars"></i></span></h1></div></div>
+    <div class="page-head"><div><p class="eyebrow">${liveAch().length} momen tercatat</p><h1>Galeri Perayaan <span class="h-ic" style="--c:#FBEBB5" aria-hidden="true"><i class="bi bi-stars"></i></span></h1>${motto('celebrate')}</div></div>
     <p class="tiny muted mb-2">Angka = berapa kali momen itu tercapai. Setiap goal dirayakan saat progresnya menyentuh 25%, 50%, 75% dan 100%; tugas yang dicentang dihitung sebagai Milestone.</p>
     <div class="badges">${badges}</div>
     <div class="chips mt-3">${chips}</div>
