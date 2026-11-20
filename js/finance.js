@@ -196,6 +196,36 @@ function recalcTpl(f) {
   }
 }
 function tplMetaFromForm(f) {
+  const raw = tplMetaFromForm0_(f), ex = goalById(f.goal_id && f.goal_id.value);
+  if (ex && isRek(ex)) return raw;
+  let m = {}; try { m = JSON.parse(raw || '{}') || {}; } catch (e) { m = {}; }
+  const r = f.rek_tujuan && f.tipe_target && f.tipe_target.value === 'Finansial' ? f.rek_tujuan.value : '';
+  if (r) m.rek = r; else delete m.rek;
+  return Object.keys(m).length ? JSON.stringify(m) : '';
+}
+/** Rekening tujuan setoran sebuah target tabungan (meta.rek), bila masih ada */
+const rekTujuan = g => { const id = parseMeta(g && g.meta).rek; const r = id && (S.rekening || []).find(x => x.goal_id === id && x.status !== 'Arsip'); return r && !isUsdRek(r) ? r : null; };
+function rekFieldHtml(d) {
+  const list = (typeof rekList === 'function' ? rekList() : []).filter(r => !isUsdRek(r));
+  if (!list.length || (d.goal_id && isRek(d))) return '';
+  const cur = parseMeta(d.meta).rek || '';
+  return `<label class="field" id="rekField" ${d.tipe_target === 'Finansial' ? '' : 'hidden'}><span>Setoran masuk ke rekening <small>(opsional)</small></span>
+    <select name="rek_tujuan"><option value="">— tidak dihubungkan —</option>${list.map(r => `<option value="${r.goal_id}" ${r.goal_id === cur ? 'selected' : ''}>${esc(r.judul)} · ${esc(rekJenis(r))}</option>`).join('')}</select>
+    <small class="muted">Setiap setor/tarik di target ini otomatis menambah/mengurangi saldo rekening tersebut.</small></label>`;
+}
+/** Setor/tarik di target tabungan → ikut dicatat di rekening tujuannya */
+function mirrorKeRekening_(g, n, tanggal, catatan) {
+  if (!g || isRek(g)) return;
+  const r = rekTujuan(g); if (!r) return;
+  const log = { log_id: uid(), goal_id: r.goal_id, tanggal: tanggal || today(), user_id: S.me.user_id, nilai_tambah: n,
+    catatan: `${n > 0 ? 'Setoran' : 'Penarikan'} ${g.judul}${catatan ? ' · ' + catatan : ''}`.slice(0, 300), foto_url: '', dibuat_pada: nowIso() };
+  S.logs.push(log);
+  r.nilai_saat_ini = Math.max(0, Number(r.nilai_saat_ini) + n); r.diubah_pada = nowIso();
+  saveSnapshot(); renderAll();
+  Outbox.push('addProgress', [{ log_id: log.log_id, goal_id: r.goal_id, nilai_tambah: n, catatan: log.catatan, tanggal: log.tanggal }, null]);
+  toast(`${n > 0 ? '+' : ''}${fmtVal(n, 'Rp')} juga masuk ke ${r.judul}`);
+}
+function tplMetaFromForm0_(f) {
   const ex = goalById(f.goal_id && f.goal_id.value);
   if (ex && isRek(ex)) return ex.meta;            // Tabungan Utama: pertahankan penanda
   const t = f.template.value;
@@ -383,6 +413,7 @@ function finSavingsHtml(f) {
           <div class="mt-1"><b>${fmtShort(g.nilai_saat_ini, 'Rp')}</b> <span class="muted tiny">/ ${fmtShort(g.nilai_target, 'Rp')}</span></div>
         </div>
       </div>
+      ${rekTujuan(g) ? `<div class="tiny muted mt-2"><i class="bi bi-arrow-return-right"></i> Setoran masuk ke <b>${esc(rekTujuan(g).judul)}</b></div>` : ''}
       <div class="kv mt-3">
         <div><small>Sisa</small><b>${fmtShort(Math.max(0, g.nilai_target - g.nilai_saat_ini), 'Rp')}</b></div>
         <div><small>${done ? (needsExecDate(g) ? 'Pelaksanaan' : 'Status') : 'Saran setoran'}</small><b>${done ? (needsExecDate(g) ? (g.tgl_pelaksanaan ? fmtDate(g.tgl_pelaksanaan) : 'Belum ditetapkan') : 'Tercapai 🎉') : fmtShort(Math.ceil(monthlyNeed(g)), 'Rp') + '/bln'}</b></div>

@@ -46,6 +46,7 @@ function openGoalForm(g, preset = {}) {
       <label class="field"><span>Mulai</span><input type="date" name="tgl_mulai" value="${esc(d.tgl_mulai)}" required></label>
       <label class="field"><span>Tenggat</span><input type="date" name="tenggat" value="${esc(d.tenggat)}" required><em class="field-err"></em></label>
     </div>
+    ${rekFieldHtml(d)}
     <div class="field"><span>Prioritas</span><div class="seg">${radio('prioritas', 'Rendah', 'Rendah', d.prioritas)}${radio('prioritas', 'Sedang', 'Sedang', d.prioritas)}${radio('prioritas', 'Tinggi', 'Tinggi', d.prioritas)}</div></div>
     <div class="field"><span>Warna kartu <small>(kosong = ikut kategori)</small></span><div class="swatches">
       <label class="swatch" style="--c:var(--soft)"><input type="radio" name="warna" value="" ${!d.warna ? 'checked' : ''} aria-label="Ikut kategori"><i class="bi bi-slash-lg" style="position:absolute;inset:0;display:grid;place-items:center"></i></label>
@@ -64,6 +65,7 @@ function goalFormTipeChanged(form) {
   const showVal = tipe !== 'Checklist';
   $('#targetFields').hidden = !showVal;
   $('#unitField').hidden = tipe === 'Finansial';
+  if ($('#rekField')) $('#rekField').hidden = tipe !== 'Finansial';
   $('#targetLabel').textContent = tipe === 'Finansial' ? 'Target (Rp)' : 'Nilai target';
   const ti = form.nilai_target;
   if (tipe === 'Finansial') { ti.setAttribute('data-money', ''); ti.placeholder = '15.000.000'; }
@@ -185,7 +187,7 @@ function submitProgress(form) {
   Outbox.push('addProgress', [
     { log_id: log.log_id, goal_id: log.goal_id, nilai_tambah: n, catatan: log.catatan, tanggal: log.tanggal },
     photo ? { data: photo.data, mime: photo.mime } : null
-  ]);
+  ]);  mirrorKeRekening_(g, n, log.tanggal, log.catatan);
 }
 /** Foto profil: potong persegi di tengah, perkecil ke 160 px (±10 KB) */
 function squareAvatar(file, size = 160, q = 0.82) {
