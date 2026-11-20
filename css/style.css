@@ -1302,3 +1302,8 @@ button.stat:not(.tint) { background: var(--card); }
 @media (max-width: 767px) { .board-tabs-wrap { padding: 0 6px; } .bt-row button { min-height: 40px; padding: 0 12px 0 4px; font-size: 13.5px; } .bt-row button .cat-ic { width: 30px; height: 30px; } .bt-next { width: 40px; height: 40px; } }
 .bt-board:not(.card) { padding-top: 0; }
 .bt-board > .journey, .bt-board > .card { margin-top: 0; padding-top: 50px; }
+
+/* Tombol Harta lain di dalam bilah jenis */
+.bt-row button.bt-add { color: var(--text); border-left: 1px solid var(--line, rgba(17,17,17,.08)); border-radius: 0 999px 999px 0; margin-left: 4px; padding-left: 10px; }
+.bt-row button.bt-add .cat-ic { --c: #EDEDEA; background: #EDEDEA; color: #111; }
+[data-theme="dark"] .bt-row button.bt-add .cat-ic { background: #333; color: #F2F2F2; }
