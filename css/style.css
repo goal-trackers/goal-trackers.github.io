@@ -1357,3 +1357,6 @@ button.stat:not(.tint) { background: var(--card); }
 /* Ikon judul halaman: lingkaran pastel + ikon garis (pengganti emoji) */
 .h-ic { display: inline-grid; place-items: center; width: 1.1em; height: 1.1em; border-radius: 50%; background: var(--c); color: #1a1a1a; vertical-align: -.1em; margin-left: .2em; }
 .h-ic .bi { font-size: .5em; line-height: 1; }
+/* Ikon judul sejajar tengah dengan teks */
+h1:has(> .h-ic), h2:has(> .h-ic) { display: flex; align-items: center; gap: .3em; flex-wrap: wrap; }
+h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 1em; flex: none; position: relative; top: .04em; }
