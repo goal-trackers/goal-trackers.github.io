@@ -81,7 +81,7 @@ function renderDashboard() {
   const theirs = live.filter(g => g.jenis === 'Pribadi' && g.pemilik_id !== me.user_id && goalState(g) !== 'done');
   const f = finSummary();
   const h = new Date().getHours();
-  const greet = h < 11 ? 'Selamat pagi' : h < 15 ? 'Selamat siang' : h < 18 ? 'Selamat sore' : 'Selamat malam';
+  const greet = 'Assalamualaikum wr. wb.';
   $('#page-dashboard').innerHTML = `
   <div class="dash">
     <div class="dash-main">
