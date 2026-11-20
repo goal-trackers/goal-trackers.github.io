@@ -1457,3 +1457,8 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .view-rail button { transition: background .15s, color .15s; }
 .view-rail button:not(.on):not(.on-filter):hover { background: #ECECEA; color: var(--text); }
 [data-theme="dark"] .view-rail button:not(.on):not(.on-filter):hover { background: #2E2E2E; color: #F2F2F2; }
+/* Perbaikan HP: judul halaman selebar layar (jangan menyempit di samping pencarian) */
+@media (max-width: 767px) {
+  .dash .page-head > div:first-child, #page-goals .page-head > div:first-child { flex: 1 1 100%; width: 100%; }
+  .dash-right { flex: 1 1 100%; }
+}
