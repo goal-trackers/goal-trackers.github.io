@@ -1348,7 +1348,7 @@ button.stat:not(.tint) { background: var(--card); }
 /* Tombol tambah jenis harta di rail */
 .rail-add button { background: transparent; color: var(--text); transition: background .15s, color .15s; }
 .rail-add button:active { background: #111; color: #fff; }
-[data-theme="dark"] .rail-add button:hover, [data-theme="dark"] .rail-add button:active { background: #F2F2F2; color: #111; }
+[data-theme="dark"] .rail-add button:active { background: #F2F2F2; color: #111; }
 
 /* Ikon kustom: sepeda motor (Bootstrap Icons tidak punya) — <i class="bi bi-motor"> */
 .bi-motor::before { content: '' !important; display: inline-block; width: 1.15em; height: 1.15em; vertical-align: -.2em; background-color: currentColor;
