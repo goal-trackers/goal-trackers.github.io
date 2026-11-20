@@ -1238,3 +1238,6 @@ button.stat:not(.tint) { background: var(--card); }
 .harta-right .harta-nav { justify-content: flex-start; }
 @media (max-width: 991px) { .fin-tabbar .harta-right { width: 100%; margin-left: 0; } .harta-right .harta-head-plain { padding-left: 0; } }
 .harta-right .harta-head-plain { padding-left: 0; }
+/* Dropdown di dalam pil (Seri/Berat): hilangkan cincin fokus ganda dari gaya select bawaan */
+.hf-sel select, .hf-sel select:focus, .hf-sel select:focus-visible, .hf-sel select:active { box-shadow: none !important; border: 0 !important; outline: none !important; background: transparent !important; }
+.hf-sel:focus-within { box-shadow: 0 0 0 2px var(--text); border-color: transparent; }
