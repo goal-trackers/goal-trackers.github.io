@@ -14,8 +14,8 @@ function ensureKurs() {
   const c = lsGet('gt_kurs', null);
   if (c && c.tgl === today()) { S.ui.kursLive = c.v; S.ui.kursTgl = c.tgl; return; }
   ensureKurs.busy = true;
-  fetch('https://open.er-api.com/v6/latest/USD').then(r => r.json()).then(j => {
-    const v = Math.round(Number(j && j.rates && j.rates.IDR));
+  fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD').then(r => r.json()).then(j => {
+    const v = Math.round(Number(j && j.data && j.data.rates && j.data.rates.IDR));
     if (v > 1000 && v < 100000) { S.ui.kursLive = v; S.ui.kursTgl = today(); lsSet('gt_kurs', { tgl: today(), v }); renderAll(); }
   }).catch(() => { }).finally(() => { setTimeout(() => { ensureKurs.busy = false; }, 600000); });
 }
@@ -27,7 +27,9 @@ function kursInfoHtml() {
   const s = S.settings || {}, man = s.kurs_USD_src === 'manual';
   ensureKurs();
   const tgl = man || s.kurs_USD_tgl === today() ? s.kurs_USD_tgl : (S.ui.kursLive ? S.ui.kursTgl : s.kurs_USD_tgl);
-  return `<span class="kurs-pill"><i class="bi bi-currency-dollar"></i> Kurs ${fmtVal(kursUsd(), 'Rp')}/USD <small class="muted">${(s.kurs_USD || S.ui.kursLive) ? (man ? 'manual' : 'hari ini') + (tgl ? ' · ' + fmtDate(tgl) : '') : 'perkiraan'}</small>
+  const jam = !man && tgl === s.kurs_USD_tgl && s.kurs_USD_jam ? ', ' + String(s.kurs_USD_jam).replace(/^jam\s*/, '') : '';
+  return `<span class="kurs-pill"><i class="bi bi-currency-dollar"></i> Kurs ${fmtVal(kursUsd(), 'Rp')}/USD <small class="muted">${(s.kurs_USD || S.ui.kursLive) ? (man ? 'manual' : 'otomatis') + (tgl ? ' · ' + fmtDate(tgl) + jam : '') : 'perkiraan'}</small>
+    <button type="button" class="link-btn" data-action="kursRefresh" title="Ambil kurs terbaru"><i class="bi bi-arrow-clockwise"></i> Perbarui</button>
     <button type="button" class="link-btn" data-action="kursEdit">Ubah</button></span>`;
 }
 const LOAN_METODE = ['Tanpa bunga', 'Flat', 'Anuitas'];
@@ -995,10 +997,16 @@ Object.assign(Actions, {
     confirmBox({ title: `Arsipkan "${g.judul}"?`, text: 'Rekening disembunyikan dari daftar. Riwayat saldonya tetap tersimpan dan bisa dibuka dari Goals (filter Diarsipkan).', ok: 'Arsipkan' }, () => {
       closeSheet(); g.status = 'Arsip'; saveSnapshot(); renderAll(); Outbox.push('setGoalArchived', [g.goal_id, true]); toast('Rekening diarsipkan'); }); },
   editAsset: d => openAssetForm(d.id),
+  kursRefresh: (d, el) => {
+    setBusy(el, true);
+    api('saveKursUsd', S.token, 0).then(p => { applyPayload(p); const s = S.settings || {};
+      toast(`Kurs dolar: ${fmtVal(Number(s.kurs_USD), 'Rp')}/USD${s.kurs_USD_sumber ? ' · ' + s.kurs_USD_sumber : ''}`); })
+      .catch(e => { setBusy(el, false); toast(e.message || 'Gagal mengambil kurs dolar.', 'error'); });
+  },
   kursEdit: () => {
     const s = S.settings || {};
     openSheet('Kurs Dolar (USD → Rp)', `<form data-form="kurs" novalidate>
-      <p class="tiny muted">Saat ini ${fmtVal(kursUsd(), 'Rp')}/USD${s.kurs_USD_src === 'manual' ? ' (diatur manual)' : ' (otomatis dari open.er-api.com, diperbarui harian)'}.</p>
+      <p class="tiny muted">Saat ini ${fmtVal(kursUsd(), 'Rp')}/USD${s.kurs_USD_src === 'manual' ? ' (diatur manual)' : ' (otomatis' + (s.kurs_USD_sumber ? ' dari ' + esc(s.kurs_USD_sumber) : '') + ', diperbarui tiap jam saat aplikasi dibuka)'}.</p>
       <label class="field"><span>Kurs manual (Rp per 1 USD)</span><input name="kurs" inputmode="numeric" data-money placeholder="${fmtN(kursUsd())}"><small>Kosongkan lalu Simpan untuk kembali ke kurs otomatis.</small></label>
       <div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button><button class="btn btn-dark" type="submit">Simpan</button></div></form>`);
   },
