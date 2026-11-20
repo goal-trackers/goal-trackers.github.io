@@ -1347,7 +1347,7 @@ button.stat:not(.tint) { background: var(--card); }
 @media (max-width: 767px) { .fin-head .fin-secs { margin-left: 0; width: 100%; } .fin-sec-t { font-size: 14px; padding: 0 13px; min-height: 38px; } }
 /* Tombol tambah jenis harta di rail */
 .rail-add button { background: transparent; color: var(--text); transition: background .15s, color .15s; }
-.rail-add button:hover, .rail-add button:active, .rail-add button:focus-visible { background: #111; color: #fff; }
+.rail-add button:active { background: #111; color: #fff; }
 [data-theme="dark"] .rail-add button:hover, [data-theme="dark"] .rail-add button:active { background: #F2F2F2; color: #111; }
 
 /* Ikon kustom: sepeda motor (Bootstrap Icons tidak punya) — <i class="bi bi-motor"> */
@@ -1452,3 +1452,8 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 #goalList.bt-board > .journey { padding-top: 72px; } #goalList.bt-board > .card { padding-top: 50px; }
 #page-goals .bt-row button { padding: 0 16px; }
 @media (max-width: 767px) { .goals-right .btn { align-self: flex-start; } }
+
+/* Rail: sorot abu-abu muda saat kursor di atas tombol (yang aktif tetap hitam) */
+.view-rail button { transition: background .15s, color .15s; }
+.view-rail button:not(.on):not(.on-filter):hover { background: #ECECEA; color: var(--text); }
+[data-theme="dark"] .view-rail button:not(.on):not(.on-filter):hover { background: #2E2E2E; color: #F2F2F2; }
