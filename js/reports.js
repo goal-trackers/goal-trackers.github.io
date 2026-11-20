@@ -260,10 +260,19 @@ function renderSettings() {
       ${(() => { const em = S.users.map(u => String(u.email).toLowerCase()); return em.some((e, i) => em.indexOf(e) !== i) ? '<div class="verdict bad mt-2"><i class="bi bi-exclamation-triangle"></i><span>Ada anggota dengan email yang sama, sehingga salah satunya tidak bisa login. Tekan <b>Edit</b> dan ganti emailnya.</span></div>' : ''; })()}
       <button class="btn btn-dark btn-sm w-100 mt-3" data-action="backup"><i class="bi bi-cloud-download"></i> Cadangkan data sekarang</button>
     </div>` : '';
-  $('#page-settings').innerHTML = `
-    <div class="page-head"><div><p class="eyebrow">Atur sesuai kebutuhan kalian</p><h1>Pengaturan <span aria-hidden="true">⚙️</span></h1></div></div>
-    <div class="set-grid">
-      <div class="card"><h3>Profil Saya</h3>
+  const nTpl = typeof TPL !== 'undefined' ? Object.keys(TPL).length : 0;
+  const SECS = [
+    ['profil', 'Profil Saya', 'Nama, foto, avatar & warna profil', '#E8D3F5', 'bi-person-circle', `<div class="d-flex align-items-center gap-2 mt-3">${avatarHtml(me)}<div style="min-width:0"><b class="d-block text-truncate">${esc(me.nama)}</b><small class="muted text-truncate d-block">${esc(me.email)}</small></div></div>`],
+    ['keamanan', 'Keamanan', 'Ganti PIN 6 digit untuk masuk', '#FFE1C7', 'bi-shield-lock', ''],
+    ['tampilan', 'Tampilan', 'Tema terang/gelap & tampilan bawaan Goals', '#D5F0F7', 'bi-palette', `<div class="tiny mt-3"><span class="chip">${theme === 'dark' ? '🌙 Gelap' : '☀️ Terang'}</span></div>`],
+    ['kategori', 'Kategori', `${activeCats().length} kategori goal`, '#CFF2D6', 'bi-tags', `<div class="set-ics mt-3">${activeCats().slice(0, 8).map(c => `<span class="ic tint" style="--c:${esc(c.warna)}"><i class="bi ${esc(c.ikon)}"></i></span>`).join('')}</div>`],
+    ['template', 'Template Goal', `${nTpl} template untuk goal baru`, '#FBEBB5', 'bi-bookmark-star', ''],
+    ['satuan', 'Satuan Kustom', `${units().length} satuan`, '#F8CFE0', 'bi-rulers', `<div class="mt-3 d-flex flex-wrap gap-1">${units().slice(0, 6).map(x => `<span class="chip">${esc(x)}</span>`).join('')}</div>`],
+    ...(isAdmin() ? [['admin', 'Admin', 'Pengingat tenggat, anggota & cadangan data', '#E6E8EE', 'bi-person-gear', `<div class="d-flex mt-3 set-avs">${S.users.map(u => avatarHtml(u)).join('')}</div>`]] : []),
+    ['aplikasi', 'Aplikasi', 'Muat ulang data & keluar', '#ECECEA', 'bi-phone', '']
+  ];
+  const body = {
+    profil: `<div class="card">
         <form data-form="profile">
           <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">${avatarHtml(me, 'lg')}<div class="flex-grow-1"><b>${esc(me.nama)}</b><div class="tiny muted">${esc(me.email)} · ${esc(me.peran)}</div>
             <div class="d-flex gap-2 mt-2 flex-wrap">
@@ -274,8 +283,8 @@ function renderSettings() {
           <div class="field"><span>Avatar emoji ${me.foto ? '<small>(dipakai jika foto dihapus)</small>' : ''}</span><div class="emoji-pick">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${me.avatar === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div></div>
           <div class="field"><span>Warna profil</span><div class="swatches">${PASTELS.map(c => `<label class="swatch" style="--c:${c}"><input type="radio" name="warna_profil" value="${c}" ${me.warna_profil === c ? 'checked' : ''} aria-label="Warna ${c}"></label>`).join('')}</div></div>
           <button class="btn btn-dark btn-sm" type="submit">Simpan profil</button>
-        </form></div>
-      <div class="card"><h3>Keamanan</h3>
+        </form></div>`,
+    keamanan: `<div class="card">
         <form data-form="pin" autocomplete="off">
           <label class="field"><span>PIN lama</span><input name="old" type="password" inputmode="numeric" maxlength="6" required></label>
           <label class="field"><span>PIN baru (6 digit)</span><input name="new1" type="password" inputmode="numeric" maxlength="6" required></label>
@@ -283,7 +292,8 @@ function renderSettings() {
           <p class="form-error" id="pinError"></p>
           <button class="btn btn-dark btn-sm" type="submit"><span class="btn-label">Ganti PIN</span></button>
         </form>
-        <h3 class="mt-4">Tampilan</h3>
+        </div>`,
+    tampilan: `<div class="card">
         <div class="seg mb-3">
           <label><input type="radio" name="theme" value="light" data-change="themeSel" ${theme === 'light' ? 'checked' : ''}><span><i class="bi bi-sun"></i> Terang</span></label>
           <label><input type="radio" name="theme" value="dark" data-change="themeSel" ${theme === 'dark' ? 'checked' : ''}><span><i class="bi bi-moon-stars"></i> Gelap</span></label>
@@ -291,23 +301,29 @@ function renderSettings() {
         <div class="seg">
           ${[['journey', 'Peta'], ['list', 'Daftar'], ['grid', 'Kartu']].map(([k, l]) => `<label><input type="radio" name="dview" value="${k}" data-change="viewSel" ${S.ui.goalView === k ? 'checked' : ''}><span>${l}</span></label>`).join('')}
         </div>
-        <p class="tiny muted mt-2 mb-0">Tampilan bawaan halaman Goals.</p>
-      </div>
-      <div class="card"><h3>Kategori <button class="btn btn-soft btn-sm" data-action="catEdit" data-id=""><i class="bi bi-plus-lg"></i> Baru</button></h3>${cats}</div>
-      ${typeof tplSettingsCard === 'function' ? tplSettingsCard() : ''}
-      <div class="card"><h3>Satuan Kustom</h3>
+        <p class="tiny muted mt-2 mb-0">Tampilan bawaan halaman Goals.</p></div>`,
+    kategori: `<div class="card"><div class="d-flex justify-content-end mb-2"><button class="btn btn-dark btn-sm" data-action="catEdit" data-id=""><i class="bi bi-plus-lg"></i> Kategori baru</button></div>${cats}</div>`,
+    template: typeof tplSettingsCard === 'function' ? tplSettingsCard() : '',
+    satuan: `<div class="card">
         <div class="unit-tags">${units().map(x => `<span class="chip">${esc(x)}<button data-action="unitDel" data-unit="${esc(x)}" aria-label="Hapus satuan ${esc(x)}"><i class="bi bi-x"></i></button></span>`).join('')}</div>
-        <form data-form="unit" class="d-flex gap-2"><input class="input" name="unit" maxlength="20" placeholder="mis. liter, sesi" aria-label="Satuan baru"><button class="btn btn-dark btn-sm" type="submit">Tambah</button></form>
-      </div>
-      ${admin}
-      <div class="card"><h3>Aplikasi</h3>
+        <form data-form="unit" class="d-flex gap-2"><input class="input" name="unit" maxlength="20" placeholder="mis. liter, sesi" aria-label="Satuan baru"><button class="btn btn-dark btn-sm" type="submit">Tambah</button></form></div>`,
+    admin: admin,
+    aplikasi: `<div class="card">
         <p class="tiny muted">Goal Trackers v1.0 · data tersimpan di Google Sheets milik Admin. Perubahan tersimpan otomatis di latar belakang (ikon awan di atas).</p>
         <div class="d-grid gap-2">
           <button class="btn btn-soft btn-sm" data-action="reload"><i class="bi bi-arrow-repeat"></i> Muat ulang data</button>
           <button class="btn btn-danger btn-sm" data-action="logout"><i class="bi bi-box-arrow-right"></i> Keluar</button>
-        </div>
-      </div>
-    </div>`;
+        </div></div>`
+  };
+  const sec = SECS.find(x => x[0] === S.ui.setSec);
+  $('#page-settings').innerHTML = sec ? `
+    <div class="page-head"><div><button class="link-btn set-back" data-action="setSec" data-sec=""><i class="bi bi-arrow-left"></i> Pengaturan</button>
+      <h1 class="d-flex align-items-center gap-3"><span class="set-h-ic" style="--c:${sec[3]}"><i class="bi ${sec[4]}"></i></span>${sec[1]}</h1><p class="muted mb-0">${sec[2]}</p></div></div>
+    <div class="set-detail">${body[sec[0]]}</div>`
+  : `
+    <div class="page-head"><div><p class="eyebrow">Atur sesuai kebutuhan kalian</p><h1>Pengaturan <span aria-hidden="true">⚙️</span></h1></div></div>
+    <div class="set-tiles">${SECS.map(([k, t, d, c, ic, extra]) => `<button class="set-tile" style="--c:${c}" data-action="setSec" data-sec="${k}">
+        <span class="set-tile-ic"><i class="bi ${ic}"></i></span><b>${t}</b><small>${d}</small>${extra}<i class="bi bi-arrow-up-right set-go"></i></button>`).join('')}</div>`;
 }
 
 // ============================================================

@@ -1241,3 +1241,31 @@ button.stat:not(.tint) { background: var(--card); }
 /* Dropdown di dalam pil (Seri/Berat): hilangkan cincin fokus ganda dari gaya select bawaan */
 .hf-sel select, .hf-sel select:focus, .hf-sel select:focus-visible, .hf-sel select:active { box-shadow: none !important; border: 0 !important; outline: none !important; background: transparent !important; }
 .hf-sel:focus-within { box-shadow: 0 0 0 2px var(--text); border-color: transparent; }
+
+/* ============================================================
+   Pengaturan: ubin gaya Pinterest (masonry), detail per bagian
+   ============================================================ */
+.set-tiles { column-width: 240px; column-gap: 16px; }
+.set-tile { break-inside: avoid; display: block; width: 100%; margin: 0 0 16px; text-align: left; position: relative; border: 0; cursor: pointer;
+  padding: 20px 20px 22px; border-radius: 26px; background: var(--c); color: #1a1a1a; transition: transform .18s ease, box-shadow .18s ease; }
+.set-tile:hover, .set-tile:focus-visible { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(17,17,17,.12); outline: none; }
+.set-tile b { display: block; font-size: 19px; font-weight: 800; margin-top: 14px; letter-spacing: -.01em; }
+.set-tile small { display: block; font-size: 13px; opacity: .7; margin-top: 4px; line-height: 1.4; }
+.set-tile-ic { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; background: rgba(255,255,255,.7); font-size: 22px; }
+.set-go { position: absolute; top: 18px; right: 18px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.7); font-size: 14px; transition: transform .18s ease; }
+.set-tile:hover .set-go { transform: rotate(45deg); }
+.set-tile .chip { background: rgba(255,255,255,.75); }
+.set-ics { display: flex; flex-wrap: wrap; gap: 6px; }
+.set-ics .ic { width: 30px; height: 30px; border-radius: 10px; font-size: 14px; display: grid; place-items: center; box-shadow: 0 0 0 2px rgba(255,255,255,.8); }
+.set-avs > * { margin-right: -8px; box-shadow: 0 0 0 2px var(--c); border-radius: 50%; }
+.set-tile .avatar { flex: none; }
+/* detail */
+.set-back { min-height: 0; padding: 0; font-weight: 700; color: var(--muted); margin-bottom: 8px; display: inline-flex; gap: 6px; align-items: center; }
+.set-back:hover { color: var(--text); }
+.set-h-ic { width: 46px; height: 46px; border-radius: 16px; display: inline-grid; place-items: center; background: var(--c); color: #1a1a1a; font-size: 22px; }
+.set-detail { max-width: 720px; }
+[data-theme="dark"] .set-tile { background: color-mix(in srgb, var(--c) 30%, #222); color: #F2F2F2; }
+[data-theme="dark"] .set-tile-ic, [data-theme="dark"] .set-go, [data-theme="dark"] .set-tile .chip { background: rgba(0,0,0,.25); color: #F2F2F2; }
+@media (max-width: 560px) { .set-tiles { column-width: 150px; column-gap: 12px; } .set-tile { padding: 16px; border-radius: 22px; margin-bottom: 12px; } .set-tile b { font-size: 16px; } .set-go { width: 28px; height: 28px; top: 14px; right: 14px; } }
+.set-tile { transition: box-shadow .18s ease; -webkit-column-break-inside: avoid; }
+.set-tile:hover, .set-tile:focus-visible { transform: none; box-shadow: 0 0 0 2px rgba(17,17,17,.85), 0 12px 26px rgba(17,17,17,.10); }
