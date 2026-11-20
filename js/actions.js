@@ -336,6 +336,7 @@ const Actions = {
     const g = goalById(d.id);
     if (!g) return;
     const arch = g.status !== 'Arsip';
+    if (arch && goalPct(g) < 100) batalkanMirror_(g); else if (!arch) pulihkanMirror_(g);
     g.status = arch ? 'Arsip' : (goalPct(g) >= 100 ? 'Selesai' : 'Aktif');
     saveSnapshot();
     closeSheet();
@@ -343,8 +344,9 @@ const Actions = {
     toast(arch ? 'Goal diarsipkan' : 'Goal dipulihkan');
     Outbox.push('setGoalArchived', [g.goal_id, arch]);
   },
-  deleteGoal: d => confirmBox({ title: 'Hapus goal ini?', text: 'Semua milestone, catatan progres, dan pencapaiannya ikut terhapus. Tindakan ini tidak bisa dibatalkan.', ok: 'Hapus permanen', danger: true }, () => {
+  deleteGoal: d => confirmBox({ title: 'Hapus goal ini?', text: 'Semua milestone, catatan progres, dan pencapaiannya ikut terhapus.' + (rekTujuan(goalById(d.id)) ? ` Setoran yang masuk ke ${rekTujuan(goalById(d.id)).judul} juga ditarik kembali.` : '') + ' Tindakan ini tidak bisa dibatalkan.', ok: 'Hapus permanen', danger: true }, () => {
     const id = d.id;
+    batalkanMirror_(goalById(id));
     S.goals = S.goals.filter(g => g.goal_id !== id);
     ['milestones', 'logs', 'achievements', 'reactions', 'notifications'].forEach(k => { S[k] = S[k].filter(x => x.goal_id !== id); });
     saveSnapshot();

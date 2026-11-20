@@ -213,6 +213,26 @@ function rekFieldHtml(d) {
     <select name="rek_tujuan"><option value="">— tidak dihubungkan —</option>${list.map(r => `<option value="${r.goal_id}" ${r.goal_id === cur ? 'selected' : ''}>${esc(r.judul)} · ${esc(rekJenis(r))}</option>`).join('')}</select>
     <small class="muted">Setiap setor/tarik di target ini otomatis menambah/mengurangi saldo rekening tersebut.</small></label>`;
 }
+/** Catatan rekening yang berasal dari setoran target g (dikenali dari keterangannya) */
+const mirrorLogs_ = (g, r) => { const j = String(g.judul || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return S.logs.filter(l => l.goal_id === r.goal_id && new RegExp('^(Setoran|Penarikan|Pembatalan) ' + j + '( · |$)').test(String(l.catatan || ''))); };
+const mirrorNet_ = (g, r) => mirrorLogs_(g, r).reduce((s, l) => s + Number(l.nilai_tambah || 0), 0);
+/** Target dihapus / dibatalkan → setoran yang ikut masuk ke rekening ditarik kembali (dicatat sebagai Pembatalan) */
+function batalkanMirror_(g) {
+  const r = g && !isRek(g) && rekTujuan(g); if (!r) return;
+  const net = mirrorNet_(g, r); if (!net) return;
+  const log = { log_id: uid(), goal_id: r.goal_id, tanggal: today(), user_id: S.me.user_id, nilai_tambah: -net,
+    catatan: `Pembatalan ${g.judul}`.slice(0, 300), foto_url: '', dibuat_pada: nowIso() };
+  S.logs.push(log);
+  r.nilai_saat_ini = Math.max(0, Number(r.nilai_saat_ini) - net); r.diubah_pada = nowIso();
+  Outbox.push('addProgress', [{ log_id: log.log_id, goal_id: r.goal_id, nilai_tambah: -net, catatan: log.catatan, tanggal: log.tanggal }, null]);
+  setTimeout(() => toast(`Saldo ${r.judul} ${net > 0 ? 'dikurangi' : 'ditambah'} ${fmtVal(Math.abs(net), 'Rp')}`), 900);
+}
+/** Target dipulihkan dari arsip → saldonya masuk lagi ke rekening */
+function pulihkanMirror_(g) {
+  const r = g && !isRek(g) && rekTujuan(g); if (!r || mirrorNet_(g, r)) return;
+  const n = Number(g.nilai_saat_ini) || 0; if (n > 0) mirrorKeRekening_(g, n, today(), 'dipulihkan');
+}
 /** Setor/tarik di target tabungan → ikut dicatat di rekening tujuannya */
 function mirrorKeRekening_(g, n, tanggal, catatan) {
   if (!g || isRek(g)) return;
@@ -920,10 +940,17 @@ Object.assign(Actions, {
       saveSnapshot(); renderAll();
       toast(`Rekening dihapus${next ? ` — penerima kupon utama kini ${next.judul}` : ''}`);
     }); },
+  rekLogDel: d => { const l = S.logs.find(x => x.log_id === d.id); if (!l) return; const r = goalById(l.goal_id);
+    confirmBox({ title: 'Hapus transaksi ini?', text: `Saldo ${r ? r.judul : 'rekening'} akan ${Number(l.nilai_tambah) >= 0 ? 'dikurangi' : 'ditambah'} ${fmtVal(Math.abs(Number(l.nilai_tambah)), 'Rp')}.`, ok: 'Hapus', danger: true }, () => {
+      S.logs = S.logs.filter(x => x.log_id !== l.log_id);
+      if (r) { r.nilai_saat_ini = Math.max(0, Number(r.nilai_saat_ini) - Number(l.nilai_tambah)); r.diubah_pada = nowIso(); }
+      saveSnapshot(); renderAll(); toast('Transaksi dihapus'); Outbox.push('deleteProgress', [l.log_id]);
+      if (r) Actions.rekHist({ id: r.goal_id });
+    }); },
   rekHist: d => { const g = goalById(d.id); if (!g) return;
     const logs = S.logs.filter(l => l.goal_id === g.goal_id).sort((a, b) => String(b.tanggal + b.dibuat_pada).localeCompare(String(a.tanggal + a.dibuat_pada)));
     openSheet(`Riwayat — ${esc(g.judul)}`, `<div class="rek-hist">${logs.length ? logs.map(l => `<div class="rek-hist-row"><div><b>${fmtDate(l.tanggal)}</b><small class="d-block muted">${esc(l.catatan || (Number(l.nilai_tambah) >= 0 ? 'Setoran' : 'Penarikan'))} · ${esc(userById(l.user_id).nama || '')}</small></div>
-      <b style="color:${Number(l.nilai_tambah) >= 0 ? 'var(--green-ink,#1B7F3A)' : 'var(--red-ink)'}">${Number(l.nilai_tambah) >= 0 ? '+' : '−'}${fmtVal(Math.abs(Number(l.nilai_tambah)), 'Rp')}</b></div>`).join('') : emptyHtml('bi-clock-history', 'Belum ada transaksi.')}</div>
+      <span class="d-flex align-items-center gap-2"><b style="color:${Number(l.nilai_tambah) >= 0 ? 'var(--green-ink,#1B7F3A)' : 'var(--red-ink)'}">${Number(l.nilai_tambah) >= 0 ? '+' : '−'}${fmtVal(Math.abs(Number(l.nilai_tambah)), 'Rp')}</b>${l.user_id === S.me.user_id ? `<button class="icon-btn sm ghost" data-action="rekLogDel" data-id="${l.log_id}" title="Hapus transaksi" aria-label="Hapus transaksi"><i class="bi bi-trash3"></i></button>` : ''}</span></div>`).join('') : emptyHtml('bi-clock-history', 'Belum ada transaksi.')}</div>
       <div class="sheet-foot"><button type="button" class="btn btn-dark w-100" data-action="closeSheet">Tutup</button></div>`); },
   usdTx: d => { const g = goalById(d.id); if (!g) return;
     openSheet(`Setor / tarik — ${esc(g.judul)}`, `<form data-form="usdTx" novalidate><input type="hidden" name="goal_id" value="${g.goal_id}">
