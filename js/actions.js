@@ -251,7 +251,7 @@ function openCategoryForm(id) {
 const Actions = {
   setSec: d => { S.ui.setSec = d.sec || ''; renderSettings(); window.scrollTo({ top: 0 }); },
   dashGo: d => { S.ui.goalStatus = d.status; S.ui.goalTab = 'semua'; S.ui.goalCat = ''; S.ui.goalQuery = ''; navigateTo('goals'); },
-  nav: d => { if (d.page === 'goals' && d.tab) { S.ui.goalTab = d.tab; S.ui.goalStatus = 'aktif'; } if (d.page === 'settings') S.ui.setSec = ''; navigateTo(d.page); },
+  nav: d => { if (d.page === 'goals' && d.tab) { S.ui.goalTab = d.tab; S.ui.goalStatus = 'aktif'; } if (d.page === 'settings') S.ui.setSec = ''; if (d.page === 'finance') S.ui.finTab = 'rekening'; navigateTo(d.page); },
   back: () => goBack(),
   openGoal: d => { if (d.id) navigateTo('detail', { detailId: d.id }); },
   newGoal: d => openGoalForm(null, { jenis: d.jenis, tipe: d.tipe, tpl: d.tpl }),

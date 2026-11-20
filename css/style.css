@@ -1333,3 +1333,19 @@ button.stat:not(.tint) { background: var(--card); }
 .bt-board.bt-paper { border-radius: 22px; background-color: #fff; background-image: radial-gradient(rgba(17,17,17,.045) 1px, transparent 1.5px); background-size: 14px 14px; box-shadow: 0 1px 2px rgba(17,17,17,.04), 0 10px 30px rgba(17,17,17,.06); }
 .bt-board.bt-paper > .ggrid { background: transparent; box-shadow: none; }
 [data-theme="dark"] .bt-board.bt-paper { background-color: #1E1E1E; background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.5px); box-shadow: none; }
+
+/* Pilihan bagian finansial: kanan atas sejajar judul, gaya pil navbar */
+.fin-head { align-items: flex-end; }
+.fin-head .fin-secs { gap: 2px; align-items: center; margin-left: auto; padding: 0; }
+.fin-sec-t { font-size: 14.5px; font-weight: 700; opacity: 1; color: var(--muted); min-height: 40px; padding: 0 16px; border-radius: 999px; align-items: center; }
+.fin-sec-t:hover { opacity: 1; color: var(--text); background: rgba(17,17,17,.05); }
+.fin-sec-t.on { background: #111; color: #fff; }
+.fin-sec-t .n { font-size: 12px; opacity: .6; }
+[data-theme="dark"] .fin-sec-t:hover { background: rgba(255,255,255,.08); }
+[data-theme="dark"] .fin-sec-t.on { background: #fff; color: #111; }
+.fin-tabbar:empty { display: none; }
+@media (max-width: 767px) { .fin-head .fin-secs { margin-left: 0; width: 100%; } .fin-sec-t { font-size: 14px; padding: 0 13px; min-height: 38px; } }
+/* Tombol tambah jenis harta di rail */
+.rail-add button { background: #111; color: #fff; }
+.rail-add button:hover { background: #333; color: #fff; }
+[data-theme="dark"] .rail-add button { background: #F2F2F2; color: #111; }

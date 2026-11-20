@@ -232,7 +232,7 @@ function hartaPriceBox(k) {
       ubah(hp ? 'Ubah' : 'Atur manual'), !hp && est ? '≈ buyback emas Antam × 4,25 gr × 91,7% (22K)' : '');
   }
   if (k === 'Tanah') return pill('bi-geo-alt', hp ? `Harga umum ${fmtVal(hp, 'Rp')}/m²` : 'Harga umum tanah belum diatur', hp ? 'manual' + (tgl ? ' · ' + fmtDate(tgl) : '') : '',
-    ubah(hp ? 'Ubah' : 'Atur'), 'Dipakai untuk tanah yang belum punya harga lokasi sendiri — harga per lokasi diisi lewat ✏️ Edit di tiap tanah.');
+    ubah(hp ? 'Ubah' : 'Atur'));
   return pill(t.icon, hp ? `Harga ${k.toLowerCase()} ${fmtVal(hp, 'Rp')}/${t.satuan}` : `Harga ${k.toLowerCase()} belum diatur`, hp && tgl ? 'manual · ' + fmtDate(tgl) : 'untuk taksiran nilai', ubah(hp ? 'Ubah' : 'Atur'));
 }
 /** Pilihan jenis harta sebagai teks (gaya navbar) + tombol Harta lain — tampil di kanan judul Pusat Finansial */
@@ -244,7 +244,7 @@ function hartaJenisSummary() {
   return `<div class="bt-sum">
       <div class="harta-own">${esc(k)} yang dimiliki <b>${jml}</b></div>
       <div class="tiny muted">${s ? `Taksiran ${fmtShort(s.nilai, 'Rp')}${s.modal ? ` · Modal ${fmtShort(s.modal, 'Rp')}` : ''}` : 'Belum ada catatan'}</div>
-      <div class="bt-sum-act">${hartaPriceBox(k)}<button class="btn btn-dark btn-sm harta-add" data-action="newHarta" data-jenis="${k}"><i class="bi bi-plus-lg"></i> Tambah ${esc(k.toLowerCase())}</button></div>
+      <div class="bt-sum-act">${hartaPriceBox(k)}</div>
     </div>`;
 }
 /** Total semua harta + keterangan (tampil di bawah judul Harta) */
@@ -306,7 +306,8 @@ function finHartaHtml() {
     gram: isBar && wList.length > 1 ? [['all', 'Semua berat', byGram.length, gSel === 'all']].concat(wList.map(w => [String(w), fmtGram(w) + ' gr', wCount[w] || 0, String(gSel) === String(w)])) : null
   };
   const fBtn = (kind, ic, label, on) => window._hfOpts[kind] ? `<button class="${on ? 'on-filter' : ''}" data-action="hfOpen" data-kind="${kind}" aria-label="Filter ${label}" title="Filter ${label}" aria-haspopup="menu"><i class="bi ${ic}"></i>${on ? '<span class="f-dot"></span>' : ''}</button>` : '';
-  const railExtra = (window._hfOpts.seri || window._hfOpts.gram) ? `<div class="view-rail rail-filter" role="group" aria-label="Filter">${fBtn('seri', 'bi-tags', 'seri', sSel !== 'all')}${fBtn('gram', 'bi-speedometer2', 'berat', isBar && gSel !== 'all')}</div>` : '';
+  const railExtra = ((window._hfOpts.seri || window._hfOpts.gram) ? `<div class="view-rail rail-filter" role="group" aria-label="Filter">${fBtn('seri', 'bi-tags', 'seri', sSel !== 'all')}${fBtn('gram', 'bi-speedometer2', 'berat', isBar && gSel !== 'all')}</div>` : '')
+    + `<div class="view-rail rail-add" role="group" aria-label="Tambah"><button data-action="newHarta" data-jenis="${k}" aria-label="Tambah ${esc(k.toLowerCase())}" title="Tambah ${esc(k.toLowerCase())}"><i class="bi bi-plus-lg"></i></button></div>`;
   const sFilter = aktif ? `<div class="harta-filter"><span class="tiny muted">Filter: ${[sSel !== 'all' ? esc(sLabel[sSel] || sSel) : '', isBar && gSel !== 'all' ? fmtGram(Number(gSel)) + ' gr' : ''].filter(Boolean).join(' · ')} — ${shown.length} dari ${items.length} catatan · <button class="link-btn" data-action="hartaReset">Reset</button></span></div>` : '', gFilter = '';
   const soldK = sold.filter(h => h.jenis === k);
   const modalTxt = s && s.modal ? 'modal ' + fmtShort(s.modal, 'Rp') : '';
