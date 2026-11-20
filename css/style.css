@@ -1462,3 +1462,8 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .dash .page-head > div:first-child, #page-goals .page-head > div:first-child { flex: 1 1 100%; width: 100%; }
   .dash-right { flex: 1 1 100%; }
 }
+/* Nama surat & ayat langsung setelah terjemahan (satu alur teks) */
+.ayat figcaption { display: block; }
+.ayat-id { display: inline; }
+.ayat-ref { display: inline; margin-left: 6px; white-space: nowrap; font-style: normal; }
+.op-tag b { display: inline; margin: 0 0 0 6px; white-space: nowrap; }
