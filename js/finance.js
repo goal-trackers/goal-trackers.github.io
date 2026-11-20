@@ -298,7 +298,7 @@ function renderFinance() {
   const hartaSub = ['Emas', 'Tanah'].filter(k => hs[k]).map(k => qtyText(hs[k].qty)).join(' · ');
   $('#page-finance').innerHTML = `
     <div class="page-head fin-head"><div><p class="eyebrow">Tabungan, investasi, cicilan & harta keluarga</p><h1>Pusat Finansial <span aria-hidden="true">💰</span></h1></div></div>
-    <div class="fin-tabbar mt-3 mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; const h2 = `<h2 class="fin-sec"><span class="tab-ic" style="--tc:${t[4]}"><i class="bi ${t[3]}"></i></span>${t[1]} <span class="n">${t[2]}</span></h2>`; return tab === 'harta' ? `<div class="fin-left">${h2}${hartaTotalBlock()}</div>` : h2; })()}${tab === 'tabungan' ? '<button class="chip-btn fin-add" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>' : ''}${tab === 'harta' ? `<div class="harta-right">${hartaJenisSummary()}</div>` : ''}</div>
+    <div class="fin-tabbar mt-3 mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; const h2 = `<nav class="fin-secs hscroll" aria-label="Bagian finansial">${finMenuItems().map(([k, l, n]) => `<button class="fin-sec-t ${k === t[0] ? 'on' : ''}" data-action="finGo" data-tab="${k}" aria-pressed="${k === t[0]}">${l} <span class="n">${n}</span></button>`).join('')}</nav>`; return tab === 'harta' ? `<div class="fin-left">${h2}${hartaTotalBlock()}</div>` : h2; })()}${tab === 'tabungan' ? '<button class="chip-btn fin-add" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>' : ''}</div>
     ${body}`;
   if (tab === 'tabungan') withChart(() => drawTrend('chFin', savingsSeries(monthsBack(today().slice(0, 7), 12))));
   const _hn = document.querySelector('#page-finance .harta-scroll');
@@ -1223,7 +1223,8 @@ function openFinMenu(btn) {
 }
 Object.assign(Actions, {
   finMenu: (d, el) => openFinMenu(el),
-  finGo: d => { closeFinMenu(); S.ui.finTab = d.tab; if (S.ui.page === 'finance') renderFinance(); else navigateTo('finance'); }
+  finGo: d => { closeFinMenu(); S.ui.finTab = d.tab; if (S.ui.page === 'finance') renderFinance(); else navigateTo('finance');
+    const on = document.querySelector('#page-finance .fin-secs .on'), row = on && on.parentElement; if (row) { const r = on.getBoundingClientRect(), rr = row.getBoundingClientRect(); if (r.left < rr.left || r.right > rr.right) row.scrollLeft += r.left - rr.left - 16; } }
 });
 document.addEventListener('click', e => { if (!e.target.closest('#finMenu, [data-action=finMenu]')) closeFinMenu(); }, true);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFinMenu(); });

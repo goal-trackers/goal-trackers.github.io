@@ -1307,3 +1307,29 @@ button.stat:not(.tint) { background: var(--card); }
 .bt-row button.bt-add { color: var(--text); border-left: 1px solid var(--line, rgba(17,17,17,.08)); border-radius: 0 999px 999px 0; margin-left: 4px; padding-left: 10px; }
 .bt-row button.bt-add .cat-ic { --c: #EDEDEA; background: #EDEDEA; color: #111; }
 [data-theme="dark"] .bt-row button.bt-add .cat-ic { background: #333; color: #F2F2F2; }
+
+/* Bagian finansial sebagai deretan judul teks (pengganti dropdown navbar) */
+.fin-secs { display: flex; align-items: baseline; gap: 26px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; padding: 2px 0 4px; }
+.fin-secs::-webkit-scrollbar { display: none; }
+.fin-sec-t { flex: none; border: 0; background: none; padding: 0; font-size: 20px; font-weight: 800; color: var(--muted); opacity: .55; white-space: nowrap; display: inline-flex; align-items: baseline; gap: 6px; transition: opacity .15s, color .15s; }
+.fin-sec-t:hover { opacity: .85; }
+.fin-sec-t.on { color: var(--text); opacity: 1; }
+.fin-sec-t .n { font-size: 13px; font-weight: 700; opacity: .55; }
+.fin-tabbar > .fin-secs, .fin-tabbar .fin-left { flex: 1 1 320px; min-width: 0; }
+@media (max-width: 767px) { .fin-secs { gap: 18px; } .fin-sec-t { font-size: 17px; } }
+/* Bilah jenis harta: teks saja */
+.bt-row button { padding: 0 16px; gap: 7px; }
+.bt-row button.bt-add { padding-left: 14px; gap: 6px; border-radius: 999px; }
+/* Ringkasan jenis di dalam papan, di tengah */
+.bt-sum { text-align: center; padding: 62px 16px 6px; position: relative; z-index: 1; }
+.bt-board.card > .bt-sum { padding-top: 6px; padding-bottom: 14px; }
+.bt-board > .bt-sum ~ .ggrid { padding-top: 18px !important; }
+.bt-sum .harta-own { font-size: 17px; }
+.bt-sum-act { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.bt-sum-act .harta-price { margin: 0; }
+@media (max-width: 560px) { .bt-sum { padding-top: 54px; } .bt-sum-act .harta-add { width: auto; } }
+
+/* Tampilan Kartu harta: papan putih membungkus ringkasan + kartu */
+.bt-board.bt-paper { border-radius: 22px; background-color: #fff; background-image: radial-gradient(rgba(17,17,17,.045) 1px, transparent 1.5px); background-size: 14px 14px; box-shadow: 0 1px 2px rgba(17,17,17,.04), 0 10px 30px rgba(17,17,17,.06); }
+.bt-board.bt-paper > .ggrid { background: transparent; box-shadow: none; }
+[data-theme="dark"] .bt-board.bt-paper { background-color: #1E1E1E; background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.5px); box-shadow: none; }
