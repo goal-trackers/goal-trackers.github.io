@@ -261,9 +261,13 @@ function hartaTotalBlock() {
     <p class="tiny muted mb-0" style="max-width:640px">Emas, perak, dinar, tanah, rumah, kendaraan & lainnya — ditaksir dengan harga buyback Antam, harga lokasi, atau penyusutan.</p></div>`;
 }
 function hartaHeadNav() {
+  return `<div class="harta-nav-wrap"><div class="harta-nav"><button class="btn btn-soft btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button></div></div>`;
+}
+/** Pilihan jenis harta: bilah melayang di tepi atas papan (ikon · nama · jumlah), bisa digeser */
+function hartaBoardTabs() {
   const sum = hartaSummary(hartaOwned()), k = HARTA[S.ui.hartaJenis] ? S.ui.hartaJenis : 'Emas';
-  return `<div class="harta-nav-wrap"><div class="harta-nav"><nav class="text-tabs" aria-label="Jenis harta">${Object.keys(HARTA).map(j => `<button class="${j === k ? 'on' : ''}" data-action="hartaPilih" data-jenis="${j}" aria-pressed="${j === k}">${j}${sum[j] ? `<span class="n">${sum[j].n}</span>` : ''}</button>`).join('')}</nav>
-    <button class="btn btn-soft btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button></div></div>`;
+  return `<div class="board-tabs-wrap"><div class="board-tabs"><nav class="text-tabs bt-row" aria-label="Jenis harta">${Object.keys(HARTA).map(j => `<button class="${j === k ? 'on' : ''}" style="--c:${HARTA[j].c}" data-action="hartaPilih" data-jenis="${j}" aria-pressed="${j === k}"><span class="cat-ic" style="--c:${HARTA[j].c}"><i class="bi ${HARTA[j].icon}"></i></span>${j}${sum[j] ? `<span class="bt-n">${sum[j].n}</span>` : ''}</button>`).join('')}</nav>
+    <button class="bt-next" data-action="btScroll" aria-label="Geser pilihan jenis"><i class="bi bi-arrow-right"></i></button></div></div>`;
 }
 function finHartaHtml() {
   const owned = hartaOwned();
@@ -315,9 +319,9 @@ function finHartaHtml() {
   const note = k === 'Emas' ? '<p class="tiny muted mt-2 mb-0"><i class="bi bi-info-circle"></i> Taksiran = berat × harga buyback hari ini, sebelum PPh 22 (penjualan > Rp 10 jt dipotong 1,5% dengan NPWP / 3% tanpa NPWP). Harga buyback Antam sama di semua butik, termasuk Balikpapan.</p>' : '';
   const kosong = '<p class="muted my-3">Tidak ada catatan yang cocok dengan filter ini.</p>';
   let table;
-  if (!items.length) table = `<div class="card mt-3">${emptyHtml(t.icon, `Belum ada ${k.toLowerCase()} tercatat.`, `<button class="btn btn-dark btn-sm" data-action="newHarta" data-jenis="${k}">Catat ${k.toLowerCase()} pertama</button>`)}</div>`;
-  else if (finView() === 'list') table = `<div class="goals-layout mt-3">${viewRailHtml(railExtra)}<div style="min-width:0">${sFilter}<div class="card">${shown.length ? hartaTableHtml(k, shown) : kosong}${note}</div></div></div>`;
-  else table = `<div class="goals-layout mt-3">${viewRailHtml(railExtra)}<div style="min-width:0">${sFilter}${shown.length ? finViewBody(shown.map(hartaItemCard)) : `<div class="card">${kosong}</div>`}${note ? `<div class="mt-2">${note}</div>` : ''}</div></div>`;
+  if (!items.length) table = `<div class="mt-4">${hartaBoardTabs()}<div class="card bt-board">${emptyHtml(t.icon, `Belum ada ${k.toLowerCase()} tercatat.`, `<button class="btn btn-dark btn-sm" data-action="newHarta" data-jenis="${k}">Catat ${k.toLowerCase()} pertama</button>`)}</div></div>`;
+  else if (finView() === 'list') table = `<div class="goals-layout mt-3">${viewRailHtml(railExtra)}<div style="min-width:0">${sFilter}${hartaBoardTabs()}<div class="card bt-board">${shown.length ? hartaTableHtml(k, shown) : kosong}${note}</div></div></div>`;
+  else table = `<div class="goals-layout mt-3">${viewRailHtml(railExtra)}<div style="min-width:0">${sFilter}${hartaBoardTabs()}<div class="bt-board">${shown.length ? finViewBody(shown.map(hartaItemCard)) : `<div class="card">${kosong}</div>`}</div>${note ? `<div class="mt-2">${note}</div>` : ''}</div></div>`;
   const soldHtml = soldK.length ? `<details class="card mt-3"><summary class="fw-bold">Riwayat ${k.toLowerCase()} dijual (${soldK.length})</summary>
     <div class="table-wrap mt-2"><table class="tbl harta-tbl"><thead><tr><th></th><th>Nama</th><th class="num">Jumlah</th><th>Tgl jual</th><th class="num">Harga jual</th><th class="num">Modal</th><th></th></tr></thead><tbody>
     ${soldK.map(h => `<tr><td>${hartaThumb(h, 30)}</td><td><b>${esc(h.nama)}</b></td><td class="num">${fmtGram(h.jumlah)} ${esc(h.satuan)}</td><td>${h.tgl_jual ? fmtDate(h.tgl_jual) : '-'}</td><td class="num">${Number(h.harga_jual) ? fmtVal(h.harga_jual, 'Rp') : '-'}</td><td class="num">${Number(h.harga_beli) ? fmtVal(h.harga_beli, 'Rp') : '-'}</td>
@@ -468,9 +472,9 @@ Object.assign(Actions, {
   editHarta: d => openHartaForm(d.id),
   hartaHarga: d => openHargaForm(d.jenis),
   hartaPilih: d => {
-    const row = document.querySelector('#page-finance .text-tabs'), x = row ? row.scrollLeft : 0;
+    const row = document.querySelector('#page-finance .bt-row'), x = row ? row.scrollLeft : 0;
     S.ui.hartaJenis = d.jenis; S.ui.hartaGram = 'all'; S.ui.hartaSeri = 'all'; keepScroll(renderFinance);
-    const r2 = document.querySelector('#page-finance .text-tabs'); if (!r2) return;
+    const r2 = document.querySelector('#page-finance .bt-row'); if (!r2) return;
     r2.scrollLeft = x;
     const on = r2.querySelector('button.on'); if (on) { const a = on.getBoundingClientRect(), b = r2.getBoundingClientRect(); r2.scrollBy({ left: (a.left + a.width / 2) - (b.left + b.width / 2), behavior: 'smooth' }); }
   },
@@ -512,6 +516,7 @@ function openHfPop(btn, kind) {
   m.style.left = left + 'px'; m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.top)) + 'px';
 }
 Object.assign(Actions, {
+  btScroll: (d, el) => { const r = el.parentElement.querySelector('.bt-row'); if (r) r.scrollBy({ left: r.clientWidth * .6, behavior: 'smooth' }); },
   hfOpen: (d, el) => openHfPop(el, d.kind),
   hfPick: d => { closeHfPop(); if (d.kind === 'seri') Actions.hartaSeri({ seri: d.v }); else Actions.hartaGram({ gram: d.v }); }
 });
