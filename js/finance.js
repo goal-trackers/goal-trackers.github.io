@@ -298,8 +298,9 @@ function renderFinance() {
   const hartaSub = ['Emas', 'Tanah'].filter(k => hs[k]).map(k => qtyText(hs[k].qty)).join(' · ');
   $('#page-finance').innerHTML = `
     <div class="page-head fin-head"><div><p class="eyebrow">Tabungan, investasi, cicilan & harta keluarga</p><h1>Pusat Finansial <span aria-hidden="true">💰</span></h1></div>${tab === 'harta' ? hartaHeadNav() : ''}</div>
-    <div class="fin-tabbar mt-3 mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; return `<h2 class="fin-sec"><span class="tab-ic" style="--tc:${t[4]}"><i class="bi ${t[3]}"></i></span>${t[1]} <span class="n">${t[2]}</span></h2>`; })()}${tab === 'tabungan' ? '<button class="chip-btn fin-add" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>' : ''}</div>
+    <div class="fin-tabbar mt-3 mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; return `<h2 class="fin-sec"><span class="tab-ic" style="--tc:${t[4]}"><i class="bi ${t[3]}"></i></span>${t[1]} <span class="n">${t[2]}</span></h2>`; })()}${tab === 'tabungan' ? '<button class="chip-btn fin-add" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>' : ''}${tab === 'harta' ? hartaJenisSummary() : ''}</div>
     ${body}`;
+  if (tab === 'harta') alignHartaSummary();
   if (tab === 'tabungan') withChart(() => drawTrend('chFin', savingsSeries(monthsBack(today().slice(0, 7), 12))));
   const _hn = document.querySelector('#page-finance .harta-scroll');
   if (_hn && _hp && _hp[2] === S.ui.hartaJenis) { _hn.scrollTop = _hp[0]; _hn.scrollLeft = _hp[1]; }
@@ -447,6 +448,13 @@ const rekUsd = g => Number(parseMeta(g.meta).usd) || 0;
 /** Nilai rekening dalam Rupiah hari ini (rekening dolar: saldo USD × kurs hari ini) */
 const rekRp = g => isUsdRek(g) ? Math.round(rekUsd(g) * kursUsd()) : Number(g.nilai_saat_ini || 0);
 const rekIc = (j, size = 46) => { const r = REK_JENIS[j] || REK_JENIS.Lainnya; return `<span class="rek-ic" style="--c:${r.c};width:${size}px;height:${size}px"><i class="bi ${r.ic}"></i></span>`; };
+/** Ringkasan jenis harta: lebar & tepi kiri disamakan dengan deretan pilihan jenis di atasnya */
+function alignHartaSummary() {
+  const nav = document.querySelector('#page-finance .harta-nav'), sm = document.querySelector('#page-finance .fin-tabbar .harta-head-plain');
+  if (!nav || !sm) return;
+  sm.style.width = innerWidth >= 992 ? Math.round(nav.getBoundingClientRect().width) + 'px' : '';
+}
+window.addEventListener('resize', () => { if (S.ui && S.ui.page === 'finance' && S.ui.finTab === 'harta') alignHartaSummary(); });
 /** Ringkasan di atas tiap bagian Finansial: total besar + keterangan (gaya sama dengan Rekening) */
 const finSumHead = (main, extra, desc, btn = '') => `<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
     <div style="min-width:0"><div class="fw-bold fin-total">${main}${extra ? ` <span class="tiny muted fw-normal">· ${extra}</span>` : ''}</div>${desc ? `<p class="tiny muted mb-0" style="max-width:640px">${desc}</p>` : ''}</div>${btn}</div>`;

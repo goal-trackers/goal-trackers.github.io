@@ -1226,3 +1226,7 @@ button.stat:not(.tint) { background: var(--card); }
 .harta-top .harta-head-plain { margin: -2px 0 0; padding: 0; min-width: 420px; }
 @media (max-width: 991px) { .harta-top { grid-template-columns: 1fr; } .harta-top .harta-head-plain { min-width: 0; } }
 .fin-head { align-items: flex-end; }
+.fin-tabbar { align-items: flex-start; }
+.fin-tabbar .harta-head-plain { margin: 0 0 0 auto; padding: 0; max-width: 100%; }
+.fin-tabbar .harta-head-plain .harta-own { font-size: 16px; }
+@media (max-width: 991px) { .fin-tabbar .harta-head-plain { width: 100%; margin: 0; } }

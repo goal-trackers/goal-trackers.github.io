@@ -311,7 +311,6 @@ function finHartaHtml() {
   return `<div class="harta-top mb-3">
       <div style="min-width:0"><div class="fw-bold fin-total">Taksiran total semua harta ${fmtVal(Math.round(total), 'Rp')}${hsub ? ` <span class="tiny muted fw-normal">· ${hsub}</span>` : ''}</div>
         <p class="tiny muted mb-0" style="max-width:640px">Emas, perak, dinar, tanah, rumah, kendaraan & lainnya — ditaksir dengan harga buyback Antam, harga lokasi, atau penyusutan.</p></div>
-      ${hartaJenisSummary()}
 </div>
     ${table}${soldHtml}`;
 }

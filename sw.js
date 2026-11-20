@@ -1,6 +1,6 @@
 /* Goal Trackers — service worker: membuat aplikasi bisa di-install & tampilan dasar tetap terbuka saat offline.
    Data (API Google Apps Script) TIDAK di-cache di sini; aplikasi sudah menyimpan snapshot data sendiri. */
-const CACHE = 'gt-shell-v1.10.57';
+const CACHE = 'gt-shell-v1.10.58';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {
