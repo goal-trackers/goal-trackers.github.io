@@ -26,7 +26,7 @@ function renderReports() {
   const ach = liveAch().filter(a => String(a.tanggal).slice(0, 10) >= start && String(a.tanggal).slice(0, 10) <= end).length;
   const years = Array.from(new Set([today().slice(0, 4)].concat(S.logs.map(l => l.tanggal.slice(0, 4))))).sort().reverse();
   $('#page-reports').innerHTML = `
-    <div class="page-head"><div><p class="eyebrow">Rekap ${esc(label)}</p><h1>Laporan <span aria-hidden="true">📊</span></h1></div>
+    <div class="page-head"><div><p class="eyebrow">Rekap ${esc(label)}</p><h1>Laporan <span class="h-ic" style="--c:#CFF2D6" aria-hidden="true"><i class="bi bi-bar-chart-line"></i></span></h1></div>
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-soft btn-sm" data-action="exportXlsx"><i class="bi bi-file-earmark-excel"></i> Excel</button>
         <button class="btn btn-dark btn-sm" data-action="exportPdf"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
@@ -321,7 +321,7 @@ function renderSettings() {
       <h1 class="d-flex align-items-center gap-3"><span class="set-h-ic" style="--c:${sec[3]}"><i class="bi ${sec[4]}"></i></span>${sec[1]}</h1><p class="muted mb-0">${sec[2]}</p></div></div>
     <div class="set-detail">${body[sec[0]]}</div>`
   : `
-    <div class="page-head"><div><p class="eyebrow">Atur sesuai kebutuhan kalian</p><h1>Pengaturan <span aria-hidden="true">⚙️</span></h1></div></div>
+    <div class="page-head"><div><p class="eyebrow">Atur sesuai kebutuhan kalian</p><h1>Pengaturan <span class="h-ic" style="--c:#E6E8EE" aria-hidden="true"><i class="bi bi-gear"></i></span></h1></div></div>
     <div class="set-tiles">${SECS.map(([k, t, d, c, ic, extra]) => `<button class="set-tile" style="--c:${c}" data-action="setSec" data-sec="${k}">
         <span class="set-tile-ic"><i class="bi ${ic}"></i></span><b>${t}</b><small>${d}</small>${extra}<i class="bi bi-arrow-up-right set-go"></i></button>`).join('')}</div>`;
 }
@@ -338,7 +338,7 @@ function renderNotifications() {
   const list = S.notifications.slice().sort((a, b) => String(b.dibuat_pada).localeCompare(String(a.dibuat_pada)));
   const unread = list.filter(n => n.dibaca !== 'Ya').length;
   $('#page-notifications').innerHTML = `
-    <div class="page-head"><div><p class="eyebrow">${unread} belum dibaca</p><h1>Notifikasi <span aria-hidden="true">🔔</span></h1></div>
+    <div class="page-head"><div><p class="eyebrow">${unread} belum dibaca</p><h1>Notifikasi <span class="h-ic" style="--c:#FBEBB5" aria-hidden="true"><i class="bi bi-bell"></i></span></h1></div>
       ${unread ? '<button class="btn btn-soft btn-sm" data-action="readAll"><i class="bi bi-check2-all"></i> Tandai semua dibaca</button>' : ''}</div>
     <div style="max-width:760px">${list.length ? list.map(n => {
       const [ic, c] = NOTIF_ICON[n.jenis] || NOTIF_ICON.info;

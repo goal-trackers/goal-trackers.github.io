@@ -57,13 +57,13 @@ function agendaHtml() {
       <button class="ev-foot w-100" data-action="openGoal" data-id="${g.goal_id}"><i class="bi bi-clock"></i> ${lbl}</button>
     </div>`;
   }).join('');
-  return `<h2 class="side-title">Agenda & Tenggat <span aria-hidden="true">📅</span></h2>${cards || ''}${financeAgendaHtml()}${cards || financeAgendaHtml() ? '' : '<p class="muted">Tidak ada tenggat dekat. Santai dulu ☕</p>'}
+  return `<h2 class="side-title">Agenda & Tenggat <span class="h-ic" style="--c:#D5F0F7" aria-hidden="true"><i class="bi bi-calendar3"></i></span></h2>${cards || ''}${financeAgendaHtml()}${cards || financeAgendaHtml() ? '' : '<p class="muted">Tidak ada tenggat dekat. Santai dulu ☕</p>'}
     <button class="ev dashed w-100" data-action="newGoal"><i class="bi bi-plus-circle"></i> Tambah goal baru</button>`;
 }
 function recentAchHtml() {
   const list = liveAch().sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal))).slice(0, 3);
   if (!list.length) return '';
-  return `<h2 class="side-title">Pencapaian Terbaru <span aria-hidden="true">🎉</span></h2>` + list.map(a => {
+  return `<h2 class="side-title">Pencapaian Terbaru <span class="h-ic" style="--c:#FBEBB5" aria-hidden="true"><i class="bi bi-stars"></i></span></h2>` + list.map(a => {
     const g = goalById(a.goal_id) || {};
     return `<div class="ev tint" style="--c:${esc(g.kategori_id ? goalColor(g) : '#CFF2D6')}">
       <div class="ev-head">${avatarHtml(userById(a.user_id), 'sm')}<span>${esc(a.jenis)}</span><span class="date">${fmtDay(a.tanggal)}</span></div>
@@ -86,7 +86,7 @@ function renderDashboard() {
   <div class="dash">
     <div class="dash-main">
       <div class="page-head">
-        <div><p class="eyebrow">${greet} · ${fmtLong(today())}</p><h1>Halo, ${esc(me.nama)} <span aria-hidden="true">👋</span></h1></div>
+        <div><p class="eyebrow">${greet} · ${fmtLong(today())}</p><h1>Halo, ${esc(me.nama)} <span class="h-ic" style="--c:#E8D3F5" aria-hidden="true"><i class="bi bi-house-heart"></i></span></h1></div>
         <form class="search-pill" data-form="dashSearch" role="search"><i class="bi bi-search"></i><input id="dashSearch" name="q" type="search" placeholder="Cari goal lalu tekan Enter…" aria-label="Cari goal"></form>
       </div>
       <div class="stats">
@@ -159,7 +159,7 @@ function renderGoals() {
     .map(([k, i, l]) => `<button class="${u.goalView === k ? 'on' : ''}" data-action="goalView" data-view="${k}" aria-label="${l}" title="${l}" aria-pressed="${u.goalView === k}"><i class="bi ${i}"></i></button>`).join('');
   $('#page-goals').innerHTML = `
     <div class="page-head">
-      <div><p class="eyebrow">${count.semua} goal berjalan & selesai</p><h1>Goal Kami <span aria-hidden="true">🎯</span></h1></div>
+      <div><p class="eyebrow">${count.semua} goal berjalan & selesai</p><h1>Goal Kami <span class="h-ic" style="--c:#D5F0F7" aria-hidden="true"><i class="bi bi-bullseye"></i></span></h1></div>
       <label class="search-pill"><i class="bi bi-search"></i><input id="goalSearch" type="search" placeholder="Cari judul goal…" value="${esc(u.goalQuery)}" data-input="goalSearch" aria-label="Cari goal"></label>
     </div>
     <div class="toolbar goals-toolbar">
@@ -333,7 +333,7 @@ function renderCelebrate() {
     S.users.map(x => `<button class="chip-btn ${u.celebUser === x.user_id ? 'on' : ''}" data-action="celebUser" data-id="${x.user_id}">${esc(x.avatar || '')} ${esc(x.nama)}</button>`).join('');
   const icon = j => j === '100%' ? 'bi-trophy' : j === 'Milestone' ? 'bi-check2-circle' : /^Streak/.test(j) ? 'bi-fire' : 'bi-stars';
   $('#page-celebrate').innerHTML = `
-    <div class="page-head"><div><p class="eyebrow">${liveAch().length} momen tercatat</p><h1>Galeri Perayaan <span aria-hidden="true">🎉</span></h1></div></div>
+    <div class="page-head"><div><p class="eyebrow">${liveAch().length} momen tercatat</p><h1>Galeri Perayaan <span class="h-ic" style="--c:#FBEBB5" aria-hidden="true"><i class="bi bi-stars"></i></span></h1></div></div>
     <p class="tiny muted mb-2">Angka = berapa kali momen itu tercapai. Setiap goal dirayakan saat progresnya menyentuh 25%, 50%, 75% dan 100%; tugas yang dicentang dihitung sebagai Milestone.</p>
     <div class="badges">${badges}</div>
     <div class="chips mt-3">${chips}</div>
