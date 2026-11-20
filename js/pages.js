@@ -223,25 +223,33 @@ function renderGoals() {
   const opt = (v, l, cur) => `<option value="${v}" ${cur === v ? 'selected' : ''}>${l}</option>`;
   const views = [['journey', 'bi-bezier2', 'Peta perjalanan'], ['list', 'bi-list-ul', 'Daftar'], ['grid', 'bi-grid', 'Kartu']]
     .map(([k, i, l]) => `<button class="${u.goalView === k ? 'on' : ''}" data-action="goalView" data-view="${k}" aria-label="${l}" title="${l}" aria-pressed="${u.goalView === k}"><i class="bi ${i}"></i></button>`).join('');
+  // Pilihan filter di rail (ikon → menu di samping)
+  const catList = activeCats().filter(c => catN[c.kategori_id] || u.goalCat === c.kategori_id);
+  window._gfOpts = {
+    gcat: [['', 'Semua kategori', inTab.length, !u.goalCat]].concat(catList.map(c => [c.kategori_id, c.nama, catN[c.kategori_id] || 0, u.goalCat === c.kategori_id])),
+    gstat: [['aktif', 'Sedang berjalan'], ['selesai', 'Selesai'], ['arsip', 'Diarsipkan'], ['live', 'Semua (tanpa arsip)'], ['semua', 'Semua status']].map(([v, l]) => [v, l, null, u.goalStatus === v]),
+    gsort: [['tenggat', 'Tenggat terdekat'], ['progres', 'Progres tertinggi'], ['prioritas', 'Prioritas'], ['terbaru', 'Terbaru dibuat']].map(([v, l]) => [v, l, null, u.goalSort === v])
+  };
+  const gBtn = (kind, ic, label, on) => `<button class="${on ? 'on-filter' : ''}" data-action="hfOpen" data-kind="${kind}" aria-label="${label}" title="${label}" aria-haspopup="menu"><i class="bi ${ic}"></i>${on ? '<span class="f-dot"></span>' : ''}</button>`;
+  const ownTabs = [['semua', 'Semua'], ['saya', 'Milik Saya'], ['pasangan', p ? 'Milik ' + p.nama : 'Pasangan'], ['bersama', 'Bersama']]
+    .map(([k, l]) => `<button role="tab" aria-selected="${u.goalTab === k}" class="${u.goalTab === k ? 'on' : ''}" style="--c:#D5F0F7" data-action="goalTab" data-tab="${k}">${esc(l)}<span class="bt-n">${count[k]}</span></button>`).join('');
   $('#page-goals').innerHTML = `
     <div class="page-head">
       <div><p class="eyebrow">${count.semua} goal berjalan & selesai</p><h1>Goal Kami <span class="h-ic" style="--c:#D5F0F7" aria-hidden="true"><i class="bi bi-bullseye"></i></span></h1>${motto('goals')}</div>
-      <label class="search-pill"><i class="bi bi-search"></i><input id="goalSearch" type="search" placeholder="Cari judul goal…" value="${esc(u.goalQuery)}" data-input="goalSearch" aria-label="Cari goal"></label>
-    </div>
-    <div class="toolbar goals-toolbar">
-      <div class="toolbar-top">
-        <div class="tabs" role="tablist">${tabs}</div>
-        <div class="toolbar-row">
-        <select data-change="goalCatSel" aria-label="Filter kategori" class="${u.goalCat ? 'sel-on' : ''}"><option value="">Semua kategori (${inTab.length})</option>${activeCats().filter(c => catN[c.kategori_id] || u.goalCat === c.kategori_id).map(c => `<option value="${c.kategori_id}" ${u.goalCat === c.kategori_id ? 'selected' : ''}>${esc(c.nama)} (${catN[c.kategori_id] || 0})</option>`).join('')}</select>
-        <select data-change="goalStatus" aria-label="Filter status">${opt('aktif', 'Sedang berjalan', u.goalStatus)}${opt('selesai', 'Selesai', u.goalStatus)}${opt('arsip', 'Diarsipkan', u.goalStatus)}${opt('live', 'Semua (tanpa arsip)', u.goalStatus)}${opt('semua', 'Semua status', u.goalStatus)}</select>
-        <select data-change="goalSort" aria-label="Urutkan">${opt('tenggat', 'Tenggat terdekat', u.goalSort)}${opt('progres', 'Progres tertinggi', u.goalSort)}${opt('prioritas', 'Prioritas', u.goalSort)}${opt('terbaru', 'Terbaru dibuat', u.goalSort)}</select>
+      <div class="dash-right goals-right">
+        <label class="search-pill"><i class="bi bi-search"></i><input id="goalSearch" type="search" placeholder="Cari judul goal…" value="${esc(u.goalQuery)}" data-input="goalSearch" aria-label="Cari goal"></label>
         <button class="btn btn-dark btn-sm" data-action="newGoal"><i class="bi bi-plus-lg"></i> Goal Baru</button>
-        </div>
       </div>
     </div>
     <div class="goals-layout">
-      <div class="view-rail" role="group" aria-label="Pilih tampilan">${views}</div>
-      <div id="goalList"></div>
+      <div class="rail-stack">
+        <div class="view-rail" role="group" aria-label="Pilih tampilan">${views}</div>
+        <div class="view-rail rail-filter" role="group" aria-label="Filter & urutan">${gBtn('gcat', 'bi-tags', 'Kategori', !!u.goalCat)}${gBtn('gstat', 'bi-funnel', 'Status', u.goalStatus !== 'aktif')}${gBtn('gsort', 'bi-sort-down', 'Urutkan', u.goalSort !== 'tenggat')}</div>
+      </div>
+      <div>
+        <div class="board-tabs-wrap"><div class="board-tabs"><nav class="text-tabs bt-row" role="tablist" aria-label="Pemilik goal">${ownTabs}</nav></div></div>
+        <div id="goalList" class="bt-board"></div>
+      </div>
     </div>`;
   renderGoalList();
 }

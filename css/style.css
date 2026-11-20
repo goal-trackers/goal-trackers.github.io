@@ -1442,3 +1442,13 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 /* Tagline ayat di animasi pembuka */
 .op-tag { max-width: 300px; text-align: center; font-size: 13.5px; line-height: 1.55; font-style: italic; color: rgba(255,255,255,.72); padding: 0 12px; }
 .op-tag b { display: block; margin-top: 6px; font-style: normal; font-weight: 700; font-size: 12px; color: rgba(255,255,255,.5); letter-spacing: .02em; }
+
+/* Goals: tab pemilik melayang di tepi atas papan, filter di rail, Goal Baru di bawah pencarian */
+.goals-right { align-items: flex-end; }
+.goals-right .btn { align-self: flex-end; }
+#goalList.bt-board { padding-top: 0; }
+#goalList.bt-board > .ggrid { padding-top: 58px; }
+#goalList.bt-board > .glist { padding-top: 44px; }
+#goalList.bt-board > .journey { padding-top: 72px; } #goalList.bt-board > .card { padding-top: 50px; }
+#page-goals .bt-row button { padding: 0 16px; }
+@media (max-width: 767px) { .goals-right .btn { align-self: flex-start; } }
