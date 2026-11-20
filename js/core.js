@@ -595,7 +595,7 @@ window.__GT_PARTS = (window.__GT_PARTS || []).concat('JS1');
 
 /** Render ulang tanpa mengembalikan baris geser (tab/chip/kartu) ke awal; pilihan aktif tetap terlihat. */
 function keepRows(root, fn) {
-  const sel = '.chips, .tabs, .hscroll, .stats, .jenis-scroll';
+  const sel = '.chips, .tabs, .hscroll, .stats, .jenis-scroll, .text-tabs';
   const r0 = document.querySelector(root);
   const pos = r0 ? [...r0.querySelectorAll(sel)].map(e => e.scrollLeft) : [];
   const y = window.scrollY;
