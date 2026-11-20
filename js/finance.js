@@ -299,7 +299,7 @@ function renderFinance() {
   $('#page-finance').innerHTML = `
     <div class="page-head fin-head"><div><p class="eyebrow">Tabungan, investasi, cicilan & harta keluarga</p><h1>Pusat Finansial <span aria-hidden="true">💰</span></h1></div>
       <nav class="fin-secs hscroll" aria-label="Bagian finansial">${finMenuItems().map(([k, l, n]) => `<button class="fin-sec-t ${k === tab ? 'on' : ''}" data-action="finGo" data-tab="${k}" aria-pressed="${k === tab}">${l}${n ? ` <span class="n">${n}</span>` : ''}</button>`).join('')}</nav></div>
-    <div class="fin-tabbar mt-3 mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; return tab === 'harta' ? `<div class="fin-left">${hartaTotalBlock()}</div>` : ''; })()}${tab === 'tabungan' ? '<button class="chip-btn fin-add" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>' : ''}</div>
+    <div class="fin-tabbar mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; return tab === 'harta' ? `<div class="fin-left">${hartaTotalBlock()}</div>` : ''; })()}</div>
     ${body}`;
   if (tab === 'tabungan') withChart(() => drawTrend('chFin', savingsSeries(monthsBack(today().slice(0, 7), 12))));
   const _hn = document.querySelector('#page-finance .harta-scroll');
@@ -398,7 +398,7 @@ function finSavingsHtml(f) {
     </div>`;
   });
   const cardArr = cards;
-  return `${finSumHead(`Total tabungan terkumpul ${fmtVal(f.saved, 'Rp')}`, `setoran bulan ini ${fmtVal(f.month, 'Rp')}`, 'Target tabungan & rencana keluarga — liburan, sekolah anak, dana darurat, dll. Masing-masing punya target dan tenggat.')}
+  return `${finSumHead(`Total tabungan terkumpul ${fmtVal(f.saved, 'Rp')}`, `setoran bulan ini ${fmtVal(f.month, 'Rp')}`, 'Target tabungan & rencana keluarga — liburan, sekolah anak, dana darurat, dll. Masing-masing punya target dan tenggat.', '<button class="btn btn-dark btn-sm" data-action="newGoal" data-tipe="Finansial"><i class="bi bi-plus-lg"></i> Target tabungan lain</button>')}
     ${list.length ? finLayout(cardArr, `<div class="glist">${list.map(rowItem).join('')}</div>`) : `<div class="card">${emptyHtml('bi-wallet2', 'Belum ada rencana tabungan. Klik “Target tabungan lain” di kanan atas untuk mulai.')}</div>`}
     <div class="card mt-3"><h3>Tren Tabungan 12 Bulan <span class="muted tiny">batang = setoran per bulan · garis = total terkumpul</span></h3><div class="chart-box"><canvas id="chFin" aria-label="Grafik tren tabungan per bulan" role="img"></canvas></div></div>`;
 }

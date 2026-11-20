@@ -252,7 +252,7 @@ function hartaTotalBlock() {
   const sum = hartaSummary(hartaOwned());
   const total = Object.keys(sum).reduce((s, k) => s + sum[k].nilai, 0);
   const hsub = ['Emas', 'Tanah'].filter(j => sum[j]).map(j => qtyText(sum[j].qty)).join(' · ');
-  return `<div class="mt-3" style="min-width:0"><div class="fw-bold fin-total">Taksiran total semua harta ${fmtVal(Math.round(total), 'Rp')}${hsub ? ` <span class="tiny muted fw-normal">· ${hsub}</span>` : ''}</div>
+  return `<div style="min-width:0"><div class="fw-bold fin-total">Taksiran total semua harta ${fmtVal(Math.round(total), 'Rp')}${hsub ? ` <span class="tiny muted fw-normal">· ${hsub}</span>` : ''}</div>
     <p class="tiny muted mb-0" style="max-width:640px">Emas, perak, dinar, tanah, rumah, kendaraan & lainnya — ditaksir dengan harga buyback Antam, harga lokasi, atau penyusutan.</p></div>`;
 }
 function hartaHeadNav() {
