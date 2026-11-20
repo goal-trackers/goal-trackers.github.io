@@ -299,7 +299,7 @@ function renderFinance() {
   $('#page-finance').innerHTML = `
     <div class="page-head fin-head"><div><p class="eyebrow">Tabungan, investasi, cicilan & harta keluarga</p><h1>Pusat Finansial <span aria-hidden="true">💰</span></h1></div>
       <nav class="fin-secs hscroll" aria-label="Bagian finansial">${finMenuItems().map(([k, l, n]) => `<button class="fin-sec-t ${k === tab ? 'on' : ''}" data-action="finGo" data-tab="${k}" aria-pressed="${k === tab}">${l}${n ? ` <span class="n">${n}</span>` : ''}</button>`).join('')}</nav></div>
-    <div class="fin-tabbar mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; return tab === 'harta' ? `<div class="fin-left">${hartaTotalBlock()}</div>` : ''; })()}</div>
+    <div class="fin-tabbar mb-3">${(() => { const t = finMenuItems().find(x => x[0] === tab) || finMenuItems()[0]; return tab === 'harta' ? `<div class="fin-left">${hartaTotalBlock()}</div><button class="btn btn-dark btn-sm" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button>` : ''; })()}</div>
     ${body}`;
   if (tab === 'tabungan') withChart(() => drawTrend('chFin', savingsSeries(monthsBack(today().slice(0, 7), 12))));
   const _hn = document.querySelector('#page-finance .harta-scroll');

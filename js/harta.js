@@ -261,7 +261,7 @@ function hartaHeadNav() {
 /** Pilihan jenis harta: bilah melayang di tepi atas papan (ikon · nama · jumlah), bisa digeser */
 function hartaBoardTabs() {
   const sum = hartaSummary(hartaOwned()), k = HARTA[S.ui.hartaJenis] ? S.ui.hartaJenis : 'Emas';
-  return `<div class="board-tabs-wrap"><div class="board-tabs"><nav class="text-tabs bt-row" aria-label="Jenis harta">${Object.keys(HARTA).map(j => `<button class="${j === k ? 'on' : ''}" style="--c:${HARTA[j].c}" data-action="hartaPilih" data-jenis="${j}" aria-pressed="${j === k}">${j}${sum[j] ? `<span class="bt-n">${sum[j].n}</span>` : ''}</button>`).join('')}<button class="bt-add" data-action="newHarta"><i class="bi bi-plus-lg"></i> Harta lain</button></nav>
+  return `<div class="board-tabs-wrap"><div class="board-tabs"><nav class="text-tabs bt-row" aria-label="Jenis harta">${Object.keys(HARTA).map(j => `<button class="${j === k ? 'on' : ''}" style="--c:${HARTA[j].c}" data-action="hartaPilih" data-jenis="${j}" aria-pressed="${j === k}">${j}${sum[j] ? `<span class="bt-n">${sum[j].n}</span>` : ''}</button>`).join('')}</nav>
     <button class="bt-next" data-action="btScroll" aria-label="Geser pilihan jenis"><i class="bi bi-arrow-right"></i></button></div></div>`;
 }
 function finHartaHtml() {
