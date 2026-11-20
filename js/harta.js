@@ -252,6 +252,14 @@ function hartaJenisSummary() {
       ${hartaPriceBox(k)}
     </div>`;
 }
+/** Total semua harta + keterangan (tampil di bawah judul Harta) */
+function hartaTotalBlock() {
+  const sum = hartaSummary(hartaOwned());
+  const total = Object.keys(sum).reduce((s, k) => s + sum[k].nilai, 0);
+  const hsub = ['Emas', 'Tanah'].filter(j => sum[j]).map(j => qtyText(sum[j].qty)).join(' · ');
+  return `<div class="mt-3" style="min-width:0"><div class="fw-bold fin-total">Taksiran total semua harta ${fmtVal(Math.round(total), 'Rp')}${hsub ? ` <span class="tiny muted fw-normal">· ${hsub}</span>` : ''}</div>
+    <p class="tiny muted mb-0" style="max-width:640px">Emas, perak, dinar, tanah, rumah, kendaraan & lainnya — ditaksir dengan harga buyback Antam, harga lokasi, atau penyusutan.</p></div>`;
+}
 function hartaHeadNav() {
   const sum = hartaSummary(hartaOwned()), k = HARTA[S.ui.hartaJenis] ? S.ui.hartaJenis : 'Emas';
   return `<div class="harta-nav-wrap"><div class="harta-nav"><nav class="text-tabs" aria-label="Jenis harta">${Object.keys(HARTA).map(j => `<button class="${j === k ? 'on' : ''}" data-action="hartaPilih" data-jenis="${j}" aria-pressed="${j === k}">${j}${sum[j] ? `<span class="n">${sum[j].n}</span>` : ''}</button>`).join('')}</nav>
@@ -307,12 +315,7 @@ function finHartaHtml() {
     <div class="table-wrap mt-2"><table class="tbl harta-tbl"><thead><tr><th></th><th>Nama</th><th class="num">Jumlah</th><th>Tgl jual</th><th class="num">Harga jual</th><th class="num">Modal</th><th></th></tr></thead><tbody>
     ${soldK.map(h => `<tr><td>${hartaThumb(h, 30)}</td><td><b>${esc(h.nama)}</b></td><td class="num">${fmtGram(h.jumlah)} ${esc(h.satuan)}</td><td>${h.tgl_jual ? fmtDate(h.tgl_jual) : '-'}</td><td class="num">${Number(h.harga_jual) ? fmtVal(h.harga_jual, 'Rp') : '-'}</td><td class="num">${Number(h.harga_beli) ? fmtVal(h.harga_beli, 'Rp') : '-'}</td>
       <td><button class="icon-btn sm" data-action="editHarta" data-id="${h.harta_id}" aria-label="Edit"><i class="bi bi-pencil"></i></button></td></tr>`).join('')}</tbody></table></div></details>` : '';
-  const hsub = ['Emas', 'Tanah'].filter(j => sum[j]).map(j => qtyText(sum[j].qty)).join(' · ');
-  return `<div class="harta-top mb-3">
-      <div style="min-width:0"><div class="fw-bold fin-total">Taksiran total semua harta ${fmtVal(Math.round(total), 'Rp')}${hsub ? ` <span class="tiny muted fw-normal">· ${hsub}</span>` : ''}</div>
-        <p class="tiny muted mb-0" style="max-width:640px">Emas, perak, dinar, tanah, rumah, kendaraan & lainnya — ditaksir dengan harga buyback Antam, harga lokasi, atau penyusutan.</p></div>
-</div>
-    ${table}${soldHtml}`;
+  return `    ${table}${soldHtml}`;
 }
 
 // ── Form tambah / edit harta ──

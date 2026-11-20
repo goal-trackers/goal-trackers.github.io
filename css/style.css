@@ -1230,3 +1230,4 @@ button.stat:not(.tint) { background: var(--card); }
 .fin-tabbar .harta-head-plain { margin: 0 0 0 auto; padding: 0; max-width: 100%; }
 .fin-tabbar .harta-head-plain .harta-own { font-size: 16px; }
 @media (max-width: 991px) { .fin-tabbar .harta-head-plain { width: 100%; margin: 0; } }
+.fin-tabbar .fin-left { min-width: 0; flex: 1 1 320px; }
