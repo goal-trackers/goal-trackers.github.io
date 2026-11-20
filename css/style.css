@@ -1433,3 +1433,8 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .dash .page-head > div:first-child, #page-goals .page-head > div:first-child { flex: 1 1 0; min-width: 0; }
 .ayat { max-width: 100%; }
 @media (min-width: 768px) { .dash .page-head, #page-goals .page-head { flex-wrap: nowrap; align-items: flex-start; } .dash-right { margin-top: 18px; } }
+/* Ayat: tanpa kotak, rata kiri, ukuran seimbang dengan terjemahan */
+.ayat { padding: 0; margin: 8px 0 0; background: none; box-shadow: none; border: 0; border-radius: 0; max-width: 640px; }
+.ayat-ar { font-size: 19px; line-height: 1.8; text-align: left; margin: 0 0 2px; }
+.ayat-id { font-size: 14px; }
+@media (max-width: 767px) { .ayat { padding: 0; } .ayat-ar { font-size: 18px; } }
