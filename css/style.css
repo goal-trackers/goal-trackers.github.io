@@ -1495,3 +1495,9 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 [data-theme="dark"] .gcard.tint .gc-corner { background: color-mix(in srgb, var(--c) 55%, #fff) !important; border-color: #1E1E1E; color: #1B1B1B !important; }
 [data-theme="dark"] .bt-row button.on { background: color-mix(in srgb, var(--c) 90%, #000); color: #1B1B1B; }
 [data-theme="dark"] .bt-row button.on .bt-n { background: #1B1B1B; color: #fff; }
+/* Checklist di kartu berwarna: sorot putih transparan (tulisan tetap terbaca di mode terang & gelap) */
+.gcard.tint .gc-task:not(:disabled):hover, .card.fin-note .gc-task:not(:disabled):hover { background: rgba(255,255,255,.6); color: #1B1B1B; }
+[data-theme="dark"] .gcard .gc-task:not(:disabled):hover { background: rgba(255,255,255,.6); color: #1B1B1B; }
+[data-theme="dark"] :is(.gcard.tint, .card.fin-note) .gc-task { color: #1B1B1B; }
+[data-theme="dark"] :is(.gcard.tint, .card.fin-note) .gc-task .ms-check { border-color: rgba(0,0,0,.35); }
+[data-theme="dark"] :is(.gcard.tint, .card.fin-note) .gc-task.done .ms-check { border-color: var(--green); }
