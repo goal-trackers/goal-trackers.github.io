@@ -1542,3 +1542,5 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 /* Pil template di baris sendiri, rata kiri penuh */
 .tpl-row { display: flex; margin: 0 0 12px; }
 .tpl-row .tpl-tag { margin: 0; }
+/* Angka notifikasi: merah terang + tulisan putih, jelas di mode terang & gelap */
+.dot-count { background: #E5484D !important; color: #fff !important; border-color: #111 !important; }
