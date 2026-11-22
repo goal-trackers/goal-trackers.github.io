@@ -512,7 +512,7 @@ Object.assign(Inputs, { hartaCalc: debounce(el => hartaPreview(el.form), 150), s
 function closeHfPop() { const m = document.getElementById('hfPop'); if (m) m.remove(); }
 function openHfPop(btn, kind) {
   const was = document.getElementById('hfPop'); closeHfPop(); if (was && was.dataset.kind === kind) return;
-  const opts = (/^g/.test(kind) ? window._gfOpts || {} : window._hfOpts || {})[kind]; if (!opts) return;
+  const opts = (/^g(cat|stat|sort)$/.test(kind) ? window._gfOpts || {} : window._hfOpts || {})[kind]; if (!opts) return;
   const m = document.createElement('div');
   m.id = 'hfPop'; m.className = 'fin-menu hf-pop'; m.dataset.kind = kind; m.setAttribute('role', 'menu');
   m.innerHTML = `<div class="hf-pop-h">${{ seri: 'Seri / nama', gram: 'Berat', gcat: 'Kategori', gstat: 'Status', gsort: 'Urutkan' }[kind] || ''}</div>` + opts.map(([v, l, n, on]) => `<button role="menuitemradio" aria-checked="${on}" class="${on ? 'on' : ''}" data-action="hfPick" data-kind="${kind}" data-v="${esc(v)}" ${n || on || n === null ? '' : 'disabled'}><span class="flex-grow-1 text-start">${esc(l)}</span>${n === null ? (on ? '<i class="bi bi-check2"></i>' : '') : `<span class="n">${n}</span>`}</button>`).join('');
