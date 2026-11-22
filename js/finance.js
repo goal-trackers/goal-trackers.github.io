@@ -471,7 +471,7 @@ function finSavingsHtml(f) {
   const cards = list.map(g => {
     const done = goalState(g) === 'done';
     const m = parseMeta(g.meta);
-    const tag = TPL[g.template] ? `<span class="chip tint tpl-tag" style="--c:${esc(goalColor(g))}"><i class="bi ${esc(TPL[g.template].ikon || (catById(TPL[g.template].cat) || {}).ikon || 'bi-bookmark')}"></i> ${TPL[g.template].label}</span>` : '';
+    const tag = TPL[g.template] ? `<span class="chip tint tpl-tag" style="--c:${esc(goalColor(g))}"><i class="bi ${esc(TPL[g.template].ikon || (catById(TPL[g.template].cat) || {}).ikon || 'bi-bookmark')}"></i><span class="tt-l">${TPL[g.template].label}</span></span>` : '';
     return `<div class="card tint fin-note" style="--c:${esc(goalColor(g))}">
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${goalPct(g)};--size:84px"><div><b>${pctInt(g)}%</b></div></div>

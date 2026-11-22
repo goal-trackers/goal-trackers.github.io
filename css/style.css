@@ -1534,3 +1534,7 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 [data-theme="dark"] .tint .gc-task:not(.done) .ms-check, [data-theme="dark"] .tint .gc-task:not(.done) .ms-check .bi,
 [data-theme="dark"] :is(.gcard, .card) .gc-task:not(.done) .ms-check .bi { color: transparent !important; }
 [data-theme="dark"] .gc-task.done .ms-check, [data-theme="dark"] .gc-task.done .ms-check .bi { color: #fff !important; }
+
+/* Pil template di kartu tabungan: tidak boleh keluar kartu */
+.tpl-tag { max-width: 100%; min-width: 0; overflow: hidden; vertical-align: middle; }
+.tpl-tag .tt-l { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
