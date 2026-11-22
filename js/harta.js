@@ -252,8 +252,8 @@ function hartaJenisSummary() {
   const noun = { Emas: 'keping', Perak: 'keping', Tanah: 'bidang' }[k];
   const jml = s ? (noun ? `${s.n} ${noun} / ${qtyText(s.qty)}` : qtyText(s.qty)) : (noun ? `0 ${noun}` : '0 ' + t.satuan);
   return `<div class="bt-sum">
-      <div class="harta-own">${esc(k)} yang dimiliki <b>${jml}</b></div>
-      <div class="tiny muted">${s ? `Taksiran ${fmtShort(s.nilai, 'Rp')}${s.modal ? ` · Modal ${fmtShort(s.modal, 'Rp')}` : ''}` : 'Belum ada catatan'}${k === 'Dinar' && !hargaPasar('Dinar') && dinarEstimasi() ? ' · ≈ buyback emas Antam × 4,25 gr × 91,7% (22K)' : ''}</div>
+      <div class="bt-sum-l"><div class="harta-own">${esc(k)} yang dimiliki <b>${jml}</b></div>
+      <div class="tiny muted">${s ? `Taksiran ${fmtShort(s.nilai, 'Rp')}${s.modal ? ` · Modal ${fmtShort(s.modal, 'Rp')}` : ''}` : 'Belum ada catatan'}${k === 'Dinar' && !hargaPasar('Dinar') && dinarEstimasi() ? ' · ≈ buyback emas Antam × 4,25 gr × 91,7% (22K)' : ''}</div></div>
       <div class="bt-sum-act">${hartaPriceBox(k)}</div>
     </div>`;
 }

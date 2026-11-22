@@ -1546,3 +1546,9 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .dot-count { background: #E5484D !important; color: #fff !important; border-color: #111 !important; }
 .dot-count { display: flex !important; align-items: center; justify-content: center; box-sizing: border-box; height: 20px; min-width: 20px; padding: 0 5px; line-height: 1; font-size: 11px; font-variant-numeric: tabular-nums; text-align: center; }
 .dot-count[hidden] { display: none !important; }
+
+/* Ringkasan jenis harta: keterangan rata kiri, pil harga rata kanan (sejajar) */
+.bt-sum { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; text-align: left; padding-left: 24px; padding-right: 24px; }
+.bt-sum-l { min-width: 0; flex: 1 1 260px; }
+.bt-sum .bt-sum-act { margin: 0; justify-content: flex-end; flex: 0 1 auto; }
+@media (max-width: 767px) { .bt-sum { padding-left: 16px; padding-right: 16px; } .bt-sum .bt-sum-act { justify-content: flex-start; } }
