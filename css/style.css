@@ -1501,3 +1501,24 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 [data-theme="dark"] :is(.gcard.tint, .card.fin-note) .gc-task { color: #1B1B1B; }
 [data-theme="dark"] :is(.gcard.tint, .card.fin-note) .gc-task .ms-check { border-color: rgba(0,0,0,.35); }
 [data-theme="dark"] :is(.gcard.tint, .card.fin-note) .gc-task.done .ms-check { border-color: var(--green); }
+
+/* ═════════ Mode gelap: semua elemen berwarna (badge, pil, ubin, momen) tetap pastel + tulisan gelap ═════════ */
+[data-theme="dark"] :is(.tint, .set-tile, .badge-card, .tl-item, .stat.tint, .ev.tint) {
+  --text: #1B1B1B; --muted: #5A5650; --red-ink: #B3261E; --green-ink: #1F7A3D; --line: rgba(0,0,0,.1);
+  background: color-mix(in srgb, var(--c, #D5F0F7) 90%, #000) !important; color: #1B1B1B !important;
+}
+[data-theme="dark"] :is(.tint, .set-tile, .badge-card, .tl-item) :is(b, strong, span, small, .muted, .tiny, i, .bi) { color: inherit; }
+[data-theme="dark"] :is(.tint, .set-tile, .badge-card, .tl-item) :is(small, .muted, .tiny, .bk) { color: #5A5650 !important; }
+[data-theme="dark"] .set-tile :is(.set-tile-ic, .set-go, .chip) { background: rgba(255,255,255,.5) !important; color: #1B1B1B !important; }
+[data-theme="dark"] .set-tile .chip.tint { background: rgba(255,255,255,.5) !important; }
+[data-theme="dark"] .set-tile :is(.cat-ic, .cat-dot) { box-shadow: 0 0 0 2px rgba(255,255,255,.6); }
+/* Pil harga & kurs */
+[data-theme="dark"] .kurs-pill { background: #CFF2D6 !important; color: #1B1B1B !important; }
+[data-theme="dark"] .harta-price .kurs-pill { background: color-mix(in srgb, var(--kp) 90%, #000) !important; color: #1B1B1B !important; }
+[data-theme="dark"] .kurs-pill :is(small, .muted) { color: #5A5650 !important; }
+[data-theme="dark"] .kurs-pill .link-btn { color: #1B1B1B !important; }
+/* Chip tint kecil (kategori, jenis) */
+[data-theme="dark"] .chip.tint { color: #1B1B1B !important; }
+[data-theme="dark"] .ev.tint .ev-body { background: rgba(255,255,255,.5); }
+[data-theme="dark"] .ev.tint .ev-foot { background: #1B1B1B; color: #F2F2F2 !important; }
+[data-theme="dark"] .ev.tint .ev-foot :is(i, .bi, span) { color: #F2F2F2 !important; }
