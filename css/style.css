@@ -1544,3 +1544,5 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .tpl-row .tpl-tag { margin: 0; }
 /* Angka notifikasi: merah terang + tulisan putih, jelas di mode terang & gelap */
 .dot-count { background: #E5484D !important; color: #fff !important; border-color: #111 !important; }
+.dot-count { display: flex !important; align-items: center; justify-content: center; box-sizing: border-box; height: 20px; min-width: 20px; padding: 0 5px; line-height: 1; font-size: 11px; font-variant-numeric: tabular-nums; text-align: center; }
+.dot-count[hidden] { display: none !important; }
