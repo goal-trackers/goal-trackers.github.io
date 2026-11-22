@@ -1470,3 +1470,10 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 
 /* Tanda nomor ayat ﴿٢٥﴾ lebih kecil agar ukuran & jarak teks Arab seragam di semua ayat */
 .ayat-no { font-size: .62em; vertical-align: .18em; margin: 0 .1em; opacity: .75; }
+
+/* Login (laptop): ayat usaha & ikhtiar sebagai tagline */
+.login-ayat { margin: 34px 0 22px; max-width: 640px; }
+.login-art .la-ar { max-width: none; margin: 0 0 14px; font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', serif; font-size: 34px; line-height: 1.9; color: #fff; text-align: left; }
+.la-ar .ayat-no { font-size: .6em; vertical-align: .18em; opacity: .7; }
+.login-ayat figcaption { font-size: 22px; line-height: 1.5; font-weight: 600; color: rgba(255,255,255,.92); letter-spacing: -.01em; }
+.la-ref { margin-left: 10px; font-size: 15px; font-weight: 700; color: rgba(255,255,255,.55); white-space: nowrap; }

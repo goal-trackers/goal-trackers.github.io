@@ -24,7 +24,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-reboot.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-utilities.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/style.css?v=1.10.97">
+  <link rel="stylesheet" href="css/style.css?v=1.10.98">
 </head>
 <body>
 
@@ -38,9 +38,9 @@
         if (ok) { s.classList.add('opening'); window.__opEnd = Date.now() + 5000; }
         /* Tagline: terjemahan ayat tentang usaha & ikhtiar — berganti setiap kali aplikasi dibuka */
         var T = [
-          ['Dan bahwa manusia hanya memperoleh apa yang telah diusahakannya.', 'QS An-Najm: 39'],
-          ['Sesungguhnya Allah tidak akan mengubah keadaan suatu kaum sebelum mereka mengubah keadaan diri mereka sendiri.', 'QS Ar-Ra\'d: 11'],
-          ['Maka apabila engkau telah selesai (dari suatu urusan), tetaplah bekerja keras (untuk urusan yang lain), dan hanya kepada Tuhanmulah engkau berharap.', 'QS Al-Insyirah: 7–8']
+          ['Dan bahwa manusia hanya memperoleh apa yang telah diusahakannya.', 'QS An-Najm: 39', 'وَأَنْ لَيْسَ لِلْإِنْسَانِ إِلَّا مَا سَعَىٰ'],
+          ['Sesungguhnya Allah tidak akan mengubah keadaan suatu kaum sebelum mereka mengubah keadaan diri mereka sendiri.', 'QS Ar-Ra\'d: 11', 'إِنَّ اللَّهَ لَا يُغَيِّرُ مَا بِقَوْمٍ حَتَّىٰ يُغَيِّرُوا مَا بِأَنْفُسِهِمْ'],
+          ['Maka apabila engkau telah selesai (dari suatu urusan), tetaplah bekerja keras (untuk urusan yang lain), dan hanya kepada Tuhanmulah engkau berharap.', 'QS Al-Insyirah: 7–8', 'فَإِذَا فَرَغْتَ فَانْصَبْ <span class="ayat-no">﴿٧﴾</span> وَإِلَىٰ رَبِّكَ فَارْغَبْ <span class="ayat-no">﴿٨﴾</span>']
         ], i = 0;
         try { i = (Number(localStorage.getItem('gt_tag') || -1) + 1) % T.length; localStorage.setItem('gt_tag', String(i)); } catch (e) {}
         window.__opTag = T[i];
@@ -55,14 +55,16 @@
     <div class="splash-logo"><svg class="logo-svg" viewBox="0 0 64 64" fill="none" stroke="#E03131" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M41.5 13.6A20 20 0 1 0 51.6 28"/><path d="M32 4v12M32 48v12M4 32h12M48 32h12"/><path d="M22 31.5l8 7.5L50 13"/></svg></div>
     <p>Goal Trackers</p>
     <span class="spinner"></span>
-    <small style="opacity:.45;font-weight:500;font-size:12px">versi 1.10.97</small>
+    <small style="opacity:.45;font-weight:500;font-size:12px">versi 1.10.98</small>
   </div>
 
   <!-- ═════════ LOGIN ═════════ -->
   <section id="view-login" class="login" hidden>
     <div class="login-art" aria-hidden="true">
       <div class="brand light"><span class="wordmark" role="img" aria-label="Goal Trackers">G<svg class="wm-o" viewBox="0 0 64 64" fill="none" stroke="#E03131" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M41.5 13.6A20 20 0 1 0 51.6 28"/><path d="M32 4v12M32 48v12M4 32h12M48 32h12"/><path d="M22 31.5l8 7.5L50 13"/></svg>al<span class="wm-rest"> Trackers</span></span></div>
-      <h1>Rencanakan mimpi,<br>rayakan setiap langkah. <span class="h-ic" style="--c:#F8CFE0" aria-hidden="true"><i class="bi bi-heart"></i></span></h1>
+      <figure class="login-ayat" id="loginAyat"><p class="la-ar" lang="ar" dir="rtl"></p><figcaption><span class="la-id"></span><span class="la-ref"></span></figcaption></figure>
+      <script>(function () { var t = window.__opTag, f = document.getElementById('loginAyat'); if (!t || !f) return;
+        f.querySelector('.la-ar').innerHTML = t[2] || ''; f.querySelector('.la-id').textContent = '“' + t[0] + '”'; f.querySelector('.la-ref').textContent = t[1]; })();</script>
       <p>Target pribadi dan bersama pasangan, progres yang jelas, dan perayaan untuk setiap pencapaian sekecil apa pun.</p>
       <div class="login-chips">
         <span class="chip tint" style="--c:#CFF2D6"><i class="bi bi-check2-circle"></i> Selesai 👏</span>
@@ -182,14 +184,14 @@
     }, 15000);
   </script>
 
-  <script src="js/config.js?v=1.10.97"></script>
-  <script src="js/core.js?v=1.10.97"></script>
-  <script src="js/pages.js?v=1.10.97"></script>
-  <script src="js/reports.js?v=1.10.97"></script>
-  <script src="js/actions.js?v=1.10.97"></script>
-  <script src="js/harta.js?v=1.10.97"></script>
-  <script src="js/pengeluaran.js?v=1.10.97"></script>
-  <script src="js/finance.js?v=1.10.97"></script>
+  <script src="js/config.js?v=1.10.98"></script>
+  <script src="js/core.js?v=1.10.98"></script>
+  <script src="js/pages.js?v=1.10.98"></script>
+  <script src="js/reports.js?v=1.10.98"></script>
+  <script src="js/actions.js?v=1.10.98"></script>
+  <script src="js/harta.js?v=1.10.98"></script>
+  <script src="js/pengeluaran.js?v=1.10.98"></script>
+  <script src="js/finance.js?v=1.10.98"></script>
   <div id="installBar" class="install-bar" hidden role="dialog" aria-label="Pasang aplikasi">
     <img src="icons/icon-192.png" alt="" width="40" height="40">
     <div class="flex-grow-1"><b>Pasang Goal Trackers</b><div class="tiny" id="installHint">Buka langsung dari layar utama, seperti aplikasi.</div></div>
@@ -202,7 +204,7 @@
       if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (r) { r.update(); }).catch(function () {}); });
       /* Pembaruan otomatis: cek version.json; versi baru → muat ulang sendiri (atau tampilkan tombol bila ada form terbuka) */
       (function () {
-        var V = '1.10.97', shown = false;
+        var V = '1.10.98', shown = false;
         function busy() { var a = document.activeElement; return document.body.classList.contains('sheet-open') || (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)); }
         function banner(v) {
           if (shown) return; shown = true;
