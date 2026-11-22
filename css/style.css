@@ -1538,3 +1538,7 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 /* Pil template di kartu tabungan: tidak boleh keluar kartu */
 .tpl-tag { max-width: 100%; min-width: 0; overflow: hidden; vertical-align: middle; }
 .tpl-tag .tt-l { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Pil template di baris sendiri, rata kiri penuh */
+.tpl-row { display: flex; margin: 0 0 12px; }
+.tpl-row .tpl-tag { margin: 0; }

@@ -473,10 +473,10 @@ function finSavingsHtml(f) {
     const m = parseMeta(g.meta);
     const tag = TPL[g.template] ? `<span class="chip tint tpl-tag" style="--c:${esc(goalColor(g))}"><i class="bi ${esc(TPL[g.template].ikon || (catById(TPL[g.template].cat) || {}).ikon || 'bi-bookmark')}"></i><span class="tt-l">${TPL[g.template].label}</span></span>` : '';
     return `<div class="card tint fin-note" style="--c:${esc(goalColor(g))}">
+      ${tag ? `<div class="tpl-row">${tag}</div>` : ''}
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${goalPct(g)};--size:84px"><div><b>${pctInt(g)}%</b></div></div>
         <div class="flex-grow-1" style="min-width:0">
-          ${tag}
           <button class="link-btn p-0 text-start d-block" style="min-height:0;color:var(--text);font-size:17px;font-weight:800" data-action="openGoal" data-id="${g.goal_id}">${esc(g.judul)}</button>
           <div class="tiny muted">${g.jenis === 'Bersama' ? 'Bersama' : esc(userById(g.pemilik_id).nama)}${m.tujuan ? ' · ' + esc(m.tujuan) : ''} · target ${fmtDate(g.tenggat)}</div>
           <div class="mt-1"><b>${fmtShort(g.nilai_saat_ini, 'Rp')}</b> <span class="muted tiny">/ ${fmtShort(g.nilai_target, 'Rp')}</span></div>
