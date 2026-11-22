@@ -1477,3 +1477,21 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .la-ar .ayat-no { font-size: .6em; vertical-align: .18em; opacity: .7; }
 .login-ayat figcaption { font-size: 22px; line-height: 1.5; font-weight: 600; color: rgba(255,255,255,.92); letter-spacing: -.01em; }
 .la-ref { margin-left: 10px; font-size: 15px; font-weight: 700; color: rgba(255,255,255,.55); white-space: nowrap; }
+
+/* ═════════ Mode gelap: kartu berwarna tetap cerah (pastel) dengan tulisan gelap ═════════ */
+[data-theme="dark"] :is(.gcard.tint, .card.fin-note, .card.fin-note[style*="--fg"], .row-item.row-tint, .stat.tint, .ev.tint, .rek-card) {
+  --text: #1B1B1B; --muted: #5A5650; --ink: #1B1B1B; --red-ink: #B3261E; --green-ink: #1F7A3D; --line: rgba(0,0,0,.1);
+  background: color-mix(in srgb, var(--c, #D5F0F7) 90%, #000) !important; color: #1B1B1B;
+  box-shadow: 0 10px 28px rgba(0,0,0,.45);
+}
+[data-theme="dark"] :is(.gcard.tint, .card.fin-note, .row-item.row-tint, .stat.tint, .ev.tint, .rek-card) :is(.muted, small, .tiny, .gc-meta, .gc-cat) { color: #5A5650; }
+[data-theme="dark"] :is(.gcard.tint, .card.fin-note, .row-item.row-tint) :is(.kv > div, .btn-soft, .btn-mint, .icon-btn, .chip.tint, .chip, .badge-s, .gc-corner, .set-go) { background: rgba(255,255,255,.5) !important; color: #1B1B1B !important; }
+[data-theme="dark"] :is(.gcard.tint, .card.fin-note, .row-item.row-tint) .btn-soft:hover, [data-theme="dark"] :is(.gcard.tint, .card.fin-note) .icon-btn:hover { background: rgba(255,255,255,.75) !important; }
+[data-theme="dark"] :is(.gcard.tint, .card.fin-note, .row-item.row-tint) .pbar, [data-theme="dark"] .tint .pbar { background: rgba(255,255,255,.55); }
+[data-theme="dark"] :is(.gcard.tint, .card.fin-note) .ring > div { background: color-mix(in srgb, var(--c) 90%, #000); }
+[data-theme="dark"] :is(.gcard.tint, .card.fin-note) :is(h3, h4, b, strong, .rek-big, .gc-title) { color: #1B1B1B; }
+[data-theme="dark"] :is(.gcard.tint, .card.fin-note) .harta-emoji, [data-theme="dark"] .card.fin-note .asset-logo, [data-theme="dark"] .rek-card .rek-ic { background: rgba(255,255,255,.6) !important; color: #1B1B1B; }
+[data-theme="dark"] :is(.gcard.tint, .card.fin-note) .btn-danger, [data-theme="dark"] :is(.gcard.tint, .card.fin-note) .text-danger { color: #B3261E !important; }
+[data-theme="dark"] .gcard.tint .gc-corner { background: color-mix(in srgb, var(--c) 55%, #fff) !important; border-color: #1E1E1E; color: #1B1B1B !important; }
+[data-theme="dark"] .bt-row button.on { background: color-mix(in srgb, var(--c) 90%, #000); color: #1B1B1B; }
+[data-theme="dark"] .bt-row button.on .bt-n { background: #1B1B1B; color: #fff; }
