@@ -1522,3 +1522,15 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 [data-theme="dark"] .ev.tint .ev-body { background: rgba(255,255,255,.5); }
 [data-theme="dark"] .ev.tint .ev-foot { background: #1B1B1B; color: #F2F2F2 !important; }
 [data-theme="dark"] .ev.tint .ev-foot :is(i, .bi, span) { color: #F2F2F2 !important; }
+/* Mode gelap: elemen di dalam kotak berwarna (rincian goal, info sekolah, dll.) ikut terang */
+[data-theme="dark"] .tint :is(.kv > div, .btn-soft, .icon-btn, .chip, .badge-s, .mini, .ring > div) { background: rgba(255,255,255,.55) !important; color: #1B1B1B !important; }
+[data-theme="dark"] .tint .kv > div :is(small, .muted) { color: #5A5650 !important; }
+[data-theme="dark"] .tint .ring { background: conic-gradient(var(--green) calc(var(--p) * 1%), rgba(255,255,255,.45) 0) !important; }
+[data-theme="dark"] .tint .ring > div { background: color-mix(in srgb, var(--c) 90%, #000) !important; }
+[data-theme="dark"] .tint .btn-dark { background: #1B1B1B !important; color: #F2F2F2 !important; }
+[data-theme="dark"] .tint .btn-dark :is(i, .bi) { color: #F2F2F2 !important; }
+[data-theme="dark"] .hero.tint .badge-s { background: #1B1B1B !important; color: #F2F2F2 !important; }
+/* Checklist: tanda centang hanya muncul setelah tugas dicentang */
+[data-theme="dark"] .tint .gc-task:not(.done) .ms-check, [data-theme="dark"] .tint .gc-task:not(.done) .ms-check .bi,
+[data-theme="dark"] :is(.gcard, .card) .gc-task:not(.done) .ms-check .bi { color: transparent !important; }
+[data-theme="dark"] .gc-task.done .ms-check, [data-theme="dark"] .gc-task.done .ms-check .bi { color: #fff !important; }
