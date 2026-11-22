@@ -378,7 +378,7 @@ const Actions = {
       <label class="field"><span>Nama</span><input name="nama" maxlength="40" value="${esc(u.nama)}" required></label>
       <label class="field"><span>Email login</span><input name="email" type="email" inputmode="email" autocapitalize="off" value="${esc(u.email)}" required><small>Dipakai untuk login. Setiap anggota harus punya email berbeda.</small></label>
       <div class="grid-2">
-        <label class="field"><span>Avatar (emoji)</span><input name="avatar" maxlength="8" value="${esc(u.avatar || '')}" placeholder="👩"></label>
+        <label class="field"><span>Avatar</span><select name="avatar">${AVATARS.map(a => `<option value="${a}" ${avKey(u.avatar) === a ? 'selected' : ''}>${AV_IC[a][1]}</option>`).join('')}</select></label>
         <label class="field"><span>Peran</span><select name="peran" ${self ? 'disabled' : ''}>${['Admin', 'Partner'].map(r => `<option ${u.peran === r ? 'selected' : ''}>${r}</option>`).join('')}</select>${self ? '<small>Peran sendiri tidak bisa diubah.</small>' : ''}</label>
       </div>
       <p class="form-error" id="memberErr"></p>

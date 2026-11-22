@@ -61,7 +61,15 @@ const CAT_ICONS = ['bi-wallet2', 'bi-bank', 'bi-coin-rp', 'bi-safe2', 'bi-cash-c
   'bi-airplane', 'bi-house-heart', 'bi-car-front', 'bi-cup-hot', 'bi-flower1', 'bi-gift', 'bi-music-note-beamed', 'bi-camera',
   'bi-lightning-charge', 'bi-tree', 'bi-people', 'bi-balloon-heart', 'bi-palette', 'bi-laptop', 'bi-basket', 'bi-trophy'];
 const ICON_LABEL = { 'bi-bank': 'Bank', 'bi-coin-rp': 'RDPU (koin Rupiah)', 'bi-cash-coin': 'Uang tunai', 'bi-graph-up-arrow': 'Reksadana / investasi', 'bi-safe2': 'Brankas / dana darurat', 'bi-wallet2': 'Dompet / keuangan' };
-const AVATARS = ['🧔', '👩', '👨', '🧕', '🙂', '😎', '🦸‍♂️', '🦸‍♀️', '🐻', '🐱', '🌸', '⭐'];
+/** Avatar bergaya garis (Pinterest): kode pendek ≤8 huruf → ikon. Emoji lama otomatis dipetakan. */
+const AV_IC = { 'i:ayah': ['bi-person', 'Ayah'], 'i:ibu': ['bi-ibu', 'Ibu'], 'i:anak': ['bi-person-arms-up', 'Anak'], 'i:smile': ['bi-emoji-smile', 'Senyum'],
+  'i:keren': ['bi-emoji-sunglasses', 'Keren'], 'i:wink': ['bi-emoji-wink', 'Kedip'], 'i:heart': ['bi-heart', 'Hati'], 'i:bunga': ['bi-flower1', 'Bunga'],
+  'i:star': ['bi-star', 'Bintang'], 'i:bulan': ['bi-moon-stars', 'Bulan'], 'i:kopi': ['bi-cup-hot', 'Kopi'], 'i:pohon': ['bi-tree', 'Pohon'] };
+const AVATARS = Object.keys(AV_IC);
+const AV_LEGACY = { '🧔': 'i:ayah', '👨': 'i:ayah', '🦸‍♂️': 'i:ayah', '👩': 'i:ibu', '🧕': 'i:ibu', '🦸‍♀️': 'i:ibu', '🙂': 'i:smile', '😎': 'i:keren', '🐻': 'i:smile', '🐱': 'i:wink', '🌸': 'i:bunga', '⭐': 'i:star' };
+const avKey = a => AV_IC[a] ? a : (AV_LEGACY[a] || '');
+/** Isi avatar: ikon garis bila dikenal, selain itu huruf/teks apa adanya */
+function avInner(u) { const k = avKey(u && u.avatar); return k ? `<i class="bi ${AV_IC[k][0]}" aria-hidden="true"></i>` : esc((u && u.avatar) || ((u && u.nama) || '?').charAt(0).toUpperCase()); }
 const REACTIONS = ['❤️', '🔥', '👏', '💪', '🎉', '🥰'];
 const STATE_LABEL = {
   done: ['Selesai 👏', 's-done', 'Selesai'], active: ['Berjalan', 's-active', 'Berjalan'],
@@ -380,7 +388,7 @@ function renderHeader() {
   const foto = me.foto && /^data:image\//.test(me.foto) ? me.foto : '';
   av.classList.toggle('has-foto', !!foto);
   if (foto) { av.innerHTML = ''; const im = document.createElement('img'); im.src = foto; im.alt = me.nama; av.appendChild(im); }
-  else av.textContent = me.avatar || me.nama.charAt(0).toUpperCase();
+  else av.innerHTML = avInner(me);
   $('#meName').textContent = me.nama;
   $('#meEmail').textContent = me.email;
   const unread = S.notifications.filter(n => n.dibaca !== 'Ya').length;
@@ -426,7 +434,7 @@ function goalState(g) {
 }
 function avatarHtml(u, cls = '') {
   if (u.foto && /^data:image\//.test(u.foto)) return `<span class="avatar has-foto ${cls}" style="--c:${esc(u.warna_profil || '#CFF2D6')}" title="${esc(u.nama)}"><img src="${esc(u.foto)}" alt="${esc(u.nama)}"></span>`;
-  return `<span class="avatar ${cls}" style="--c:${esc(u.warna_profil || '#CFF2D6')}" title="${esc(u.nama)}">${esc(u.avatar || (u.nama || '?').charAt(0).toUpperCase())}</span>`;
+  return `<span class="avatar ${cls}" style="--c:${esc(u.warna_profil || '#CFF2D6')}" title="${esc(u.nama)}">${avInner(u)}</span>`;
 }
 function ownerAvatars(g) {
   return g.jenis === 'Bersama' ? `<span class="avatars">${S.users.map(u => avatarHtml(u, 'sm')).join('')}</span>` : avatarHtml(userById(g.pemilik_id), 'sm');

@@ -58,7 +58,7 @@ function renderReports() {
             <select data-change="tblJenis" aria-label="Jenis goal"><option value="">Semua jenis</option><option ${u.tblJenis === 'Pribadi' ? 'selected' : ''}>Pribadi</option><option ${u.tblJenis === 'Bersama' ? 'selected' : ''}>Bersama</option></select>
             <select data-change="tblCat" aria-label="Kategori"><option value="">Semua kategori</option>${S.categories.map(c => `<option value="${c.kategori_id}" ${u.tblCat === c.kategori_id ? 'selected' : ''}>${esc(c.nama)}</option>`).join('')}</select>
           </div>
-          <div class="chips"><button class="chip-btn ${!u.tblUser ? 'on' : ''}" data-action="tblUser" data-id="">Semua orang</button>${S.users.map(x => `<button class="chip-btn ${u.tblUser === x.user_id ? 'on' : ''}" data-action="tblUser" data-id="${x.user_id}">${esc(x.avatar || '')} ${esc(x.nama)}</button>`).join('')}</div>
+          <div class="chips"><button class="chip-btn ${!u.tblUser ? 'on' : ''}" data-action="tblUser" data-id="">Semua orang</button>${S.users.map(x => `<button class="chip-btn ${u.tblUser === x.user_id ? 'on' : ''}" data-action="tblUser" data-id="${x.user_id}">${avatarHtml(x, 'xs')} ${esc(x.nama)}</button>`).join('')}</div>
         </div>
         <div id="rptTable"></div>
       </div>
@@ -280,7 +280,7 @@ function renderSettings() {
               ${me.foto ? '<button type="button" class="btn btn-soft btn-sm text-danger" data-action="removeProfilePhoto"><i class="bi bi-trash3"></i> Hapus foto</button>' : ''}
             </div></div></div>
           <label class="field"><span>Nama</span><input name="nama" value="${esc(me.nama)}" maxlength="40" required></label>
-          <div class="field"><span>Avatar emoji ${me.foto ? '<small>(dipakai jika foto dihapus)</small>' : ''}</span><div class="emoji-pick">${AVATARS.map(a => `<label><input type="radio" name="avatar" value="${a}" ${me.avatar === a ? 'checked' : ''}><span>${a}</span></label>`).join('')}</div></div>
+          <div class="field"><span>Avatar ${me.foto ? '<small>(dipakai jika foto dihapus)</small>' : ''}</span><div class="emoji-pick av-pick">${AVATARS.map(a => `<label title="${AV_IC[a][1]}"><input type="radio" name="avatar" value="${a}" ${avKey(me.avatar) === a ? 'checked' : ''}><span class="av-opt" style="--c:${esc(me.warna_profil || '#CFF2D6')}"><i class="bi ${AV_IC[a][0]}"></i></span></label>`).join('')}</div></div>
           <div class="field"><span>Warna profil</span><div class="swatches">${PASTELS.map(c => `<label class="swatch" style="--c:${c}"><input type="radio" name="warna_profil" value="${c}" ${me.warna_profil === c ? 'checked' : ''} aria-label="Warna ${c}"></label>`).join('')}</div></div>
           <button class="btn btn-dark btn-sm" type="submit">Simpan profil</button>
         </form></div>`,

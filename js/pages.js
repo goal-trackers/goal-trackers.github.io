@@ -404,7 +404,7 @@ function renderCelebrate() {
     ['Milestone', 'bi-check2-circle', '#FFE1C7', 'Tugas / tahapan selesai', 'Milestone'], ['Streak', 'bi-fire', '#F8CFE0', 'Mencatat progres 7 atau 30 hari berturut-turut', 'Hari beruntun']];
   const badges = groups.map(([j, i, c, ket, nama]) => `<div class="badge-card tint" style="--c:${c}" title="${ket}"><i class="bi ${i}"></i><b>${list.filter(a => j === 'Streak' ? /^Streak/.test(a.jenis) : a.jenis === j).length}</b><small>${j === nama ? j : j + ' · ' + nama}</small><span class="bk">${ket}</span></div>`).join('');
   const chips = `<button class="chip-btn ${!u.celebUser ? 'on' : ''}" data-action="celebUser" data-id="">Semua</button>` +
-    S.users.map(x => `<button class="chip-btn ${u.celebUser === x.user_id ? 'on' : ''}" data-action="celebUser" data-id="${x.user_id}">${esc(x.avatar || '')} ${esc(x.nama)}</button>`).join('');
+    S.users.map(x => `<button class="chip-btn ${u.celebUser === x.user_id ? 'on' : ''}" data-action="celebUser" data-id="${x.user_id}">${avatarHtml(x, 'xs')} ${esc(x.nama)}</button>`).join('');
   const icon = j => j === '100%' ? 'bi-trophy' : j === 'Milestone' ? 'bi-check2-circle' : /^Streak/.test(j) ? 'bi-fire' : 'bi-stars';
   $('#page-celebrate').innerHTML = `
     <div class="page-head"><div><p class="eyebrow">${liveAch().length} momen tercatat</p><h1>Galeri Perayaan <span class="h-ic" style="--c:#FBEBB5" aria-hidden="true"><i class="bi bi-stars"></i></span></h1>${motto('celebrate')}</div></div>
