@@ -1667,3 +1667,8 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .topbar.compact .wordmark > :not(.wm-o) { display: none; }
   .topbar.compact .wordmark .wm-o { margin: 0; align-self: center; display: block; }
 }
+/* Ikon target saat navbar kecil: diam (tanpa putar) */
+@media (min-width: 992px) {
+  .topbar.compact .wordmark .wm-o, .topbar.compact:hover .wordmark .wm-o { transform: none !important; transition: none !important; }
+  .topbar .wordmark .wm-o { transition: none; }
+}

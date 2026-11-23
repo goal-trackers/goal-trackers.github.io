@@ -1367,21 +1367,24 @@ document.addEventListener('click', e => { if (!document.getElementById('cardMenu
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCardMenu(); });
 window.addEventListener('scroll', closeCardMenu, true); window.addEventListener('resize', closeCardMenu);
 
-/* Navbar desktop: mengecil jadi ikon saat digulir; klik di pil → melebar lagi */
+/* Navbar desktop: mengecil saat digulir KE BAWAH; klik → melebar lagi; pindah halaman → tetap lebar */
 (function () {
   const bar = document.querySelector('.topbar'); if (!bar) return;
   const desk = () => window.matchMedia('(min-width: 992px)').matches;
-  let expandedAt = null;
+  let expandedAt = null, lastY = window.scrollY, holdUntil = 0;
   const update = () => {
+    const y = window.scrollY, down = y > lastY; lastY = y;
     if (!desk()) { bar.classList.remove('compact'); return; }
-    const y = window.scrollY;
     if (y < 60) { bar.classList.remove('compact'); expandedAt = null; return; }
-    if (expandedAt !== null && Math.abs(y - expandedAt) < 160) return;
+    if (Date.now() < holdUntil || !down) return;                       // jangan mengecil saat menggulir ke atas / baru pindah halaman
+    if (expandedAt !== null && y - expandedAt < 160) return;
     expandedAt = null;
     if (y > 120) bar.classList.add('compact');
   };
   window.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
-  bar.addEventListener('click', () => { if (bar.classList.contains('compact')) { bar.classList.remove('compact'); expandedAt = window.scrollY; } }, true);
-  document.addEventListener('gt:page', () => { expandedAt = null; setTimeout(update, 50); });
+  bar.addEventListener('click', e => {
+    if (bar.classList.contains('compact')) { bar.classList.remove('compact'); expandedAt = window.scrollY; holdUntil = Date.now() + 600; e.preventDefault(); e.stopPropagation(); return; }
+    if (e.target.closest('[data-action=nav], [data-action=logProgress], [data-action=profileMenu]')) { holdUntil = Date.now() + 1200; expandedAt = null; }
+  }, true);
 })();
