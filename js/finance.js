@@ -1366,3 +1366,22 @@ Actions.cardMenu = (d, el) => {
 document.addEventListener('click', e => { if (!document.getElementById('cardMenu') || e.target.closest('[data-action=cardMenu]')) return; setTimeout(closeCardMenu, 0); }, true);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCardMenu(); });
 window.addEventListener('scroll', closeCardMenu, true); window.addEventListener('resize', closeCardMenu);
+
+/* Navbar desktop: mengecil jadi ikon saat digulir; klik di pil → melebar lagi */
+(function () {
+  const bar = document.querySelector('.topbar'); if (!bar) return;
+  const desk = () => window.matchMedia('(min-width: 992px)').matches;
+  let expandedAt = null;
+  const update = () => {
+    if (!desk()) { bar.classList.remove('compact'); return; }
+    const y = window.scrollY;
+    if (y < 60) { bar.classList.remove('compact'); expandedAt = null; return; }
+    if (expandedAt !== null && Math.abs(y - expandedAt) < 160) return;
+    expandedAt = null;
+    if (y > 120) bar.classList.add('compact');
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  bar.addEventListener('click', () => { if (bar.classList.contains('compact')) { bar.classList.remove('compact'); expandedAt = window.scrollY; } }, true);
+  document.addEventListener('gt:page', () => { expandedAt = null; setTimeout(update, 50); });
+})();

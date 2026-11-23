@@ -1599,3 +1599,23 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .panel { background: transparent; border-radius: 0; padding-top: 30px; min-height: calc(100vh - 92px); }
   [data-theme="dark"] .topbar { border: 1px solid rgba(255,255,255,.08); box-shadow: 0 14px 36px rgba(0,0,0,.55); }
 }
+
+/* ═════════ Desktop: saat digulir, pil navbar mengecil jadi ikon saja; klik → melebar lagi ═════════ */
+@media (min-width: 992px) {
+  .topbar { transition: padding .25s ease, min-height .25s ease, box-shadow .25s ease; }
+  .topbar.compact { width: fit-content; margin-left: auto; margin-right: auto; padding: 6px 8px 6px 18px; min-height: 56px; gap: 8px; cursor: pointer; animation: navShrink .25s ease; }
+  @keyframes navShrink { from { opacity: .6; transform: scale(.97); } to { opacity: 1; transform: none; } }
+  .topbar.compact .wordmark { font-size: 0; }
+  .topbar.compact .wordmark .wm-o { width: 26px; height: 26px; margin: 0; transform: none; }
+  .topbar.compact .top-nav { margin: 0; gap: 2px; }
+  .topbar.compact .top-nav .tn, .topbar.compact .top-nav .tn.active { padding: 0 !important; min-width: 42px; min-height: 42px; background: transparent !important; border: 0; margin: 0; }
+  .topbar.compact .top-nav .tn > span:not(.tn-ic) { display: none !important; }
+  .topbar.compact .top-nav .tn .tn-ic, .topbar.compact .top-nav .tn.active .tn-ic { display: grid !important; width: 40px; height: 40px; background: transparent; color: rgba(255,255,255,.78); box-shadow: none; }
+  .topbar.compact .top-nav .tn:hover .tn-ic { background: rgba(255,255,255,.1); color: #fff; transform: none; }
+  .topbar.compact .top-nav .tn.active .tn-ic { background: #fff; color: #111; }
+  .topbar.compact .top-nav .tn-add .tn-ic { background: rgba(255,255,255,.14); color: #fff; }
+  .topbar.compact .top-nav .tn .tn-ic .nav-logo { stroke: currentColor; }
+  .topbar.compact :is(.profile-text, .profile > .bi-chevron-down, #syncState) { display: none !important; }
+  .topbar.compact .top-actions { gap: 4px; }
+  .topbar.compact .icon-btn.on-dark { width: 40px; height: 40px; }
+}
