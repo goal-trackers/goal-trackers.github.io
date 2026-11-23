@@ -1627,3 +1627,8 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .topbar.compact .wordmark .wm-o { width: 30px; height: 30px; }
   .topbar.compact:hover { transform: scale(1.06); }
 }
+/* Lingkaran navbar mengecil: semi-transparan (kaca buram), jelas lagi saat disorot */
+@media (min-width: 992px) {
+  .topbar.compact { background: rgba(17,17,17,.55); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: 0 8px 22px rgba(0,0,0,.18); opacity: .8; transition: opacity .2s ease, transform .2s ease, background .2s ease; }
+  .topbar.compact:hover { opacity: 1; background: rgba(17,17,17,.85); }
+}
