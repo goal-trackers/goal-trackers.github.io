@@ -1617,3 +1617,5 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .rpt-bar .rpt-filter { flex: 1 1 420px; }
   .rpt-bar .rpt-filter .search-pill { min-width: 160px; }
 }
+/* Pencarian di dalam toolbar: hanya satu cincin fokus (pada pil), bukan pada kolom input di dalamnya */
+.search-pill input, .search-pill input:focus, .search-pill input:focus-visible { border: 0 !important; outline: none !important; box-shadow: none !important; background: transparent !important; min-height: 0 !important; padding: 0 !important; border-radius: 0 !important; }
