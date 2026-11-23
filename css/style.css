@@ -1619,3 +1619,11 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .topbar.compact .top-actions { gap: 4px; }
   .topbar.compact .icon-btn.on-dark { width: 40px; height: 40px; }
 }
+/* Pil menyusut: hanya ikon target merah */
+@media (min-width: 992px) {
+  .topbar.compact { padding: 0; width: 60px; height: 60px; min-height: 60px; justify-content: center; border-radius: 50%; gap: 0; }
+  .topbar.compact :is(.top-nav, .top-actions) { display: none !important; }
+  .topbar.compact .brand { margin: 0; display: grid; place-items: center; }
+  .topbar.compact .wordmark .wm-o { width: 30px; height: 30px; }
+  .topbar.compact:hover { transform: scale(1.06); }
+}
