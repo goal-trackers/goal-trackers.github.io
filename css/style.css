@@ -1659,3 +1659,11 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .topbar.compact { transition: width .5s cubic-bezier(.65,0,.35,1) .08s, height .5s cubic-bezier(.65,0,.35,1) .08s, padding .5s cubic-bezier(.65,0,.35,1) .08s,
                 top .5s cubic-bezier(.65,0,.35,1), background .35s ease, opacity .35s ease, box-shadow .35s ease, transform .2s ease; }
 }
+/* Ikon target tepat di tengah lingkaran */
+@media (min-width: 992px) {
+  .topbar { position: sticky; }
+  .topbar.compact .brand { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; line-height: 0; }
+  .topbar.compact .wordmark { display: grid; place-items: center; line-height: 0; height: 24px; width: 24px; }
+  .topbar.compact .wordmark > :not(.wm-o) { display: none; }
+  .topbar.compact .wordmark .wm-o { margin: 0; align-self: center; display: block; }
+}
