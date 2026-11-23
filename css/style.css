@@ -1626,3 +1626,11 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .dd-btn .bi { font-size: 12px; }
 .dd-btn.on { background: #111; color: #fff; border-color: #111; }
 [data-theme="dark"] .dd-btn.on { background: #F2F2F2; color: #111; border-color: #F2F2F2; }
+
+/* Tombol opsi ⋯: lingkaran menempel di tepi atas-kanan kartu (seperti ikon kategori di kartu goal) */
+.has-more { overflow: visible !important; }
+.card-more, .tpl-row > .card-more { position: absolute !important; top: -10px; right: 14px; margin: 0; width: 44px; height: 44px; font-size: 18px; z-index: 3;
+  background: color-mix(in srgb, var(--c, #D5F0F7) 45%, #fff); color: #1B1B1B; border: 3px solid var(--bg); box-shadow: none; }
+.card-more:hover, .card-more[aria-expanded="true"] { background: #fff; }
+[data-theme="dark"] .card-more { background: color-mix(in srgb, var(--c, #D5F0F7) 55%, #fff) !important; border-color: #1E1E1E; color: #1B1B1B !important; }
+.has-more .tpl-row, .has-more > .d-flex:first-of-type { padding-right: 54px !important; }
