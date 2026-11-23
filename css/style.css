@@ -1636,3 +1636,26 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .topbar.compact { width: 44px; height: 44px; min-height: 44px; top: 14px; }
   .topbar.compact .wordmark .wm-o { width: 24px; height: 24px; }
 }
+
+/* ═════════ Animasi halus pil ⇄ lingkaran (semua ukuran numerik agar bisa ditransisikan) ═════════ */
+@media (min-width: 992px) {
+  .topbar { box-sizing: border-box; width: calc(100% - 32px); height: 68px; min-height: 0; margin: 12px auto 0; overflow: hidden; flex-wrap: nowrap;
+    transition: width .5s cubic-bezier(.65,0,.35,1), height .5s cubic-bezier(.65,0,.35,1), padding .5s cubic-bezier(.65,0,.35,1),
+                top .5s cubic-bezier(.65,0,.35,1), background .35s ease, opacity .35s ease, box-shadow .35s ease, transform .2s ease; }
+  .topbar > * { flex-shrink: 0; }
+  .topbar :is(.top-nav, .top-actions) { transition: opacity .25s ease .22s; }
+  .topbar .wordmark { transition: font-size .45s cubic-bezier(.65,0,.35,1); }
+  .topbar .wordmark .wm-o { transition: width .45s cubic-bezier(.65,0,.35,1), height .45s cubic-bezier(.65,0,.35,1), transform .45s ease; }
+
+  .topbar.compact { animation: none; width: 44px; height: 44px; min-height: 0; padding: 0 10px; justify-content: flex-start; gap: 12px; border-radius: 999px; }
+  .topbar.compact :is(.top-nav, .top-actions) { display: flex !important; opacity: 0; pointer-events: none; transition: opacity .12s ease; }
+  .topbar.compact .wordmark { font-size: 0; }
+  .topbar.compact .wordmark .wm-o { width: 24px; height: 24px; transform: rotate(-90deg); }
+  .topbar.compact:hover .wordmark .wm-o { transform: rotate(0deg); }
+  .topbar.compact .brand { display: block; }
+}
+@media (min-width: 992px) and (prefers-reduced-motion: reduce) { .topbar, .topbar * { transition: none !important; } }
+@media (min-width: 992px) {
+  .topbar.compact { transition: width .5s cubic-bezier(.65,0,.35,1) .08s, height .5s cubic-bezier(.65,0,.35,1) .08s, padding .5s cubic-bezier(.65,0,.35,1) .08s,
+                top .5s cubic-bezier(.65,0,.35,1), background .35s ease, opacity .35s ease, box-shadow .35s ease, transform .2s ease; }
+}
