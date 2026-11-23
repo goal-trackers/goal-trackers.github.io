@@ -199,7 +199,8 @@ function hartaTableHtml(jenis, items) {
 function hartaItemCard(h) {
   const t = HARTA[h.jenis] || HARTA.Lainnya, n = hartaNilai(h), beli = Number(h.harga_beli) || 0;
   const d = beli && (n.pasar || n.susut) ? n.v - beli : null;
-  return `<div class="card harta-item tint fin-note" style="--c:${t.c}">
+  return `<div class="card harta-item tint fin-note has-more" style="--c:${t.c}">
+    ${cardMenuBtn(`<button data-action="editHarta" data-id="${h.harta_id}"><i class="bi bi-pencil"></i> Edit</button><button class="danger" data-action="delHarta" data-id="${h.harta_id}"><i class="bi bi-trash3"></i> Hapus</button>`, h.nama)}
     <div class="d-flex align-items-center gap-3">
       <div class="harta-item-pic">${hartaThumb(h, h.jenis === 'Emas' || h.jenis === 'Perak' ? 46 : 50)}</div>
       <div class="flex-grow-1" style="min-width:0">
@@ -215,8 +216,6 @@ function hartaItemCard(h) {
     </div>
     <div class="d-flex align-items-center gap-2 mt-3">
       <span class="tiny muted flex-grow-1 text-truncate">${esc(ownerName(h.pemilik_id))}${h.lokasi ? ' · ' + esc(h.lokasi) : ''}</span>
-      <button class="icon-btn sm" data-action="editHarta" data-id="${h.harta_id}" aria-label="Edit ${esc(h.nama)}"><i class="bi bi-pencil"></i></button>
-      <button class="icon-btn sm" data-action="delHarta" data-id="${h.harta_id}" aria-label="Hapus ${esc(h.nama)}"><i class="bi bi-trash3"></i></button>
     </div>
   </div>`;
 }

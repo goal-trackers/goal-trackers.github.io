@@ -1581,3 +1581,6 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 [data-theme="dark"] .card-menu .cm-item:hover { background: #2E2E2E; }
 [data-theme="dark"] .card-menu .cm-item.danger { color: #FF8A80; }
 .rek-card .rek-name { padding-right: 36px; }
+
+/* Ruang untuk tombol ⋯ di kartu */
+.has-more .tpl-row, .has-more > .d-flex:first-of-type { padding-right: 40px; }

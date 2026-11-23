@@ -472,7 +472,14 @@ function finSavingsHtml(f) {
     const done = goalState(g) === 'done';
     const m = parseMeta(g.meta);
     const tag = TPL[g.template] ? `<span class="chip tint tpl-tag" style="--c:${esc(goalColor(g))}"><i class="bi ${esc(TPL[g.template].ikon || (catById(TPL[g.template].cat) || {}).ikon || 'bi-bookmark')}"></i><span class="tt-l">${TPL[g.template].label}</span></span>` : '';
-    return `<div class="card tint fin-note" style="--c:${esc(goalColor(g))}">
+    const mItems = [
+      canLog(g) && !done ? `<button data-action="logProgress" data-id="${g.goal_id}"><i class="bi bi-plus-lg"></i> Setor</button>` : '',
+      done && needsExecDate(g) && !g.tgl_pelaksanaan && canEdit(g) ? `<button data-action="execDate" data-id="${g.goal_id}"><i class="bi bi-calendar-plus"></i> Tetapkan tanggal pelaksanaan</button>` : '',
+      canEdit(g) && bisaPengeluaran(g) ? `<button data-action="newPengeluaran" data-id="${g.goal_id}"><i class="bi bi-receipt"></i> ${PKAT_INFO[pkProfile(g)].btn}</button>` : '',
+      `<button data-action="openGoal" data-id="${g.goal_id}"><i class="bi bi-list-ul"></i> Rincian</button>`,
+      canEdit(g) ? `<button data-action="editGoal" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>` : ''].join('');
+    return `<div class="card tint fin-note has-more" style="--c:${esc(goalColor(g))}">
+      ${cardMenuBtn(mItems, g.judul)}
       ${tag ? `<div class="tpl-row">${tag}</div>` : ''}
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${goalPct(g)};--size:84px"><div><b>${pctInt(g)}%</b></div></div>
@@ -488,13 +495,6 @@ function finSavingsHtml(f) {
         <div><small>${done ? (needsExecDate(g) ? 'Pelaksanaan' : 'Status') : 'Saran setoran'}</small><b>${done ? (needsExecDate(g) ? (g.tgl_pelaksanaan ? fmtDate(g.tgl_pelaksanaan) : 'Belum ditetapkan') : 'Tercapai 🎉') : fmtShort(Math.ceil(monthlyNeed(g)), 'Rp') + '/bln'}</b></div>
       </div>
       ${punyaPengeluaran(g) ? (() => { const a = anggaranInfo(g), lb = a.sisa < 0; return `<div class="kv mt-2"><div><small>Terpakai</small><b>${fmtShort(a.pakai, 'Rp')}</b></div><div><small>${lb ? 'Kelebihan' : 'Sisa anggaran'}</small><b style="color:${lb ? 'var(--red-ink)' : 'var(--green-ink,#1B7F3A)'}">${lb ? '−' : ''}${fmtShort(Math.abs(a.sisa), 'Rp')}</b></div></div>`; })() : ''}
-      ${canEdit(g) ? `<div class="plan-acts mt-3">
-        ${bisaPengeluaran(g) ? `<button class="btn btn-soft btn-sm" data-action="newPengeluaran" data-id="${g.goal_id}"><i class="bi bi-receipt"></i> ${PKAT_INFO[pkProfile(g)].btn}</button>` : ''}
-        <button class="btn btn-soft btn-sm" data-action="editGoal" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>
-        <button class="btn btn-soft btn-sm" data-action="openGoal" data-id="${g.goal_id}"><i class="bi bi-list-ul"></i> Rincian</button>
-      </div>` : ''}
-      ${done && needsExecDate(g) && !g.tgl_pelaksanaan && canEdit(g) ? `<button class="btn btn-dark btn-sm w-100 mt-3" data-action="execDate" data-id="${g.goal_id}"><i class="bi bi-calendar-plus"></i> Tetapkan tanggal pelaksanaan</button>` : ''}
-      ${canLog(g) && !done ? `<button class="btn btn-mint btn-sm w-100 mt-3" data-action="logProgress" data-id="${g.goal_id}"><i class="bi bi-plus-lg"></i> Setor</button>` : ''}
     </div>`;
   });
   const cardArr = cards;
@@ -722,7 +722,8 @@ function finAssetsHtml() {
     const g = goalById(a.goal_tujuan_id);
     const st = a.status !== 'Aktif' ? `<span class="badge-s s-done">${esc(a.status)} 🎉</span>` : `<span class="badge-s s-active">Aktif</span>`;
     const [afg, abg] = ASSET_BADGE[a.jenis] || ASSET_BADGE.Lainnya;
-    return `<div class="card tint fin-note" style="--c:${abg};--fg:${afg}">
+    return `<div class="card tint fin-note has-more" style="--c:${abg};--fg:${afg}">
+      ${cardMenuBtn(`<button data-action="editAsset" data-id="${a.aset_id}"><i class="bi bi-pencil"></i> Edit</button><button class="danger" data-action="delAsset" data-id="${a.aset_id}"><i class="bi bi-trash3"></i> Hapus</button>`, a.nama)}
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${i.pct};--size:88px"><div><b>${i.k}</b><small>dari ${i.n} bln</small></div></div>
         <div class="flex-grow-1" style="min-width:0">
@@ -738,10 +739,8 @@ function finAssetsHtml() {
         <div><small>Kupon bersih</small><b>${fmtVal(i.net, 'Rp')}/bln</b></div>
         <div><small>Dana pokok kembali</small><b>${fmtDate(i.maturity)}</b></div>
       </div>
-      <p class="tiny muted mt-3 mb-2"><i class="bi bi-arrow-return-right"></i> Kupon masuk ke: <b style="color:var(--text)">${g ? esc(g.judul) : 'tidak diarahkan ke tabungan'}</b>
+      <p class="tiny muted mt-3 mb-0"><i class="bi bi-arrow-return-right"></i> Kupon masuk ke: <b style="color:var(--text)">${g ? esc(g.judul) : 'tidak diarahkan ke tabungan'}</b>
         ${i.next && a.status === 'Aktif' ? ' · kupon berikutnya ' + fmtDate(i.next) : ''}<br>Total kupon sejak awal ±${fmtShort(i.received, 'Rp')}${i.posted ? ' · tercatat otomatis ' + fmtShort(i.posted, 'Rp') : ''}</p>
-      <div class="d-flex gap-2"><button class="btn btn-soft btn-sm" data-action="editAsset" data-id="${a.aset_id}"><i class="bi bi-pencil"></i> Edit</button>
-        <button class="btn btn-soft btn-sm" data-action="delAsset" data-id="${a.aset_id}"><i class="bi bi-trash3"></i> Hapus</button></div>
     </div>`;
   });
   const rowsA = `<div class="glist">${list.map(a => { const i = assetInfo(a); return finRow({ act: `data-action="editAsset" data-id="${a.aset_id}"`, raw: assetBadgeSvg(a, 44), title: a.nama, tint: (ASSET_BADGE[a.jenis] || ASSET_BADGE.Lainnya)[1], fg: (ASSET_BADGE[a.jenis] || ASSET_BADGE.Lainnya)[0],
@@ -761,7 +760,8 @@ function finLoansHtml() {
   const list = S.loans.slice().sort((a, b) => (loanInfo(a).done ? 1 : 0) - (loanInfo(b).done ? 1 : 0));
   const cards = list.map(l => {
     const i = loanInfo(l);
-    return `<div class="card tint fin-note" style="--c:#E8D3F5;--fg:#7E3FB3">
+    return `<div class="card tint fin-note has-more" style="--c:#E8D3F5;--fg:#7E3FB3">
+      ${cardMenuBtn(`${!i.done ? `<button data-action="loanLunas" data-id="${l.pinjaman_id}"><i class="bi bi-check2-circle"></i> Tandai lunas</button>` : ''}<button data-action="editLoan" data-id="${l.pinjaman_id}"><i class="bi bi-pencil"></i> Edit</button><button class="danger" data-action="delLoan" data-id="${l.pinjaman_id}"><i class="bi bi-trash3"></i> Hapus</button>`, l.nama)}
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${i.pct};--size:88px"><div><b>${i.k}</b><small>dari ${i.n} bln</small></div></div>
         <div class="flex-grow-1" style="min-width:0">
@@ -777,9 +777,6 @@ function finLoansHtml() {
         <div><small>Sisa bayar</small><b>${i.left} × = ${fmtShort(i.sisaBayar, 'Rp')}</b></div>
         <div><small>Lunas</small><b>${fmtDate(i.lunas)}</b></div>
       </div>
-      <div class="d-flex gap-2 mt-3 flex-wrap"><button class="btn btn-soft btn-sm" data-action="editLoan" data-id="${l.pinjaman_id}"><i class="bi bi-pencil"></i> Edit</button>
-        ${!i.done ? `<button class="btn btn-mint btn-sm" data-action="loanLunas" data-id="${l.pinjaman_id}"><i class="bi bi-check2-circle"></i> Tandai lunas</button>` : ''}
-        <button class="btn btn-soft btn-sm" data-action="delLoan" data-id="${l.pinjaman_id}"><i class="bi bi-trash3"></i> Hapus</button></div>
     </div>`;
   });
   const rowsL = `<div class="glist">${list.map(l => { const i = loanInfo(l); return finRow({ act: `data-action="editLoan" data-id="${l.pinjaman_id}"`, ic: '💳', c: '#E8D3F5', title: l.nama,
