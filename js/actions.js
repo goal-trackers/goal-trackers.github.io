@@ -405,8 +405,8 @@ const Actions = {
     await refreshData();
   },
   logout: () => doLogout(),
-  exportXlsx: (d, el) => exportXlsx(el),
-  exportPdf: (d, el) => exportPdf(el),
+  exportXlsx: (d, el) => confirmBox({ title: 'Unduh laporan Excel?', text: `Rekap ${S.ui.reportMode === 'tahun' ? 'tahun ' + S.ui.reportYear : 'bulan ' + fmtMonthLabel()} akan diunduh sebagai file Excel (.xlsx).`, ok: 'Unduh Excel' }, () => exportXlsx(el)),
+  exportPdf: (d, el) => confirmBox({ title: 'Unduh laporan PDF?', text: `Rekap ${S.ui.reportMode === 'tahun' ? 'tahun ' + S.ui.reportYear : 'bulan ' + fmtMonthLabel()} akan diunduh sebagai file PDF.`, ok: 'Unduh PDF' }, () => exportPdf(el)),
   tblUser: d => { S.ui.tblUser = d.id; S.ui.tblPage = 1; renderReports(); },
   tblPage: d => { S.ui.tblPage += Number(d.dir); renderReportTable(); },
   celebUser: d => { S.ui.celebUser = d.id; renderCelebrate(); },
@@ -579,3 +579,5 @@ if (mqWide.addEventListener) mqWide.addEventListener('change', onMq); else if (m
 
 // boot() dipanggil di akhir JS5 (setelah semua modul dimuat)
 window.__GT_PARTS = (window.__GT_PARTS || []).concat('JS4');
+
+function fmtMonthLabel() { const m = String(S.ui.reportMonth || today().slice(0, 7)); try { return new Date(m + '-01T00:00:00').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }); } catch (e) { return m; } }
