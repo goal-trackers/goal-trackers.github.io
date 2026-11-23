@@ -1584,3 +1584,7 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 
 /* Ruang untuk tombol ⋯ di kartu */
 .has-more .tpl-row, .has-more > .d-flex:first-of-type { padding-right: 40px; }
+
+/* Tombol ⋯ sebaris dengan pil/logo di baris atas kartu */
+.tpl-row > .card-more { position: static; margin-left: auto; flex: none; }
+.has-more .tpl-row { padding-right: 0 !important; align-items: center; }

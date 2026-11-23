@@ -479,8 +479,7 @@ function finSavingsHtml(f) {
       `<button data-action="openGoal" data-id="${g.goal_id}"><i class="bi bi-list-ul"></i> Rincian</button>`,
       canEdit(g) ? `<button data-action="editGoal" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>` : ''].join('');
     return `<div class="card tint fin-note has-more" style="--c:${esc(goalColor(g))}">
-      ${cardMenuBtn(mItems, g.judul)}
-      ${tag ? `<div class="tpl-row">${tag}</div>` : ''}
+      ${tag ? `<div class="tpl-row align-items-center gap-2">${tag}${cardMenuBtn(mItems, g.judul)}</div>` : cardMenuBtn(mItems, g.judul)}
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${goalPct(g)};--size:84px"><div><b>${pctInt(g)}%</b></div></div>
         <div class="flex-grow-1" style="min-width:0">
@@ -723,8 +722,7 @@ function finAssetsHtml() {
     const st = a.status !== 'Aktif' ? `<span class="badge-s s-done">${esc(a.status)} 🎉</span>` : `<span class="badge-s s-active">Aktif</span>`;
     const [afg, abg] = ASSET_BADGE[a.jenis] || ASSET_BADGE.Lainnya;
     return `<div class="card tint fin-note has-more" style="--c:${abg};--fg:${afg}">
-      ${cardMenuBtn(`<button data-action="editAsset" data-id="${a.aset_id}"><i class="bi bi-pencil"></i> Edit</button><button class="danger" data-action="delAsset" data-id="${a.aset_id}"><i class="bi bi-trash3"></i> Hapus</button>`, a.nama)}
-      <div class="tpl-row d-flex gap-2 align-items-center"><span class="asset-logo" title="${esc(a.jenis)}">${assetBadgeSvg(a, 38)}</span>${st}</div>
+      <div class="tpl-row d-flex gap-2 align-items-center"><span class="asset-logo" title="${esc(a.jenis)}">${assetBadgeSvg(a, 38)}</span>${st}${cardMenuBtn(`<button data-action="editAsset" data-id="${a.aset_id}"><i class="bi bi-pencil"></i> Edit</button><button class="danger" data-action="delAsset" data-id="${a.aset_id}"><i class="bi bi-trash3"></i> Hapus</button>`, a.nama)}</div>
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${i.pct};--size:88px"><div><b>${i.k}</b><small>dari ${i.n} bln</small></div></div>
         <div class="flex-grow-1" style="min-width:0">
