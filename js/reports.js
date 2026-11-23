@@ -54,8 +54,12 @@ function renderReports() {
           <div class="chips rpt-who"><button class="chip-btn ${!u.tblUser ? 'on' : ''}" data-action="tblUser" data-id="">Semua orang</button>${S.users.map(x => `<button class="chip-btn ${u.tblUser === x.user_id ? 'on' : ''}" data-action="tblUser" data-id="${x.user_id}">${avatarHtml(x, 'xs')} ${esc(x.nama)}</button>`).join('')}</div>
           <div class="toolbar-row rpt-filter">
             <label class="search-pill" style="max-width:280px"><i class="bi bi-search"></i><input id="tblSearch" type="search" placeholder="Cari goal / catatan…" value="${esc(u.tblQuery)}" data-input="tblSearch" aria-label="Cari riwayat"></label>
-            <select data-change="tblJenis" aria-label="Jenis goal"><option value="">Semua jenis</option><option ${u.tblJenis === 'Pribadi' ? 'selected' : ''}>Pribadi</option><option ${u.tblJenis === 'Bersama' ? 'selected' : ''}>Bersama</option></select>
-            <select data-change="tblCat" aria-label="Kategori"><option value="">Semua kategori</option>${S.categories.map(c => `<option value="${c.kategori_id}" ${u.tblCat === c.kategori_id ? 'selected' : ''}>${esc(c.nama)}</option>`).join('')}</select>
+            ${(() => { const cats = S.categories.filter(c => c.aktif !== false);
+              window._rfOpts = { rjenis: [['', 'Semua jenis'], ['Pribadi', 'Pribadi'], ['Bersama', 'Bersama']].map(([v, l]) => [v, l, null, (u.tblJenis || '') === v]),
+                rcat: [['', 'Semua kategori']].concat(cats.map(c => [c.kategori_id, c.nama])).map(([v, l]) => [v, l, null, (u.tblCat || '') === v]) };
+              const lj = u.tblJenis || 'Semua jenis', lc = u.tblCat ? ((catById(u.tblCat) || {}).nama || 'Kategori') : 'Semua kategori';
+              return `<button type="button" class="dd-btn ${u.tblJenis ? 'on' : ''}" data-action="hfOpen" data-kind="rjenis" aria-haspopup="menu">${esc(lj)} <i class="bi bi-chevron-down"></i></button>
+            <button type="button" class="dd-btn ${u.tblCat ? 'on' : ''}" data-action="hfOpen" data-kind="rcat" aria-haspopup="menu">${esc(lc)} <i class="bi bi-chevron-down"></i></button>`; })()}
           </div>
         </div>
         <div id="rptTable"></div>

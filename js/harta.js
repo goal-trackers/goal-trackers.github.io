@@ -511,19 +511,25 @@ Object.assign(Inputs, { hartaCalc: debounce(el => hartaPreview(el.form), 150), s
 function closeHfPop() { const m = document.getElementById('hfPop'); if (m) m.remove(); }
 function openHfPop(btn, kind) {
   const was = document.getElementById('hfPop'); closeHfPop(); if (was && was.dataset.kind === kind) return;
-  const opts = (/^g(cat|stat|sort)$/.test(kind) ? window._gfOpts || {} : window._hfOpts || {})[kind]; if (!opts) return;
+  const opts = (/^g(cat|stat|sort)$/.test(kind) ? window._gfOpts || {} : /^r(jenis|cat)$/.test(kind) ? window._rfOpts || {} : window._hfOpts || {})[kind]; if (!opts) return;
   const m = document.createElement('div');
   m.id = 'hfPop'; m.className = 'fin-menu hf-pop'; m.dataset.kind = kind; m.setAttribute('role', 'menu');
-  m.innerHTML = `<div class="hf-pop-h">${{ seri: 'Seri / nama', gram: 'Berat', gcat: 'Kategori', gstat: 'Status', gsort: 'Urutkan' }[kind] || ''}</div>` + opts.map(([v, l, n, on]) => `<button role="menuitemradio" aria-checked="${on}" class="${on ? 'on' : ''}" data-action="hfPick" data-kind="${kind}" data-v="${esc(v)}" ${n || on || n === null ? '' : 'disabled'}><span class="flex-grow-1 text-start">${esc(l)}</span>${n === null ? (on ? '<i class="bi bi-check2"></i>' : '') : `<span class="n">${n}</span>`}</button>`).join('');
+  m.innerHTML = `<div class="hf-pop-h">${{ seri: 'Seri / nama', gram: 'Berat', gcat: 'Kategori', gstat: 'Status', gsort: 'Urutkan', rjenis: 'Jenis goal', rcat: 'Kategori' }[kind] || ''}</div>` + opts.map(([v, l, n, on]) => `<button role="menuitemradio" aria-checked="${on}" class="${on ? 'on' : ''}" data-action="hfPick" data-kind="${kind}" data-v="${esc(v)}" ${n || on || n === null ? '' : 'disabled'}><span class="flex-grow-1 text-start">${esc(l)}</span>${n === null ? (on ? '<i class="bi bi-check2"></i>' : '') : `<span class="n">${n}</span>`}</button>`).join('');
   document.body.appendChild(m);
   const r = btn.getBoundingClientRect(), h = m.offsetHeight, w = m.offsetWidth;
+  if (btn.classList.contains('dd-btn')) {           // dropdown biasa: muncul di bawah tombol
+    m.style.minWidth = Math.max(220, r.width) + 'px';
+    const w2 = m.offsetWidth; let left = r.right - w2; if (left < 8) left = 8;
+    let top = r.bottom + 8; if (top + h > innerHeight - 8) top = Math.max(8, r.top - h - 8);
+    m.style.left = left + 'px'; m.style.top = top + 'px'; return;
+  }
   let left = r.right + 10; if (left + w > innerWidth - 8) left = Math.max(8, r.left - w - 10);
   m.style.left = left + 'px'; m.style.top = Math.max(8, Math.min(innerHeight - h - 8, r.top)) + 'px';
 }
 Object.assign(Actions, {
   btScroll: (d, el) => { const r = el.parentElement.querySelector('.bt-row'); if (r) r.scrollBy({ left: r.clientWidth * .6, behavior: 'smooth' }); },
   hfOpen: (d, el) => openHfPop(el, d.kind),
-  hfPick: d => { closeHfPop(); const gc = { gcat: 'goalCatSel', gstat: 'goalStatus', gsort: 'goalSort' }[d.kind]; if (gc) { Changes[gc]({ value: d.v }); if (d.kind !== 'gcat') renderGoals(); return; } if (d.kind === 'seri') Actions.hartaSeri({ seri: d.v }); else Actions.hartaGram({ gram: d.v }); }
+  hfPick: d => { closeHfPop(); if (d.kind === 'rjenis' || d.kind === 'rcat') { S.ui[d.kind === 'rjenis' ? 'tblJenis' : 'tblCat'] = d.v; S.ui.tblPage = 1; renderReports(); return; } const gc = { gcat: 'goalCatSel', gstat: 'goalStatus', gsort: 'goalSort' }[d.kind]; if (gc) { Changes[gc]({ value: d.v }); if (d.kind !== 'gcat') renderGoals(); return; } if (d.kind === 'seri') Actions.hartaSeri({ seri: d.v }); else Actions.hartaGram({ gram: d.v }); }
 });
 document.addEventListener('click', e => { if (!e.target.closest('#hfPop, [data-action=hfOpen]')) closeHfPop(); }, true);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHfPop(); });

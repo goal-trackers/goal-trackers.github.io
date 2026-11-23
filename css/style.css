@@ -1619,3 +1619,10 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 }
 /* Pencarian di dalam toolbar: hanya satu cincin fokus (pada pil), bukan pada kolom input di dalamnya */
 .search-pill input, .search-pill input:focus, .search-pill input:focus-visible { border: 0 !important; outline: none !important; box-shadow: none !important; background: transparent !important; min-height: 0 !important; padding: 0 !important; border-radius: 0 !important; }
+
+/* Tombol dropdown kustom (membuka menu seperti filter Status) */
+.dd-btn { flex: none; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px 0 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--text); font-weight: 600; font-size: 14px; white-space: nowrap; transition: background .15s; }
+.dd-btn:hover { background: var(--soft); }
+.dd-btn .bi { font-size: 12px; }
+.dd-btn.on { background: #111; color: #fff; border-color: #111; }
+[data-theme="dark"] .dd-btn.on { background: #F2F2F2; color: #111; border-color: #F2F2F2; }
