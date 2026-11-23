@@ -577,7 +577,8 @@ function finRekHtml() {
       ${canEdit(g) ? `<button class="btn btn-soft btn-sm" data-action="rekEdit" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>` : ''}
       ${canDelRek(g) ? `<button class="btn btn-soft btn-sm rek-del" data-action="rekHapus" data-id="${g.goal_id}" aria-label="Hapus ${esc(g.judul)}"><i class="bi bi-trash3"></i> Hapus</button>` : ''}`;
   const cards = list.map(g => { const r = REK_JENIS[rekJenis(g)] || REK_JENIS.Lainnya, x = info(g);
-    return `<div class="card tint fin-note rek-card" style="--c:${r.c}">
+    return `<div class="card tint fin-note rek-card has-more" style="--c:${r.c}">
+      ${cardMenuBtn(btns(g, true), g.judul)}
       <div class="d-flex align-items-center gap-3">
         ${rekIc(rekJenis(g), 52)}
         <div class="flex-grow-1" style="min-width:0">
@@ -586,8 +587,7 @@ function finRekHtml() {
         </div>
       </div>
       <div class="rek-big mt-3">${isUsdRek(g) ? `${fmtUsd(rekUsd(g))}<small class="d-block muted">≈ ${fmtVal(rekRp(g), 'Rp')}${selisih(g)}</small>` : fmtVal(g.nilai_saat_ini, 'Rp')}</div>
-      <p class="tiny muted mt-2 mb-3"><i class="bi bi-arrow-return-right"></i> ${x.linked.length ? `${x.linked.length} investasi mengirim kupon · ±${fmtShort(x.perBulan, 'Rp')}/bln` : 'Belum ada kupon yang diarahkan ke sini'}</p>
-      <div class="plan-acts">${btns(g, true)}</div>
+      <p class="tiny muted mt-2 mb-0"><i class="bi bi-arrow-return-right"></i> ${x.linked.length ? `${x.linked.length} investasi mengirim kupon · ±${fmtShort(x.perBulan, 'Rp')}/bln` : 'Belum ada kupon yang diarahkan ke sini'}</p>
     </div>`; });
   const rows = list.map(g => { const x = info(g);
     return `<div class="rek-row">
@@ -1350,3 +1350,24 @@ try {
 } catch (e) {
   window.__gtFail && window.__gtFail(e);
 }
+
+/* ═════════ Menu ⋯ di pojok kartu (popover menempel pada tombol) ═════════ */
+function cardMenuBtn(itemsHtml, label) {
+  return `<button type="button" class="card-more" data-action="cardMenu" aria-haspopup="menu" aria-label="Opsi ${esc(label || '')}" title="Opsi"><i class="bi bi-three-dots"></i></button><template class="cm-items">${itemsHtml}</template>`;
+}
+function closeCardMenu() { const m = document.getElementById('cardMenu'); if (m) { if (m._btn) m._btn.setAttribute('aria-expanded', 'false'); m.remove(); } }
+Actions.cardMenu = (d, el) => {
+  const was = document.getElementById('cardMenu'); const same = was && was._btn === el; closeCardMenu(); if (same) return;
+  const tpl = el.parentElement.querySelector(':scope > template.cm-items'); if (!tpl) return;
+  const m = document.createElement('div'); m.id = 'cardMenu'; m.className = 'fin-menu card-menu'; m.setAttribute('role', 'menu'); m._btn = el;
+  m.innerHTML = tpl.innerHTML;
+  m.querySelectorAll('button').forEach(b => { b.className = (b.className.includes('rek-del') || b.className.includes('danger') ? 'danger ' : '') + 'cm-item'; b.setAttribute('role', 'menuitem'); });
+  document.body.appendChild(m); el.setAttribute('aria-expanded', 'true');
+  const r = el.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight;
+  let left = r.right - w; if (left < 8) left = 8;
+  let top = r.bottom + 8; if (top + h > innerHeight - 8) top = Math.max(8, r.top - h - 8);
+  m.style.left = left + 'px'; m.style.top = top + 'px';
+};
+document.addEventListener('click', e => { if (!document.getElementById('cardMenu') || e.target.closest('[data-action=cardMenu]')) return; setTimeout(closeCardMenu, 0); }, true);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCardMenu(); });
+window.addEventListener('scroll', closeCardMenu, true); window.addEventListener('resize', closeCardMenu);
