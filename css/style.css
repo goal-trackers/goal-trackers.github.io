@@ -1593,3 +1593,6 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .loan-grid { display: grid; grid-template-columns: 88px minmax(0,1fr); column-gap: 16px; row-gap: 10px; align-items: center; }
 .loan-st { display: flex; justify-content: center; }
 .loan-pk { min-width: 0; }
+
+@media (max-width: 767px) { .rep-tools { justify-content: flex-start !important; } }
+@media (min-width: 768px) { #page-reports .page-head { flex-wrap: nowrap; align-items: center; } .rep-tools { flex-wrap: nowrap !important; flex: none; } }

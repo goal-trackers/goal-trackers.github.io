@@ -27,19 +27,17 @@ function renderReports() {
   const years = Array.from(new Set([today().slice(0, 4)].concat(S.logs.map(l => l.tanggal.slice(0, 4))))).sort().reverse();
   $('#page-reports').innerHTML = `
     <div class="page-head"><div><p class="eyebrow">Rekap ${esc(label)}</p><h1>Laporan <span class="h-ic" style="--c:#CFF2D6" aria-hidden="true"><i class="bi bi-bar-chart-line"></i></span></h1></div>
-      <div class="d-flex gap-2 flex-wrap">
+      <div class="d-flex gap-2 flex-wrap align-items-center justify-content-end rep-tools">
+        <div class="seg" style="min-width:200px">
+          <label><input type="radio" name="rmode" value="bulan" data-change="reportMode" ${u.reportMode === 'bulan' ? 'checked' : ''}><span>Bulanan</span></label>
+          <label><input type="radio" name="rmode" value="tahun" data-change="reportMode" ${u.reportMode === 'tahun' ? 'checked' : ''}><span>Tahunan</span></label>
+        </div>
+        ${u.reportMode === 'bulan'
+      ? `<input class="input" style="max-width:190px;min-height:44px" type="month" value="${u.reportMonth}" max="${today().slice(0, 7)}" data-change="reportMonth" aria-label="Pilih bulan">`
+      : `<select class="input" style="max-width:130px;min-height:44px" data-change="reportYear" aria-label="Pilih tahun">${years.map(y => `<option ${y === u.reportYear ? 'selected' : ''}>${y}</option>`).join('')}</select>`}
         <button class="btn btn-soft btn-sm" data-action="exportXlsx"><i class="bi bi-file-earmark-excel"></i> Excel</button>
         <button class="btn btn-dark btn-sm" data-action="exportPdf"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
       </div></div>
-    <div class="toolbar-row mb-3">
-      <div class="seg" style="min-width:240px">
-        <label><input type="radio" name="rmode" value="bulan" data-change="reportMode" ${u.reportMode === 'bulan' ? 'checked' : ''}><span>Bulanan</span></label>
-        <label><input type="radio" name="rmode" value="tahun" data-change="reportMode" ${u.reportMode === 'tahun' ? 'checked' : ''}><span>Tahunan</span></label>
-      </div>
-      ${u.reportMode === 'bulan'
-      ? `<input class="input" style="max-width:200px;min-height:44px" type="month" value="${u.reportMonth}" max="${today().slice(0, 7)}" data-change="reportMonth" aria-label="Pilih bulan">`
-      : `<select class="input" style="max-width:160px;min-height:44px" data-change="reportYear" aria-label="Pilih tahun">${years.map(y => `<option ${y === u.reportYear ? 'selected' : ''}>${y}</option>`).join('')}</select>`}
-    </div>
     <div class="stats mb-3">
       <div class="stat tint" style="--c:#D5F0F7"><b>${logs.length}</b><span>Catatan progres</span></div>
       <div class="stat tint" style="--c:#FFE1C7"><b>${fmtShort(saved, 'Rp')}</b><span>Tabungan periode ini</span></div>
