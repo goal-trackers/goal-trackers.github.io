@@ -50,13 +50,13 @@ function renderReports() {
       <div class="card"><h3>Target Bersama <span class="muted tiny">kontribusi % dari target</span></h3><div class="chart-box"><canvas id="chShared" role="img" aria-label="Grafik kontribusi target bersama"></canvas></div></div>
       <div class="card span2 span3">
         <h3>Riwayat Progres <span class="muted tiny">${esc(label)}</span></h3>
-        <div class="toolbar">
-          <div class="toolbar-row">
+        <div class="toolbar rpt-bar">
+          <div class="chips rpt-who"><button class="chip-btn ${!u.tblUser ? 'on' : ''}" data-action="tblUser" data-id="">Semua orang</button>${S.users.map(x => `<button class="chip-btn ${u.tblUser === x.user_id ? 'on' : ''}" data-action="tblUser" data-id="${x.user_id}">${avatarHtml(x, 'xs')} ${esc(x.nama)}</button>`).join('')}</div>
+          <div class="toolbar-row rpt-filter">
             <label class="search-pill" style="max-width:280px"><i class="bi bi-search"></i><input id="tblSearch" type="search" placeholder="Cari goal / catatan…" value="${esc(u.tblQuery)}" data-input="tblSearch" aria-label="Cari riwayat"></label>
             <select data-change="tblJenis" aria-label="Jenis goal"><option value="">Semua jenis</option><option ${u.tblJenis === 'Pribadi' ? 'selected' : ''}>Pribadi</option><option ${u.tblJenis === 'Bersama' ? 'selected' : ''}>Bersama</option></select>
             <select data-change="tblCat" aria-label="Kategori"><option value="">Semua kategori</option>${S.categories.map(c => `<option value="${c.kategori_id}" ${u.tblCat === c.kategori_id ? 'selected' : ''}>${esc(c.nama)}</option>`).join('')}</select>
           </div>
-          <div class="chips"><button class="chip-btn ${!u.tblUser ? 'on' : ''}" data-action="tblUser" data-id="">Semua orang</button>${S.users.map(x => `<button class="chip-btn ${u.tblUser === x.user_id ? 'on' : ''}" data-action="tblUser" data-id="${x.user_id}">${avatarHtml(x, 'xs')} ${esc(x.nama)}</button>`).join('')}</div>
         </div>
         <div id="rptTable"></div>
       </div>
