@@ -1588,3 +1588,8 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 /* Tombol ⋯ sebaris dengan pil/logo di baris atas kartu */
 .tpl-row > .card-more { position: static; margin-left: auto; flex: none; }
 .has-more .tpl-row { padding-right: 0 !important; align-items: center; }
+
+/* Kartu pinjaman: status tepat di bawah lingkaran, sebaris dengan nominal pokok */
+.loan-grid { display: grid; grid-template-columns: 88px minmax(0,1fr); column-gap: 16px; row-gap: 10px; align-items: center; }
+.loan-st { display: flex; justify-content: center; }
+.loan-pk { min-width: 0; }
