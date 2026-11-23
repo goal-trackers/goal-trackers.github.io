@@ -1603,3 +1603,17 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .rpt-bar .rpt-filter { margin: 0 0 0 auto; justify-content: flex-end; flex-wrap: wrap; }
 @media (max-width: 767px) { .rpt-bar .rpt-filter { margin-left: 0; justify-content: flex-start; } }
 .toolbar.rpt-bar { flex-direction: row; }
+/* Riwayat Progres: pencarian + 2 filter selalu sebaris (pencarian yang menyesuaikan lebar) */
+@media (min-width: 768px) {
+  .toolbar.rpt-bar { flex-wrap: nowrap; }
+  .rpt-bar .rpt-who { flex: 0 1 auto; min-width: 0; }
+  .rpt-bar .rpt-filter { flex: 1 1 auto; flex-wrap: nowrap !important; min-width: 0; }
+  .rpt-bar .rpt-filter .search-pill { flex: 1 1 140px; min-width: 120px; max-width: 280px !important; }
+  .rpt-bar .rpt-filter select { flex: none; width: auto; }
+}
+@media (min-width: 768px) {
+  .toolbar.rpt-bar { flex-wrap: wrap; }
+  .rpt-bar .rpt-who { flex: none; flex-wrap: nowrap; }
+  .rpt-bar .rpt-filter { flex: 1 1 420px; }
+  .rpt-bar .rpt-filter .search-pill { min-width: 160px; }
+}
