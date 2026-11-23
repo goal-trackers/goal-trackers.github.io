@@ -724,11 +724,11 @@ function finAssetsHtml() {
     const [afg, abg] = ASSET_BADGE[a.jenis] || ASSET_BADGE.Lainnya;
     return `<div class="card tint fin-note has-more" style="--c:${abg};--fg:${afg}">
       ${cardMenuBtn(`<button data-action="editAsset" data-id="${a.aset_id}"><i class="bi bi-pencil"></i> Edit</button><button class="danger" data-action="delAsset" data-id="${a.aset_id}"><i class="bi bi-trash3"></i> Hapus</button>`, a.nama)}
+      <div class="tpl-row d-flex gap-2 align-items-center"><span class="asset-logo" title="${esc(a.jenis)}">${assetBadgeSvg(a, 38)}</span>${st}</div>
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${i.pct};--size:88px"><div><b>${i.k}</b><small>dari ${i.n} bln</small></div></div>
         <div class="flex-grow-1" style="min-width:0">
-          <div class="d-flex gap-2 align-items-center flex-wrap"><span class="asset-logo" title="${esc(a.jenis)}">${assetBadgeSvg(a, 38)}</span>${st}</div>
-          <div style="font-size:18px;font-weight:800" class="mt-1">${esc(a.nama)}</div>
+          <div style="font-size:18px;font-weight:800">${esc(a.nama)}</div>
           <div class="tiny muted">${esc(ownerName(a.pemilik_id))} · kupon ${fmtN(a.kupon_persen)}%/thn · pajak ${fmtN(a.pajak_persen)}%</div>
           <div class="mt-1"><b>${nomText(a)}</b></div>
         </div>
