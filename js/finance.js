@@ -760,14 +760,13 @@ function finLoansHtml() {
   const cards = list.map(l => {
     const i = loanInfo(l);
     return `<div class="card tint fin-note has-more" style="--c:#E8D3F5;--fg:#7E3FB3">
-      ${cardMenuBtn(`${!i.done ? `<button data-action="loanLunas" data-id="${l.pinjaman_id}"><i class="bi bi-check2-circle"></i> Tandai lunas</button>` : ''}<button data-action="editLoan" data-id="${l.pinjaman_id}"><i class="bi bi-pencil"></i> Edit</button><button class="danger" data-action="delLoan" data-id="${l.pinjaman_id}"><i class="bi bi-trash3"></i> Hapus</button>`, l.nama)}
+      <div class="tpl-row d-flex gap-2 align-items-center"><span class="chip tint" style="--c:#E8D3F5">${esc(l.pemberi)}</span>${cardMenuBtn(`${!i.done ? `<button data-action="loanLunas" data-id="${l.pinjaman_id}"><i class="bi bi-check2-circle"></i> Tandai lunas</button>` : ''}<button data-action="editLoan" data-id="${l.pinjaman_id}"><i class="bi bi-pencil"></i> Edit</button><button class="danger" data-action="delLoan" data-id="${l.pinjaman_id}"><i class="bi bi-trash3"></i> Hapus</button>`, l.nama)}</div>
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${i.pct};--size:88px"><div><b>${i.k}</b><small>dari ${i.n} bln</small></div></div>
         <div class="flex-grow-1" style="min-width:0">
-          <div class="d-flex gap-2 align-items-center flex-wrap"><span class="chip tint" style="--c:#E8D3F5">${esc(l.pemberi)}</span>${i.done ? '<span class="badge-s s-done">Lunas 🎉</span>' : '<span class="badge-s s-active">Berjalan</span>'}</div>
-          <div style="font-size:18px;font-weight:800" class="mt-1">${esc(l.nama)}</div>
+          <div style="font-size:18px;font-weight:800">${esc(l.nama)}</div>
           <div class="tiny muted">${esc(ownerName(l.pemilik_id))} · ${esc(l.metode)}${Number(l.bunga_persen) ? ' ' + fmtN(l.bunga_persen) + '%/thn' : ''} · potong tgl ${esc(l.tgl_potong)}</div>
-          <div class="mt-1"><b>${fmtVal(l.pokok, 'Rp')}</b> <span class="muted tiny">pokok</span></div>
+          <div class="mt-2 d-flex align-items-center gap-2 flex-wrap"><span><b>${fmtVal(l.pokok, 'Rp')}</b> <span class="muted tiny">pokok</span></span>${i.done ? '<span class="badge-s s-done">Lunas 🎉</span>' : '<span class="badge-s s-active">Berjalan</span>'}</div>
         </div>
       </div>
       <div class="kv mt-3">
