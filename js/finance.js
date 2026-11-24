@@ -1476,7 +1476,7 @@ function itinTabsSync_() {
 new MutationObserver(() => itinTabsSync_()).observe(document.body, { childList: true, subtree: true });
 
 /* ═════════ Persiapan perjalanan (tiket, hotel, rental) — tugas bercentang, disimpan di meta.prep ═════════ */
-const PREP_JENIS = [['pesawat', 'Tiket pesawat', 'bi-airplane', 'Sudah dibeli'], ['kereta', 'Tiket kereta/bus', 'bi-train-front', 'Sudah dibeli'], ['hotel', 'Hotel', 'bi-building', 'Sudah dibooking'], ['mobil', 'Rental mobil', 'bi-car-front', 'Sudah dibooking'], ['lain', 'Lainnya', 'bi-check2-square', 'Sudah beres']];
+const PREP_JENIS = [['pesawat', 'Tiket pesawat', 'bi-airplane', 'Sudah dibeli'], ['kereta', 'Tiket kereta/bus', 'bi-train-front', 'Sudah dibeli'], ['travel', 'Mobil travel', 'bi-car-front-fill', 'Sudah dibooking'], ['hotel', 'Hotel', 'bi-building', 'Sudah dibooking'], ['mobil', 'Rental mobil', 'bi-car-front', 'Sudah dibooking'], ['lain', 'Lainnya', 'bi-check2-square', 'Sudah beres']];
 const prepOf = g => { const a = parseMeta(g.meta).prep; return Array.isArray(a) ? a : []; };
 const prepKind = k => PREP_JENIS.find(x => x[0] === k) || PREP_JENIS[PREP_JENIS.length - 1];
 function prepSave_(g, list) {
