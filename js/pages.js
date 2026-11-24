@@ -349,7 +349,6 @@ function renderDetail() {
           <span class="muted tiny">${targetText(g) ? 'dari ' + fmtVal(g.nilai_target, g.satuan) + ' · ' : ''}${fmtDate(g.tgl_mulai)} – ${fmtDate(g.tenggat)}</span></div>
         <div class="hero-actions">
         ${canLog(g) && !checklist ? `<button class="btn btn-dark" data-action="logProgress" data-id="${g.goal_id}"><i class="bi bi-plus-lg"></i> Catat Progres</button>` : ''}
-        ${edit ? `<button class="btn btn-soft" data-action="editGoal" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>` : ''}
         ${edit ? `<button class="icon-btn" style="background:var(--card)" data-action="goalMore" data-id="${g.goal_id}" aria-label="Opsi lainnya"><i class="bi bi-three-dots"></i></button>` : ''}
       </div>
         </div>
