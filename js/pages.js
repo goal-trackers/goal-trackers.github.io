@@ -361,7 +361,7 @@ function renderDetail() {
       if (typeof isLiburan_ === 'function' && isLiburan_(g)) {
         // Itinerary di kolom sendiri: panjangnya tidak menarik tinggi kartu lain
         return `<div class="detail-grid dg-itin">
-      <div class="dg-main">${ringkas}${msCard}<div class="dg-rest">${reactCard}${extraDetailCards(g)}${riwayat}</div></div>
+      <div class="dg-main">${ringkas}${msCard}<div class="dg-rest">${prepCardHtml(g)}${reactCard}${extraDetailCards(g)}${riwayat}</div></div>
       ${itinCardHtml(g)}
     </div>`;
       }

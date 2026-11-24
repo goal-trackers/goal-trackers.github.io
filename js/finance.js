@@ -1474,3 +1474,68 @@ function itinTabsSync_() {
   });
 }
 new MutationObserver(() => itinTabsSync_()).observe(document.body, { childList: true, subtree: true });
+
+/* ═════════ Persiapan perjalanan (tiket, hotel, rental) — tugas bercentang, disimpan di meta.prep ═════════ */
+const PREP_JENIS = [['pesawat', 'Tiket pesawat', 'bi-airplane', 'Sudah dibeli'], ['kereta', 'Tiket kereta/bus', 'bi-train-front', 'Sudah dibeli'], ['hotel', 'Hotel', 'bi-building', 'Sudah dibooking'], ['mobil', 'Rental mobil', 'bi-car-front', 'Sudah dibooking'], ['lain', 'Lainnya', 'bi-check2-square', 'Sudah beres']];
+const prepOf = g => { const a = parseMeta(g.meta).prep; return Array.isArray(a) ? a : []; };
+const prepKind = k => PREP_JENIS.find(x => x[0] === k) || PREP_JENIS[PREP_JENIS.length - 1];
+function prepSave_(g, list) {
+  const m = parseMeta(g.meta); if (list.length) m.prep = list; else delete m.prep;
+  g.meta = JSON.stringify(m); g.diubah_pada = nowIso();
+  saveSnapshot(); keepScroll(renderAll); Outbox.push('saveGoal', goalSaveArgs_(g));
+}
+function prepWhen_(p) {
+  const f = (s, y) => { const d = new Date(s + 'T00:00:00'); return isNaN(d) ? '' : d.toLocaleDateString('id-ID', y ? { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' } : { weekday: 'short', day: 'numeric', month: 'short' }); };
+  if (!p.d1) return '';
+  if (!p.d2 || p.d2 === p.d1) return f(p.d1, true) + (p.j ? ' · ' + p.j.replace(':', '.') : '');
+  const n = Math.round((new Date(p.d2 + 'T00:00:00') - new Date(p.d1 + 'T00:00:00')) / 864e5);
+  return `${f(p.d1)} – ${f(p.d2, true)}${n > 0 ? ` · ${n} ${p.k === 'hotel' ? 'malam' : 'hari'}` : ''}`;
+}
+function prepCardHtml(g) {
+  const list = prepOf(g), ed = canEdit(g) && g.status !== 'Arsip';
+  const rows = list.map((p, i) => ({ p, i })).sort((a, b) => String(a.p.d1 || '9').localeCompare(String(b.p.d1 || '9')) || String(a.p.j || '').localeCompare(String(b.p.j || '')));
+  const done = list.filter(p => p.ok).length;
+  return `<div class="card prep-card">
+    <div class="d-flex justify-content-between align-items-center gap-2 mb-1"><h3 class="mb-0">🎫 Persiapan</h3><span class="muted tiny fw-bold">${done}/${list.length}</span></div>
+    <p class="tiny muted mb-2">Tiket, hotel, dan rental yang perlu dibeli atau dibooking.</p>
+    ${list.length ? `<div class="exp-bar mb-2" role="img" aria-label="${done} dari ${list.length} beres"><span style="width:${Math.round(done / list.length * 100)}%;background:var(--green-ink,#1B7F3A)"></span></div>` : ''}
+    <ul class="prep-list">${rows.map(({ p, i }) => { const k = prepKind(p.k);
+      return `<li class="${p.ok ? 'done' : ''}">
+        <button class="prep-chk" ${ed ? `data-action="prepToggle" data-id="${g.goal_id}" data-i="${i}"` : 'disabled'} aria-pressed="${!!p.ok}" aria-label="${p.ok ? 'Tandai belum' : 'Tandai sudah'}"><i class="bi bi-check-lg"></i></button>
+        <div class="prep-body" ${ed ? `data-action="prepEdit" data-id="${g.goal_id}" data-i="${i}" role="button" tabindex="0"` : ''}>
+          <div class="prep-t"><i class="bi ${k[2]}"></i><b>${esc(p.n || k[1])}</b>${p.r ? `<span class="muted"> · ${esc(p.r)}</span>` : ''}</div>
+          ${prepWhen_(p) ? `<div class="tiny muted">${esc(prepWhen_(p))}</div>` : ''}
+        </div>
+        <span class="prep-st ${p.ok ? 'ok' : ''}">${p.ok ? k[3] : 'Belum'}</span>
+      </li>`; }).join('') || '<li class="prep-empty tiny muted">Belum ada. Contoh: tiket pesawat Bpp → Sby, hotel, rental mobil.</li>'}</ul>
+    ${ed ? `<button class="itin-add mt-2" data-action="prepEdit" data-id="${g.goal_id}"><i class="bi bi-plus-lg"></i> Tambah persiapan</button>` : ''}
+  </div>`;
+}
+Object.assign(Actions, {
+  prepToggle: d => { const g = goalById(d.id); if (!g) return; const list = prepOf(g), p = list[Number(d.i)]; if (!p) return;
+    p.ok = !p.ok; if (p.ok) p.at = today(); else delete p.at; prepSave_(g, list); toast(p.ok ? `${prepKind(p.k)[3]} ✅` : 'Ditandai belum'); },
+  prepEdit: d => { const g = goalById(d.id); if (!g) return; const i = d.i !== undefined && d.i !== '' ? Number(d.i) : -1, p = i >= 0 ? prepOf(g)[i] || {} : { d1: g.tgl_pelaksanaan || '' };
+    openSheet(`${i >= 0 ? 'Ubah' : 'Tambah'} Persiapan`, `<form data-form="prepSave" novalidate><input type="hidden" name="goal_id" value="${g.goal_id}"><input type="hidden" name="i" value="${i}">
+      <div class="field"><span>Jenis</span><div class="itin-kinds">${PREP_JENIS.map(([v, l, ic]) => `<label><input type="radio" name="k" value="${v}" ${(p.k || 'pesawat') === v ? 'checked' : ''}><span><i class="bi ${ic}"></i> ${l}</span></label>`).join('')}</div></div>
+      <label class="field"><span>Nama / keterangan</span><input name="n" maxlength="80" value="${esc(p.n || '')}" placeholder="Contoh: Pelita Air, Hotel 1979, Rental Avanza"></label>
+      <label class="field"><span>Tujuan / rute <small>(opsional)</small></span><input name="r" maxlength="60" value="${esc(p.r || '')}" placeholder="Contoh: Bpp → Sby, Kota Batu"></label>
+      <div class="d-flex gap-2"><label class="field flex-grow-1"><span>Tanggal</span><input name="d1" type="date" value="${esc(p.d1 || '')}"></label>
+        <label class="field flex-grow-1"><span>s/d <small>(opsional)</small></span><input name="d2" type="date" value="${esc(p.d2 || '')}"></label></div>
+      <label class="field" style="max-width:160px"><span>Jam <small>(opsional)</small></span><input name="j" type="time" value="${esc(p.j || '')}"></label>
+      <label class="check-row mt-1"><input type="checkbox" name="ok" ${p.ok ? 'checked' : ''}> <span>Sudah dibeli / dibooking</span></label>
+      <em class="field-err"></em>
+      <div class="d-flex gap-2 mt-2">${i >= 0 ? `<button type="button" class="btn btn-soft" data-action="prepDel" data-id="${g.goal_id}" data-i="${i}"><i class="bi bi-trash3"></i> Hapus</button>` : ''}<button class="btn btn-dark flex-grow-1" type="submit">Simpan</button></div></form>`); },
+  prepDel: d => { const g = goalById(d.id); if (!g) return; const list = prepOf(g); list.splice(Number(d.i), 1); closeSheet(); prepSave_(g, list); toast('Persiapan dihapus'); }
+});
+Object.assign(Forms, {
+  prepSave: f => { const g = goalById(f.goal_id.value); if (!g) return; const list = prepOf(g), i = Number(f.i.value);
+    const k = (f.querySelector('[name=k]:checked') || {}).value || 'lain';
+    const p = { k, n: f.n.value.trim().slice(0, 80), r: f.r.value.trim().slice(0, 60), d1: f.d1.value, d2: f.d2.value, j: f.j.value, ok: f.ok.checked };
+    if (!p.n && !p.d1) { f.querySelector('.field-err').textContent = 'Isi nama atau tanggalnya.'; f.n.focus(); return; }
+    if (p.d1 && p.d2 && p.d2 < p.d1) { f.querySelector('.field-err').textContent = 'Tanggal s/d tidak boleh sebelum tanggal mulai.'; return; }
+    const old = i >= 0 ? list[i] || {} : {};
+    if (p.ok) p.at = old.at || today();
+    Object.keys(p).forEach(x => { if (!p[x]) delete p[x]; });
+    if (i >= 0) list[i] = p; else list.push(p);
+    closeSheet(); prepSave_(g, list); toast(i >= 0 ? 'Persiapan diperbarui' : 'Persiapan ditambahkan 🎫'); }
+});
