@@ -1367,3 +1367,15 @@ Actions.cardMenu = (d, el) => {
 document.addEventListener('click', e => { if (!document.getElementById('cardMenu') || e.target.closest('[data-action=cardMenu]')) return; setTimeout(closeCardMenu, 0); }, true);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCardMenu(); });
 window.addEventListener('scroll', closeCardMenu, true); window.addEventListener('resize', closeCardMenu);
+
+Forms.addTask = form => {
+  const g = goalById(form.goal_id.value); if (!g) return;
+  const names = String(form.judul.value || '').split(/\n+/).map(x => x.trim()).filter(Boolean).slice(0, 20);
+  if (!names.length) { const e = form.querySelector('.field-err'); if (e) e.textContent = 'Tulis nama tugas dulu.'; form.judul.focus(); return; }
+  const cur = msOf(g.goal_id), start = cur.length;
+  names.forEach((t, i) => S.milestones.push({ milestone_id: uid(), goal_id: g.goal_id, judul: t.slice(0, 120), nilai_target: 0, urutan: start + i + 1, status: 'Belum', tgl_selesai: '' }));
+  g.diubah_pada = nowIso();
+  syncStatusLocal(g); saveSnapshot(); closeSheet(); renderAll();
+  toast(names.length > 1 ? `${names.length} tugas ditambahkan ✅` : 'Tugas ditambahkan ✅');
+  Outbox.push('saveGoal', goalSaveArgs_(g));
+};

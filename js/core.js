@@ -550,7 +550,7 @@ function goalCard(g, o = {}) {
     : `<span class="gc-corner" style="--c:${esc(color)}"><i class="bi ${esc(goalIcon(g))}"></i></span>`;
   const owner = g.jenis === 'Bersama' ? 'Bersama' : esc(userById(g.pemilik_id).nama);
   const logBtn = canLog(g)
-    ? `<button class="icon-btn sm" data-action="${g.tipe_target === 'Checklist' ? 'checkProgress' : 'logProgress'}" data-id="${g.goal_id}" aria-label="Catat progres ${esc(g.judul)}"><i class="bi bi-plus-lg"></i></button>` : '';
+    ? `<button class="icon-btn sm" data-action="${g.tipe_target === 'Checklist' ? 'addTask' : 'logProgress'}" data-id="${g.goal_id}" aria-label="${g.tipe_target === 'Checklist' ? 'Tambah tugas ke' : 'Catat progres'} ${esc(g.judul)}" title="${g.tipe_target === 'Checklist' ? 'Tambah tugas' : 'Catat progres'}"><i class="bi bi-plus-lg"></i></button>` : '';
   return `<article class="gcard tint${o.featured ? ' featured' : ''}" style="--c:${esc(color)}" data-id="${g.goal_id}" aria-label="${esc(g.judul)}">
     ${corner}
     ${o.featured ? '<span class="fx-note" aria-hidden="true">✨</span>' : ''}

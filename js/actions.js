@@ -259,6 +259,18 @@ const Actions = {
   newGoal: d => openGoalForm(null, { jenis: d.jenis, tipe: d.tipe, tpl: d.tpl }),
   editGoal: d => { const g = goalById(d.id); if (g) openGoalForm(g); },
   logProgress: d => openProgressForm(d.id, d.tipe),
+  /* Tambah tugas baru ke goal checklist langsung dari kartu */
+  addTask: d => {
+    const g = goalById(d.id); if (!g) return;
+    if (!canEdit(g)) return toast('Hanya pemilik goal yang bisa menambah tugas.', 'error');
+    const n = msOf(g.goal_id).length;
+    openSheet('Tambah Tugas ➕', `<form data-form="addTask" novalidate><input type="hidden" name="goal_id" value="${g.goal_id}">
+      <div class="row-item mb-3" style="box-shadow:none;background:var(--soft)"><span class="ic tint" style="--c:${esc(goalColor(g))}"><i class="bi ${esc(catById(g.kategori_id).ikon || 'bi-check2-square')}"></i></span><div class="flex-grow-1" style="min-width:0"><b>${esc(g.judul)}</b><div class="tiny muted">${n} tugas saat ini</div></div></div>
+      <label class="field"><span>Nama tugas</span><textarea name="judul" rows="2" maxlength="600" placeholder="Contoh: Lemari pakaian" required></textarea><em class="field-err"></em></label>
+      <p class="tiny muted mt-1 mb-3">Bisa beberapa sekaligus — pisahkan dengan baris baru.</p>
+      <button class="btn btn-dark w-100" type="submit"><i class="bi bi-plus-lg"></i> Tambahkan</button></form>`);
+    setTimeout(() => { const i = $('#sheet [name=judul]'); if (i) i.focus(); }, 80);
+  },
   /* Catat progres goal checklist: centang tugas langsung dari lembar ini */
   checkProgress: d => {
     const g = goalById(d.id); if (!g) return;
