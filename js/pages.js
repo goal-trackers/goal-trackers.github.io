@@ -363,14 +363,19 @@ function renderDetail() {
         ${edit ? `<button class="icon-btn" style="background:var(--card)" data-action="goalMore" data-id="${g.goal_id}" aria-label="Opsi lainnya"><i class="bi bi-three-dots"></i></button>` : ''}
       </div>
     </div>
-    <div class="detail-grid">
-      <div class="card"><h3>Ringkasan</h3><div class="kv">${kv}</div></div>
-      <div class="card"><h3>${checklist ? 'Daftar Tugas' : 'Milestone'} <span class="muted tiny">${ms.filter(m => m.status === 'Selesai').length}/${ms.length}</span></h3>${msHtml}</div>
-      ${typeof isLiburan_ === 'function' && isLiburan_(g)
-        ? `${itinCardHtml(g)}${reactCard}${extraDetailCards(g)}${contrib}`
-        : `${contrib || reactCard}${contrib ? reactCard : ''}${extraDetailCards(g)}`}
-      <div class="card span3 span2"><h3>Riwayat Progres <span class="muted tiny">${logs.length} catatan</span></h3>${logHtml}</div>
+    ${(() => {
+      const ringkas = `<div class="card"><h3>Ringkasan</h3><div class="kv">${kv}</div></div>`;
+      const msCard = `<div class="card"><h3>${checklist ? 'Daftar Tugas' : 'Milestone'} <span class="muted tiny">${ms.filter(m => m.status === 'Selesai').length}/${ms.length}</span></h3>${msHtml}</div>`;
+      const riwayat = `<div class="card span3 span2 dg-log"><h3>Riwayat Progres <span class="muted tiny">${logs.length} catatan</span></h3>${logHtml}</div>`;
+      if (typeof isLiburan_ === 'function' && isLiburan_(g)) {
+        // Itinerary di kolom sendiri: panjangnya tidak menarik tinggi kartu lain
+        return `<div class="detail-grid dg-itin">
+      <div class="dg-main">${ringkas}${msCard}<div class="dg-rest">${reactCard}${extraDetailCards(g)}${contrib}${riwayat}</div></div>
+      ${itinCardHtml(g)}
     </div>`;
+      }
+      return `<div class="detail-grid">${ringkas}${msCard}${contrib || reactCard}${contrib ? reactCard : ''}${extraDetailCards(g)}${riwayat}</div>`;
+    })()}`;
 }
 
 // ============================================================

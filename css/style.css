@@ -1704,5 +1704,17 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .itin-tabs { scroll-behavior: auto !important; scroll-snap-type: none !important; }
 
 /* Itinerary mengisi kolom kanan setinggi dua baris kartu */
-@media (min-width: 1024px) { .detail-grid .itin-tall { grid-column: 3; grid-row: span 2; } }
-@media (min-width: 1024px) { .detail-grid { grid-auto-flow: row dense; } }
+/* Liburan: kolom kiri (2 kolom) dan itinerary (kolom kanan) mengalir sendiri-sendiri */
+.dg-itin .dg-main, .dg-itin .dg-rest { display: contents; }
+@media (max-width: 1023.98px) {
+  .dg-itin .dg-main > .card { order: 0; }
+  .dg-itin .itin-card { order: 1; }
+  .dg-itin .dg-rest > * { order: 2; }
+  .dg-itin .dg-log { order: 3; }
+}
+@media (min-width: 1024px) {
+  .dg-itin { align-items: start; }
+  .dg-itin .dg-main { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; grid-column: 1 / span 2; grid-row: 1; align-items: stretch; }
+  .dg-itin .dg-main .span3, .dg-itin .dg-main .span2 { grid-column: span 2; }
+  .dg-itin .itin-card { grid-column: 3; grid-row: 1; align-self: start; }
+}
