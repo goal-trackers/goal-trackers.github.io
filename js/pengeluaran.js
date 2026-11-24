@@ -84,7 +84,8 @@ function pengeluaranCardHtml(g) {
     <div class="tiny muted mt-1">${fmtN(Math.round(a.pct))}% anggaran terpakai</div>
     ${verdict}
     ${kats.length ? `<div class="exp-kats mt-3">${kats.map(k => `<span class="chip tint" style="--c:${pkLook(k).c}">${pkLook(k).e} ${esc(k)} · <b>${fmtShort(byKat[k], 'Rp')}</b></span>`).join('')}</div>` : ''}
-    ${rows ? `<div class="exp-list mt-3">${rows}</div>` : `<p class="tiny muted mt-3 mb-0">${pkProfile(g) === 'pendidikan' ? 'Belum ada pembayaran. Catat uang semester, les, ngaji, buku, dll. supaya terlihat sisa dananya.' : pkProfile(g) === 'liburan' ? 'Belum ada pengeluaran. Catat tiket, hotel, makan, oleh-oleh, dll. supaya setelah liburan terlihat hemat atau lebih.' : 'Belum ada catatan. Catat setiap pemakaian dana supaya terlihat sisanya.'}</p>`}
+    ${rows ? `<button class="exp-toggle mt-3 ${(S.ui.expOpen || {})[g.goal_id] ? 'open' : ''}" data-action="expToggle" data-id="${g.goal_id}" aria-expanded="${(S.ui.expOpen || {})[g.goal_id] ? 'true' : 'false'}"><span>${(S.ui.expOpen || {})[g.goal_id] ? 'Sembunyikan detail' : 'Lihat detail'} <span class="muted">(${a.list.length} catatan)</span></span><i class="bi bi-chevron-down"></i></button>
+    <div class="exp-list mt-2" ${(S.ui.expOpen || {})[g.goal_id] ? '' : 'hidden'}>${rows}</div>` : `<p class="tiny muted mt-3 mb-0">${pkProfile(g) === 'pendidikan' ? 'Belum ada pembayaran. Catat uang semester, les, ngaji, buku, dll. supaya terlihat sisa dananya.' : pkProfile(g) === 'liburan' ? 'Belum ada pengeluaran. Catat tiket, hotel, makan, oleh-oleh, dll. supaya setelah liburan terlihat hemat atau lebih.' : 'Belum ada catatan. Catat setiap pemakaian dana supaya terlihat sisanya.'}</p>`}
   </div>`;
 }
 
@@ -131,6 +132,12 @@ function submitPengeluaran(f) {
 }
 
 Object.assign(Actions, {
+  expToggle: (d, el) => {
+    const o = S.ui.expOpen = S.ui.expOpen || {}; o[d.id] = !o[d.id];
+    const list = el.nextElementSibling; if (list) list.hidden = !o[d.id];
+    el.classList.toggle('open', o[d.id]); el.setAttribute('aria-expanded', o[d.id] ? 'true' : 'false');
+    el.firstElementChild.firstChild.textContent = (o[d.id] ? 'Sembunyikan detail' : 'Lihat detail') + ' ';
+  },
   newPengeluaran: d => openPengeluaranForm(d.id),
   editPengeluaran: d => openPengeluaranForm(null, d.id),
   delPengeluaran: d => confirmBox({ title: 'Hapus catatan ini?', text: 'Catatan akan dihapus permanen.', ok: 'Hapus', danger: true }, () => {

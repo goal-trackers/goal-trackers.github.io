@@ -1719,3 +1719,10 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 
 @media (min-width: 1024px) { .dg-itin .dg-main .dg-log { grid-column: auto; } }
 @media (min-width: 1024px) { .report-grid .rg-wide { grid-column: span 2; } }
+
+/* Tombol detail rincian pengeluaran */
+.exp-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; padding: 10px 16px; border-radius: 16px; background: var(--soft); font-weight: 700; font-size: 14px; color: inherit; transition: background .15s; }
+.exp-toggle:hover { background: var(--line, #E6E6E1); }
+.exp-toggle .bi { transition: transform .2s; }
+.exp-toggle.open .bi { transform: rotate(180deg); }
+.exp-toggle .muted { font-weight: 600; }
