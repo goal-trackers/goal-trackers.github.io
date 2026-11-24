@@ -341,7 +341,7 @@ function renderDetail() {
         <span class="chip"><i class="bi bi-flag"></i>${esc(g.prioritas)}</span>
         <span class="badge-s ${cls}">${lbl}</span>
       </div>
-      <div><h1>${esc(g.judul)}</h1>${g.deskripsi ? `<p>${esc(g.deskripsi)}</p>` : ''}</div>
+      <div class="hero-title"><h1>${esc(g.judul)}</h1>${g.deskripsi ? `<p>${esc(g.deskripsi)}</p>` : ''}</div>
       <div class="hero-main">
         <div class="ring" style="--p:${pct}"><div><b>${pctInt(g)}%</b><small>tercapai</small></div></div>
         <div class="hero-nums"><small class="muted">${checklist ? 'Tugas selesai' : 'Terkumpul'}</small><b>${valueText(g)}</b>
