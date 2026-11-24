@@ -1636,3 +1636,34 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .gcard, .gcard:focus, .gcard:focus-within, .gcard:active { outline: none; cursor: default; }
 .ck-sheet .gc-tasks { display: flex; flex-direction: column; gap: 4px; columns: auto !important; }
 .ck-sheet .gc-task { width: 100%; min-height: 48px; font-size: 15px; }
+
+/* ═════════ Itinerary perjalanan (gaya Pinterest: papan kartu pastel bertingkat) ═════════ */
+.itin-grid { columns: 3 240px; column-gap: 16px; }
+.itin-day { break-inside: avoid; margin: 0 0 16px; padding: 16px 16px 14px; border-radius: 22px; background: var(--c); color: #1B1B1B; position: relative; box-shadow: 0 8px 22px rgba(17,17,17,.07); }
+.itin-day:nth-child(3n+1) { transform: rotate(-.6deg); } .itin-day:nth-child(3n+2) { transform: rotate(.5deg); }
+.itin-h { display: flex; align-items: center; gap: 8px; padding-right: 40px; }
+.itin-no { background: #1B1B1B; color: #fff; font-weight: 800; font-size: 12.5px; padding: 5px 12px; border-radius: 999px; }
+.itin-dt { font-size: 12.5px; font-weight: 700; color: #5A5650; }
+.itin-day .itin-more { top: 10px; right: 10px; width: 34px; height: 34px; border-width: 0; font-size: 15px; background: rgba(255,255,255,.6); }
+.itin-t { margin-top: 10px; font-size: 17px; font-weight: 800; line-height: 1.25; }
+.itin-acts { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.itin-act { display: flex; align-items: flex-start; gap: 10px; background: rgba(255,255,255,.62); border-radius: 16px; padding: 10px 10px 10px 10px; }
+.itin-ic { flex: none; width: 34px; height: 34px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-size: 15px; }
+.itin-body { flex: 1; min-width: 0; font-size: 14px; }
+.itin-row { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.itin-jam { font-size: 11.5px; font-weight: 800; background: #1B1B1B; color: #fff; padding: 2px 8px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+.itin-body .muted { color: #5A5650 !important; margin-top: 2px; }
+.itin-edit { flex: none; width: 30px; height: 30px; background: transparent; color: #1B1B1B; }
+.itin-edit:hover { background: rgba(255,255,255,.8); }
+.itin-empty { padding: 6px 2px; color: #5A5650 !important; }
+.itin-add { margin-top: 10px; width: 100%; border: 1.5px dashed rgba(0,0,0,.22); background: transparent; border-radius: 14px; padding: 9px; font-weight: 700; font-size: 13.5px; color: #1B1B1B; }
+.itin-add:hover { background: rgba(255,255,255,.5); }
+.itin-start { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 26px; border: 1.5px dashed var(--line); border-radius: 22px; background: var(--soft); color: var(--text); }
+.itin-start .bi { font-size: 28px; }
+.itin-kinds { display: flex; flex-wrap: wrap; gap: 6px; }
+.itin-kinds input { position: absolute; opacity: 0; pointer-events: none; }
+.itin-kinds span { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; background: var(--soft); font-weight: 600; font-size: 13.5px; cursor: pointer; }
+.itin-kinds input:checked + span { background: #111; color: #fff; }
+[data-theme="dark"] .itin-kinds input:checked + span { background: #F2F2F2; color: #111; }
+[data-theme="dark"] .itin-day { background: color-mix(in srgb, var(--c) 90%, #000); }
+@media (max-width: 767px) { .itin-grid { columns: 1; } .itin-day { transform: none !important; } }

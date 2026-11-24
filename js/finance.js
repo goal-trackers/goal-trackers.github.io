@@ -218,6 +218,7 @@ function tplMetaFromForm(f) {
   let m = {}; try { m = JSON.parse(raw || '{}') || {}; } catch (e) { m = {}; }
   const r = f.rek_tujuan && f.tipe_target && f.tipe_target.value === 'Finansial' ? f.rek_tujuan.value : '';
   if (r) m.rek = r; else delete m.rek;
+  if (ex) { const old = parseMeta(ex.meta); if (old.itin) m.itin = old.itin; }   // itinerary tidak hilang saat goal diedit
   return Object.keys(m).length ? JSON.stringify(m) : '';
 }
 /** Rekening tujuan setoran sebuah target tabungan (meta.rek), bila masih ada */
@@ -337,6 +338,7 @@ function extraDetailCards(g) {
         ${canEdit(g) ? `<button class="link-btn p-0" style="min-height:0" data-action="execDate" data-id="${g.goal_id}">Tetapkan sekarang saja</button>` : ''}</div>`;
     }
   }
+  if (needsExecDate(g)) out += itinCardHtml(g);
   out += pengeluaranCardHtml(g);
   return out;
 }
@@ -1358,7 +1360,7 @@ Actions.cardMenu = (d, el) => {
   const m = document.createElement('div'); m.id = 'cardMenu'; m.className = 'fin-menu card-menu'; m.setAttribute('role', 'menu'); m._btn = el;
   m.innerHTML = tpl.innerHTML;
   m.querySelectorAll('button').forEach(b => { b.className = (b.className.includes('rek-del') || b.className.includes('danger') ? 'danger ' : '') + 'cm-item'; b.setAttribute('role', 'menuitem'); });
-  document.body.appendChild(m); el.setAttribute('aria-expanded', 'true');
+  document.body.appendChild(m); m._y = scrollY; closeCardMenu._w = window.innerWidth; el.setAttribute('aria-expanded', 'true');
   const r = el.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight;
   let left = r.right - w; if (left < 8) left = 8;
   let top = r.bottom + 8; if (top + h > innerHeight - 8) top = Math.max(8, r.top - h - 8);
@@ -1366,7 +1368,8 @@ Actions.cardMenu = (d, el) => {
 };
 document.addEventListener('click', e => { if (!document.getElementById('cardMenu') || e.target.closest('[data-action=cardMenu]')) return; setTimeout(closeCardMenu, 0); }, true);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCardMenu(); });
-window.addEventListener('scroll', closeCardMenu, true); window.addEventListener('resize', closeCardMenu);
+window.addEventListener('scroll', () => { const m = document.getElementById('cardMenu'); if (!m) return; if (m._y === undefined) m._y = scrollY; if (Math.abs(scrollY - m._y) > 40) closeCardMenu(); }, true);
+window.addEventListener('resize', () => { if (window.innerWidth !== (closeCardMenu._w || 0)) { closeCardMenu._w = window.innerWidth; closeCardMenu(); } });
 
 Forms.addTask = form => {
   const g = goalById(form.goal_id.value); if (!g) return;
@@ -1379,3 +1382,65 @@ Forms.addTask = form => {
   toast(names.length > 1 ? `${names.length} tugas ditambahkan ✅` : 'Tugas ditambahkan ✅');
   Outbox.push('saveGoal', goalSaveArgs_(g));
 };
+
+/* ═════════ Travel itinerary (Hari 1, 2, 3 …) untuk goal liburan — disimpan di meta.itin ═════════ */
+const ITIN_JENIS = [['wisata', 'Wisata', 'bi-camera'], ['makan', 'Makan', 'bi-cup-hot'], ['transport', 'Perjalanan', 'bi-airplane'], ['inap', 'Menginap', 'bi-building'], ['belanja', 'Belanja', 'bi-bag'], ['lain', 'Lainnya', 'bi-geo-alt']];
+const ITIN_C = ['#FBEBB5', '#D5F0F7', '#F8CFE0', '#CFF2D6', '#E8D3F5', '#FFE1C7'];
+const itinOf = g => { const a = parseMeta(g.meta).itin; return Array.isArray(a) ? a : []; };
+function itinSave_(g, days) {
+  const m = parseMeta(g.meta); if (days.length) m.itin = days; else delete m.itin;
+  g.meta = Object.keys(m).length ? JSON.stringify(m) : ''; g.diubah_pada = nowIso();
+  saveSnapshot(); renderAll(); Outbox.push('saveGoal', goalSaveArgs_(g));
+}
+function itinDate_(g, i) { if (!g.tgl_pelaksanaan) return ''; const d = new Date(g.tgl_pelaksanaan + 'T00:00:00'); d.setDate(d.getDate() + i); return d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' }); }
+function itinCardHtml(g) {
+  const days = itinOf(g), ed = canEdit(g);
+  const dayHtml = (d, i) => {
+    const acts = (d.a || []).slice().sort((x, y) => String(x.j || '99').localeCompare(String(y.j || '99')));
+    return `<div class="itin-day" style="--c:${ITIN_C[i % ITIN_C.length]}">
+      <div class="itin-h"><span class="itin-no">Hari ${i + 1}</span>${itinDate_(g, i) ? `<span class="itin-dt">${esc(itinDate_(g, i))}</span>` : ''}
+        ${ed ? `<button class="card-more itin-more" data-action="cardMenu" aria-label="Opsi hari ${i + 1}"><i class="bi bi-three-dots"></i></button><template class="cm-items"><button data-action="itinDay" data-id="${g.goal_id}" data-i="${i}"><i class="bi bi-pencil"></i> Ubah judul hari</button><button class="danger" data-action="itinDelDay" data-id="${g.goal_id}" data-i="${i}"><i class="bi bi-trash3"></i> Hapus hari</button></template>` : ''}</div>
+      ${d.t ? `<div class="itin-t">${esc(d.t)}</div>` : ''}
+      <ul class="itin-acts">${acts.map(a => { const k = ITIN_JENIS.find(x => x[0] === a.k) || ITIN_JENIS[5], idx = d.a.indexOf(a);
+        return `<li class="itin-act"><span class="itin-ic"><i class="bi ${k[2]}"></i></span><div class="itin-body"><div class="itin-row">${a.j ? `<span class="itin-jam">${esc(a.j)}</span>` : ''}<b>${esc(a.n)}</b></div>${a.l ? `<div class="tiny muted"><i class="bi bi-geo-alt"></i> ${esc(a.l)}</div>` : ''}${a.c ? `<div class="tiny muted">${esc(a.c)}</div>` : ''}</div>
+          ${ed ? `<button class="icon-btn sm itin-edit" data-action="itinAct" data-id="${g.goal_id}" data-i="${i}" data-x="${idx}" aria-label="Ubah kegiatan"><i class="bi bi-pencil"></i></button>` : ''}</li>`; }).join('') || '<li class="tiny muted itin-empty">Belum ada kegiatan.</li>'}</ul>
+      ${ed ? `<button class="itin-add" data-action="itinAct" data-id="${g.goal_id}" data-i="${i}"><i class="bi bi-plus-lg"></i> Kegiatan</button>` : ''}
+    </div>`;
+  };
+  return `<div class="card itin-card"><div class="d-flex align-items-center justify-content-between gap-2 mb-2"><h3 class="m-0">🧳 Itinerary Perjalanan</h3>
+      ${ed ? `<button class="btn btn-dark btn-sm" data-action="itinAddDay" data-id="${g.goal_id}"><i class="bi bi-plus-lg"></i> Hari ${days.length + 1}</button>` : ''}</div>
+    <p class="tiny muted mb-3">${days.length ? `${days.length} hari${g.tgl_pelaksanaan ? ` · mulai ${fmtLong(g.tgl_pelaksanaan)}` : ' · tanggal mengikuti tanggal pelaksanaan'}` : 'Susun rencana harian liburan: tempat wisata, makan, perjalanan, dan penginapan.'}</p>
+    ${days.length ? `<div class="itin-grid">${days.map(dayHtml).join('')}</div>` : (ed ? `<button class="itin-start" data-action="itinAddDay" data-id="${g.goal_id}"><i class="bi bi-map"></i><b>Mulai susun itinerary</b><span class="tiny muted">Tambah Hari 1</span></button>` : '')}
+  </div>`;
+}
+Object.assign(Actions, {
+  itinAddDay: d => { const g = goalById(d.id); if (!g) return; const days = itinOf(g).concat([{ t: '', a: [] }]); itinSave_(g, days); toast(`Hari ${days.length} ditambahkan`); },
+  itinDelDay: d => { const g = goalById(d.id); if (!g) return; const i = Number(d.i), days = itinOf(g);
+    confirmBox({ title: `Hapus Hari ${i + 1}?`, text: `${(days[i].a || []).length} kegiatan di hari ini ikut terhapus. Hari setelahnya akan bergeser maju.`, ok: 'Hapus', danger: true }, () => { days.splice(i, 1); itinSave_(g, days); toast('Hari dihapus'); }); },
+  itinDay: d => { const g = goalById(d.id); if (!g) return; const i = Number(d.i), day = itinOf(g)[i] || {};
+    openSheet(`Hari ${i + 1}`, `<form data-form="itinDay" novalidate><input type="hidden" name="goal_id" value="${g.goal_id}"><input type="hidden" name="i" value="${i}">
+      <label class="field"><span>Judul hari <small>(opsional)</small></span><input name="t" maxlength="60" value="${esc(day.t || '')}" placeholder="Contoh: Jelajah kota Batu"></label>
+      <button class="btn btn-dark w-100 mt-2" type="submit">Simpan</button></form>`); },
+  itinAct: d => { const g = goalById(d.id); if (!g) return; const i = Number(d.i), day = itinOf(g)[i] || { a: [] }, x = d.x !== undefined && d.x !== '' ? Number(d.x) : -1, a = x >= 0 ? day.a[x] : {};
+    openSheet(`${x >= 0 ? 'Ubah' : 'Tambah'} Kegiatan · Hari ${i + 1}`, `<form data-form="itinAct" novalidate><input type="hidden" name="goal_id" value="${g.goal_id}"><input type="hidden" name="i" value="${i}"><input type="hidden" name="x" value="${x}">
+      <div class="field"><span>Jenis</span><div class="itin-kinds">${ITIN_JENIS.map(([v, l, ic]) => `<label><input type="radio" name="k" value="${v}" ${(a.k || 'wisata') === v ? 'checked' : ''}><span><i class="bi ${ic}"></i> ${l}</span></label>`).join('')}</div></div>
+      <div class="d-flex gap-2"><label class="field" style="flex:0 0 120px"><span>Jam</span><input name="j" type="time" value="${esc(a.j || '')}"></label>
+        <label class="field flex-grow-1"><span>Kegiatan</span><input name="n" maxlength="80" value="${esc(a.n || '')}" placeholder="Contoh: Jatim Park 2" required><em class="field-err"></em></label></div>
+      <label class="field"><span>Lokasi <small>(opsional)</small></span><input name="l" maxlength="80" value="${esc(a.l || '')}" placeholder="Contoh: Kota Batu"></label>
+      <label class="field"><span>Catatan <small>(opsional)</small></span><input name="c" maxlength="100" value="${esc(a.c || '')}" placeholder="Contoh: tiket Rp 150 rb/orang"></label>
+      <div class="d-flex gap-2 mt-2">${x >= 0 ? `<button type="button" class="btn btn-soft" data-action="itinDelAct" data-id="${g.goal_id}" data-i="${i}" data-x="${x}"><i class="bi bi-trash3"></i> Hapus</button>` : ''}<button class="btn btn-dark flex-grow-1" type="submit">Simpan</button></div></form>`);
+    setTimeout(() => { const n = $('#sheet [name=n]'); if (n && !n.value) n.focus(); }, 80); },
+  itinDelAct: d => { const g = goalById(d.id); if (!g) return; const days = itinOf(g), i = Number(d.i), x = Number(d.x);
+    if (days[i] && days[i].a) days[i].a.splice(x, 1); closeSheet(); itinSave_(g, days); toast('Kegiatan dihapus'); }
+});
+Object.assign(Forms, {
+  itinDay: f => { const g = goalById(f.goal_id.value); if (!g) return; const days = itinOf(g), i = Number(f.i.value); if (!days[i]) return;
+    days[i].t = f.t.value.trim().slice(0, 60); closeSheet(); itinSave_(g, days); toast('Judul hari disimpan'); },
+  itinAct: f => { const g = goalById(f.goal_id.value); if (!g) return; const days = itinOf(g), i = Number(f.i.value), x = Number(f.x.value);
+    const n = f.n.value.trim(); if (!n) { f.querySelector('.field-err').textContent = 'Isi nama kegiatan.'; f.n.focus(); return; }
+    const a = { k: (f.querySelector('[name=k]:checked') || {}).value || 'lain', j: f.j.value, n: n.slice(0, 80), l: f.l.value.trim().slice(0, 80), c: f.c.value.trim().slice(0, 100) };
+    Object.keys(a).forEach(k => { if (!a[k]) delete a[k]; });
+    if (!days[i]) return; days[i].a = days[i].a || [];
+    if (x >= 0) days[i].a[x] = a; else days[i].a.push(a);
+    closeSheet(); itinSave_(g, days); toast(x >= 0 ? 'Kegiatan diperbarui' : 'Kegiatan ditambahkan ✈️'); }
+});
