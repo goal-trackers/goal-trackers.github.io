@@ -1398,7 +1398,7 @@ function itinCardHtml(g) {
   const days = itinOf(g), ed = canEdit(g);
   let sel = S.ui.itinSel && S.ui.itinSel.g === g.goal_id ? S.ui.itinSel.i : 0; if (sel >= days.length) sel = Math.max(0, days.length - 1);
   const d = days[sel], c = ITIN_C[sel % ITIN_C.length];
-  const tabs = days.map((x, i) => `<button class="itin-tab ${i === sel ? 'on' : ''}" style="--c:${ITIN_C[i % ITIN_C.length]}" data-action="itinSel" data-id="${g.goal_id}" data-i="${i}"><b>Hari ${i + 1}</b>${itinDate_(g, i) ? `<small>${esc(itinDate_(g, i).replace(/^[^,]+,\s*/, ''))}</small>` : ''}</button>`).join('')
+  const tabs = days.map((x, i) => `<button class="itin-tab ${i === sel ? 'on' : ''}" style="--c:${ITIN_C[i % ITIN_C.length]}" data-action="itinSel" data-id="${g.goal_id}" data-i="${i}"><b>Hari ${i + 1}</b>${itinDate_(g, i) ? `<small>${esc(itinDate_(g, i))}</small>` : ''}</button>`).join('')
     + (ed ? `<button class="itin-tab add" data-action="itinAddDay" data-id="${g.goal_id}" title="Tambah hari" aria-label="Tambah hari"><i class="bi bi-plus-lg"></i></button>` : '');
   const panel = d ? (() => {
     const acts = (d.a || []).map((a, idx) => ({ a, idx })).sort((x, y) => String(x.a.j || '99').localeCompare(String(y.a.j || '99')));
