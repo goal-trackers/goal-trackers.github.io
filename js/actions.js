@@ -259,6 +259,18 @@ const Actions = {
   newGoal: d => openGoalForm(null, { jenis: d.jenis, tipe: d.tipe, tpl: d.tpl }),
   editGoal: d => { const g = goalById(d.id); if (g) openGoalForm(g); },
   logProgress: d => openProgressForm(d.id, d.tipe),
+  /* Catat progres goal checklist: centang tugas langsung dari lembar ini */
+  checkProgress: d => {
+    const g = goalById(d.id); if (!g) return;
+    const ms = S.milestones.filter(m => m.goal_id === g.goal_id).sort((a, b) => (a.urutan || 0) - (b.urutan || 0));
+    const n = ms.filter(m => m.status === 'Selesai').length;
+    const body = `<div class="row-item mb-3" style="box-shadow:none;background:var(--soft)"><span class="ic tint" style="--c:${esc(goalColor(g))}"><i class="bi ${esc(catById(g.kategori_id).ikon || 'bi-check2-square')}"></i></span><div class="flex-grow-1" style="min-width:0"><b>${esc(g.judul)}</b><div class="tiny muted">${n}/${ms.length} tugas selesai · ketuk tugas untuk mencentang</div></div></div>
+      ${ms.length ? `<div class="ck-sheet">${cardChecklist(g, 999).replace(/data-action="toggleMs"/g, 'data-action="checkToggle"')}</div>` : '<p class="muted">Belum ada tugas. Tambahkan lewat Edit goal.</p>'}
+      <button type="button" class="btn btn-dark w-100 mt-3" data-action="closeSheet">Selesai</button>`;
+    S.ui.ckGoal = g.goal_id;
+    openSheet('Catat Progres ✍️', body);
+  },
+  checkToggle: (d) => { Actions.toggleMs(d); const m = S.milestones.find(x => x.milestone_id === d.id); if (m) Actions.checkProgress({ id: m.goal_id }); },
   quickAdd: () => openSheet('Tambah', `<div class="menu-list">
       <button data-action="logProgress"><i class="bi bi-plus-circle"></i> Catat progres</button>
       <button data-action="logProgress" data-tipe="Finansial"><i class="bi bi-wallet2"></i> Setor tabungan</button>

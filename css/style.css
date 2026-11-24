@@ -1634,3 +1634,5 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 
 /* Kartu goal tidak 'aktif' saat badannya diklik/disorot — hanya tombol di dalamnya yang bereaksi */
 .gcard, .gcard:focus, .gcard:focus-within, .gcard:active { outline: none; cursor: default; }
+.ck-sheet .gc-tasks { display: flex; flex-direction: column; gap: 4px; columns: auto !important; }
+.ck-sheet .gc-task { width: 100%; min-height: 48px; font-size: 15px; }
