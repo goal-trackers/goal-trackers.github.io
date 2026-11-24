@@ -1702,3 +1702,7 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .itin-nav .bi { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--card); box-shadow: 0 2px 10px rgba(0,0,0,.15); }
 .itin-tabwrap.can-l .itin-nav.prev, .itin-tabwrap.can-r .itin-nav.next { display: flex; }
 .itin-tabs { scroll-behavior: auto !important; scroll-snap-type: none !important; }
+
+/* Itinerary mengisi kolom kanan setinggi dua baris kartu */
+@media (min-width: 1024px) { .detail-grid .itin-tall { grid-column: 3; grid-row: span 2; } }
+@media (min-width: 1024px) { .detail-grid { grid-auto-flow: row dense; } }

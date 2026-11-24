@@ -366,9 +366,9 @@ function renderDetail() {
     <div class="detail-grid">
       <div class="card"><h3>Ringkasan</h3><div class="kv">${kv}</div></div>
       <div class="card"><h3>${checklist ? 'Daftar Tugas' : 'Milestone'} <span class="muted tiny">${ms.filter(m => m.status === 'Selesai').length}/${ms.length}</span></h3>${msHtml}</div>
-      ${contrib || reactCard}
-      ${contrib ? reactCard : ''}
-      ${extraDetailCards(g)}
+      ${typeof isLiburan_ === 'function' && isLiburan_(g)
+        ? `${itinCardHtml(g)}${reactCard}${extraDetailCards(g)}${contrib}`
+        : `${contrib || reactCard}${contrib ? reactCard : ''}${extraDetailCards(g)}`}
       <div class="card span3 span2"><h3>Riwayat Progres <span class="muted tiny">${logs.length} catatan</span></h3>${logHtml}</div>
     </div>`;
 }
