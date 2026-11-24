@@ -70,7 +70,7 @@ function pengeluaranCardHtml(g) {
       ${canEdit(g) ? `<button class="icon-btn sm" data-action="editPengeluaran" data-id="${x.pengeluaran_id}" aria-label="Edit"><i class="bi bi-pencil"></i></button>` : ''}
     </div>`;
   }).join('');
-  return `<div class="card">
+  return `<div class="card hc" style="--hc:#FBEBB5">
     <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-2">
       <h3 class="mb-0">${pkProfile(g) === 'pendidikan' ? '🎓' : pkProfile(g) === 'darurat' ? '🛟' : '🧾'} ${PKAT_INFO[pkProfile(g)].card}</h3>
       ${canEdit(g) ? `<button class="btn btn-dark btn-sm" data-action="newPengeluaran" data-id="${g.goal_id}"><i class="bi bi-plus-lg"></i> ${PKAT_INFO[pkProfile(g)].btn}</button>` : ''}

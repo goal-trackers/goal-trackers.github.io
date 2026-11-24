@@ -1788,3 +1788,11 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .prep-card .itin-add { color: inherit; border-color: var(--line); } .prep-card .itin-add:hover { background: var(--soft); }
 .prep-t { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .prep-t .bi { margin-right: 6px; }
 @media (max-width: 420px) { .prep-st { font-size: 10.5px; padding: 3px 7px; } }
+
+/* Header berwarna pada kartu rincian goal */
+.card.hc > :first-child { margin: -20px -20px 14px; padding: 14px 20px; background: var(--hc); color: #1B1B1B; border-radius: var(--radius) var(--radius) 0 0; }
+.card.hc > h3:first-child { margin-bottom: 14px; }
+.card.hc > :first-child h3 { color: #1B1B1B; }
+.card.hc > :first-child .muted { color: rgba(27,27,27,.6) !important; }
+.card.hc.itin-card > h3:first-child { margin-bottom: 10px; }
+[data-theme="dark"] .card.hc > :first-child { background: color-mix(in srgb, var(--hc) 88%, #000); }

@@ -315,7 +315,7 @@ function renderDetail() {
   const counts = REACTIONS.map(e => [e, reacts.filter(r => r.emoji === e).length]);
   const canReact = g.jenis === 'Bersama' || g.pemilik_id !== S.me.user_id;
   const lastReact = reacts.slice().sort((a, b) => String(b.dibuat_pada).localeCompare(String(a.dibuat_pada)))[0];
-  const reactCard = `<div class="card"><h3>Semangat <span aria-hidden="true">💌</span></h3>
+  const reactCard = `<div class="card hc" style="--hc:#F8CFE0"><h3>Semangat <span aria-hidden="true">💌</span></h3>
     <div class="react-bar">${counts.map(([e, n]) => canReact
       ? `<button class="react-btn" data-action="react" data-emoji="${e}" data-id="${g.goal_id}" aria-label="Kirim ${e}">${e}${n ? `<small>${n}</small>` : ''}</button>`
       : `<span class="react-btn">${e}${n ? `<small>${n}</small>` : '<small>0</small>'}</span>`).join('')}</div>
@@ -355,9 +355,9 @@ function renderDetail() {
       </div>
     </div>
     ${(() => {
-      const ringkas = `<div class="card"><h3>Ringkasan</h3><div class="kv">${kv}</div></div>`;
-      const msCard = `<div class="card"><h3>${checklist ? 'Daftar Tugas' : 'Milestone'} <span class="muted tiny">${ms.filter(m => m.status === 'Selesai').length}/${ms.length}</span></h3>${msHtml}</div>`;
-      const riwayat = `<div class="card span3 span2 dg-log"><h3>Riwayat Progres <span class="muted tiny">${logs.length} catatan</span></h3>${logHtml}</div>`;
+      const ringkas = `<div class="card hc" style="--hc:#D5F0F7"><h3>Ringkasan</h3><div class="kv">${kv}</div></div>`;
+      const msCard = `<div class="card hc" style="--hc:#E8D3F5"><h3>${checklist ? 'Daftar Tugas' : 'Milestone'} <span class="muted tiny">${ms.filter(m => m.status === 'Selesai').length}/${ms.length}</span></h3>${msHtml}</div>`;
+      const riwayat = `<div class="card hc span3 span2 dg-log" style="--hc:#E6E6E1"><h3>Riwayat Progres <span class="muted tiny">${logs.length} catatan</span></h3>${logHtml}</div>`;
       if (typeof isLiburan_ === 'function' && isLiburan_(g)) {
         // Itinerary di kolom sendiri: panjangnya tidak menarik tinggi kartu lain
         return `<div class="detail-grid dg-itin">

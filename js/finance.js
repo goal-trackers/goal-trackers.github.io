@@ -1410,7 +1410,7 @@ function itinCardHtml(g) {
           <span class="itin-n"><b>${esc(a.n)}</b>${a.l ? `<small> · ${esc(a.l)}</small>` : ''}${a.c ? `<small class="d-block">${esc(a.c)}</small>` : ''}</span></li>`; }).join('') || '<li class="itin-empty">Belum ada kegiatan.</li>'}</ul>
       ${ed ? `<button class="itin-add" data-action="itinAct" data-id="${g.goal_id}" data-i="${sel}"><i class="bi bi-plus-lg"></i> Kegiatan</button>` : ''}</div>`;
   })() : '';
-  return `<div class="card itin-card itin-tall"><h3 class="mb-1">🧳 Itinerary</h3>
+  return `<div class="card hc itin-card itin-tall" style="--hc:#FFE1C7"><h3 class="mb-1">🧳 Itinerary</h3>
     <p class="tiny muted mb-2">${days.length ? `${days.length} hari${g.tgl_pelaksanaan ? ` · mulai ${fmtLong(g.tgl_pelaksanaan)}` : ''}` : 'Susun rencana harian: wisata, makan, perjalanan, penginapan.'}</p>
     ${days.length ? `<div class="itin-tabwrap"><button class="itin-nav prev" data-action="itinScroll" data-dir="-1" aria-label="Hari sebelumnya"><i class="bi bi-chevron-left"></i></button><div class="itin-tabs hscroll">${tabs}</div><button class="itin-nav next" data-action="itinScroll" data-dir="1" aria-label="Hari berikutnya"><i class="bi bi-chevron-right"></i></button></div>${panel}` : (ed ? `<button class="itin-start" data-action="itinAddDay" data-id="${g.goal_id}"><i class="bi bi-map"></i><b>Mulai susun itinerary</b><span class="tiny muted">Tambah Hari 1</span></button>` : '')}
   </div>`;
@@ -1496,7 +1496,7 @@ function prepCardHtml(g) {
   const list = prepOf(g), ed = canEdit(g) && g.status !== 'Arsip';
   const rows = list.map((p, i) => ({ p, i })).sort((a, b) => String(a.p.d1 || '9').localeCompare(String(b.p.d1 || '9')) || String(a.p.j || '').localeCompare(String(b.p.j || '')));
   const done = list.filter(p => p.ok).length;
-  return `<div class="card prep-card">
+  return `<div class="card hc prep-card" style="--hc:#CFF2D6">
     <div class="d-flex justify-content-between align-items-center gap-2 mb-1"><h3 class="mb-0">🎫 Persiapan</h3><span class="muted tiny fw-bold">${done}/${list.length}</span></div>
     <p class="tiny muted mb-2">Tiket, hotel, dan rental yang perlu dibeli atau dibooking.</p>
     ${list.length ? `<div class="exp-bar mb-2" role="img" aria-label="${done} dari ${list.length} beres"><span style="width:${Math.round(done / list.length * 100)}%;background:var(--green-ink,#1B7F3A)"></span></div>` : ''}
