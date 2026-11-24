@@ -1759,3 +1759,4 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .hero .hero-nums b { font-size: 24px; }
   .hero .hero-numrow .hero-actions { margin-top: 2px; }
 }
+.hero-actions [data-action="goalMore"] { margin-left: auto; }
