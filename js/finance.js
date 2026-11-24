@@ -1489,7 +1489,8 @@ function prepWhen_(p) {
   if (!p.d1) return '';
   if (!p.d2 || p.d2 === p.d1) return f(p.d1, true) + (p.j ? ' · ' + p.j.replace(':', '.') : '');
   const n = Math.round((new Date(p.d2 + 'T00:00:00') - new Date(p.d1 + 'T00:00:00')) / 864e5);
-  return `${f(p.d1)} – ${f(p.d2, true)}${n > 0 ? ` · ${n} ${p.k === 'hotel' ? 'malam' : 'hari'}` : ''}`;
+  // Hotel dihitung per malam; rental/travel/lainnya dihitung per hari, termasuk hari mulai & selesai
+  return `${f(p.d1)} – ${f(p.d2, true)}${n > 0 ? ` · ${p.k === 'hotel' ? n + ' malam' : (n + 1) + ' hari'}` : ''}`;
 }
 function prepCardHtml(g) {
   const list = prepOf(g), ed = canEdit(g) && g.status !== 'Arsip';
