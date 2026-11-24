@@ -1762,3 +1762,6 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .hero-actions [data-action="goalMore"] { margin-left: auto; }
 /* Tinggi kartu rincian goal mengikuti isinya masing-masing */
 .detail-grid, .dg-itin .dg-main { align-items: start !important; }
+/* Milestone lebih rapat */
+.card .ms-item { min-height: 44px; padding: 6px 0; gap: 10px; }
+.card .ms-item .ms-check { width: 26px; height: 26px; font-size: 14px; }
