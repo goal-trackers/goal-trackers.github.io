@@ -1701,3 +1701,4 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .itin-nav.next { right: -2px; background: linear-gradient(270deg, var(--card) 55%, transparent); justify-content: flex-end; padding-right: 2px; }
 .itin-nav .bi { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--card); box-shadow: 0 2px 10px rgba(0,0,0,.15); }
 .itin-tabwrap.can-l .itin-nav.prev, .itin-tabwrap.can-r .itin-nav.next { display: flex; }
+.itin-tabs { scroll-behavior: auto !important; scroll-snap-type: none !important; }

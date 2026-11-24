@@ -1461,9 +1461,17 @@ function itinTabsSync_() {
       window.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - sx; if (Math.abs(dx) > 4) r._moved = true; r.scrollLeft = sl - dx; });
       window.addEventListener('pointerup', () => { drag = false; });
       r.addEventListener('click', e => { if (r._moved) { e.stopPropagation(); e.preventDefault(); r._moved = false; } }, true); }
-    const on = r.querySelector('.itin-tab.on');
-    if (on && !r._kept) { const a = on.offsetLeft, b = a + on.offsetWidth; if (a < r.scrollLeft || b > r.scrollLeft + r.clientWidth) r.scrollLeft = a - (r.clientWidth - on.offsetWidth) / 2; }
-    r._kept = false; upd();
+    const on = r.querySelector('.itin-tab.on'), key = on ? on.dataset.id + ':' + on.dataset.i : '';
+    if (on && key !== itinTabsSync_.last) {             // hanya saat hari terpilih berubah
+      const sameGoal = itinTabsSync_.last && itinTabsSync_.last.split(':')[0] === on.dataset.id;
+      itinTabsSync_.last = key;
+      const a = on.offsetLeft, b = a + on.offsetWidth;
+      if (a < r.scrollLeft || b > r.scrollLeft + r.clientWidth) {
+        const to = Math.max(0, a - (r.clientWidth - on.offsetWidth) / 2);
+        if (sameGoal) r.scrollTo({ left: to, behavior: 'smooth' }); else r.scrollLeft = to;
+      }
+    }
+    upd();
   });
 }
 new MutationObserver(() => itinTabsSync_()).observe(document.body, { childList: true, subtree: true });
