@@ -1741,3 +1741,8 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .hero-numrow { display: contents; }
   .hero-numrow .hero-actions { flex-basis: 100%; }
 }
+/* Pil tab terpilih: hitam (semua board tabs) */
+.bt-row button.on, .bt-row button.on:hover { background: #111; color: #fff; }
+.bt-row button.on .bt-n { background: #fff; color: #111; }
+[data-theme="dark"] .bt-row button.on, [data-theme="dark"] .bt-row button.on:hover { background: #F2F2F2; color: #111; }
+[data-theme="dark"] .bt-row button.on .bt-n { background: #111; color: #F2F2F2; }
