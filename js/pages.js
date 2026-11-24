@@ -314,7 +314,7 @@ function renderDetail() {
   let contrib = '';
   if (g.jenis === 'Bersama' && !checklist) {
     const total = logs.reduce((s, l) => s + Math.max(0, Number(l.nilai_tambah)), 0) || 1;
-    contrib = `<div class="card"><h3>Kontribusi Kalian</h3><div class="contrib">${S.users.map(u => {
+    contrib = `<div class="hero-contrib"><h3>Kontribusi Kalian</h3><div class="contrib">${S.users.map(u => {
       const sum = logs.filter(l => l.user_id === u.user_id).reduce((s, l) => s + Number(l.nilai_tambah), 0);
       const share = Math.max(0, sum) / total * 100;
       return `<div class="contrib-row">${avatarHtml(u, 'sm')}<div><div class="d-flex justify-content-between"><span>${esc(u.nama)}</span><span class="muted">${Math.round(share)}%</span></div><div class="pbar sm dark"><span style="width:${share}%"></span></div></div><b>${fmtShort(sum, g.satuan)}</b></div>`;
@@ -343,7 +343,7 @@ function renderDetail() {
 
   page.innerHTML = `
     <button class="back" data-action="back"><i class="bi bi-arrow-left"></i> Kembali</button>
-    <div class="hero tint" style="--c:${esc(color)}">
+    <div class="hero tint${contrib ? ' has-contrib' : ''}" style="--c:${esc(color)}">
       <div class="hero-top">
         <span class="chip"><i class="bi ${esc(cat.ikon)}"></i>${esc(cat.nama)}</span>
         <span class="chip">${g.jenis === 'Bersama' ? '<i class="bi bi-people"></i> Bersama' : `<i class="bi bi-person"></i> ${esc(userById(g.pemilik_id).nama)}`}</span>
@@ -362,6 +362,7 @@ function renderDetail() {
         ${edit ? `<button class="btn btn-soft" data-action="editGoal" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>` : ''}
         ${edit ? `<button class="icon-btn" style="background:var(--card)" data-action="goalMore" data-id="${g.goal_id}" aria-label="Opsi lainnya"><i class="bi bi-three-dots"></i></button>` : ''}
       </div>
+      ${contrib}
     </div>
     ${(() => {
       const ringkas = `<div class="card"><h3>Ringkasan</h3><div class="kv">${kv}</div></div>`;
@@ -370,11 +371,11 @@ function renderDetail() {
       if (typeof isLiburan_ === 'function' && isLiburan_(g)) {
         // Itinerary di kolom sendiri: panjangnya tidak menarik tinggi kartu lain
         return `<div class="detail-grid dg-itin">
-      <div class="dg-main">${ringkas}${msCard}<div class="dg-rest">${reactCard}${extraDetailCards(g)}${contrib}${riwayat}</div></div>
+      <div class="dg-main">${ringkas}${msCard}<div class="dg-rest">${reactCard}${extraDetailCards(g)}${riwayat}</div></div>
       ${itinCardHtml(g)}
     </div>`;
       }
-      return `<div class="detail-grid">${ringkas}${msCard}${contrib || reactCard}${contrib ? reactCard : ''}${extraDetailCards(g)}${riwayat}</div>`;
+      return `<div class="detail-grid">${ringkas}${msCard}${reactCard}${extraDetailCards(g)}${riwayat}</div>`;
     })()}`;
 }
 
