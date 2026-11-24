@@ -207,7 +207,7 @@ function hartaItemCard(h) {
         <div class="fw-bold text-truncate" style="font-size:16px">${esc(h.nama)}</div>
         <div class="harta-total" style="font-size:20px">${fmtGram(h.jumlah)} ${esc(h.satuan)}</div>
         <div class="tiny muted">${h.tgl_beli ? 'Beli ' + fmtDate(h.tgl_beli) : 'Tanggal beli -'}${h.tgl_beli && n.susut ? ' · usia ' + fmtUsia(n.usia) : ''}</div>
-        ${n.per && !LOGAM.includes(h.jenis) ? `<div class="tiny mt-1"><span class="hp-tag ${n.item ? 'item' : ''}">@ ${fmtShort(n.per, 'Rp')}/${esc(h.satuan)} · ${n.item ? 'harga lokasi' : 'harga umum'}</span></div>` : ''}
+        ${n.per && !LOGAM.includes(h.jenis) ? `<div class="tiny mt-1 hp-row"><span class="hp-tag ${n.item ? 'item' : ''}">@ ${fmtShort(n.per, 'Rp')}/${esc(h.satuan)} · ${n.item ? 'harga lokasi' : 'harga umum'}</span></div>` : ''}
       </div>
     </div>
     <div class="kv mt-3">
