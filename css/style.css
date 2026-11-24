@@ -1730,9 +1730,14 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 
 /* Hero detail goal: pil rata kanan sejajar judul, tombol rata kanan sejajar angka */
 @media (min-width: 768px) {
-  .hero { grid-template-columns: minmax(0,1fr) auto; grid-template-areas: "title top" "main act"; column-gap: 24px; }
+  .hero { grid-template-columns: minmax(0,1fr) auto; grid-template-areas: "title top" "main main"; column-gap: 24px; }
   .hero > .hero-title { grid-area: title; align-self: center; }
   .hero > .hero-top { grid-area: top; justify-content: flex-end; align-self: center; max-width: 560px; }
   .hero > .hero-main { grid-area: main; }
-  .hero > .hero-actions { grid-area: act; justify-content: flex-end; align-self: center; }
+  .hero-numrow { flex: 1 1 0; min-width: 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .hero-numrow .hero-actions { justify-content: flex-end; margin-left: auto; margin-bottom: -12px; }
+}
+@media (max-width: 767.98px) {
+  .hero-numrow { display: contents; }
+  .hero-numrow .hero-actions { flex-basis: 100%; }
 }

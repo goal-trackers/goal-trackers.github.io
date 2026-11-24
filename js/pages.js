@@ -344,13 +344,15 @@ function renderDetail() {
       <div class="hero-title"><h1>${esc(g.judul)}</h1>${g.deskripsi ? `<p>${esc(g.deskripsi)}</p>` : ''}</div>
       <div class="hero-main">
         <div class="ring" style="--p:${pct}"><div><b>${pctInt(g)}%</b><small>tercapai</small></div></div>
+        <div class="hero-numrow">
         <div class="hero-nums"><small class="muted">${checklist ? 'Tugas selesai' : 'Terkumpul'}</small><b>${valueText(g)}</b>
           <span class="muted tiny">${targetText(g) ? 'dari ' + fmtVal(g.nilai_target, g.satuan) + ' · ' : ''}${fmtDate(g.tgl_mulai)} – ${fmtDate(g.tenggat)}</span></div>
-      </div>
-      <div class="hero-actions">
+        <div class="hero-actions">
         ${canLog(g) && !checklist ? `<button class="btn btn-dark" data-action="logProgress" data-id="${g.goal_id}"><i class="bi bi-plus-lg"></i> Catat Progres</button>` : ''}
         ${edit ? `<button class="btn btn-soft" data-action="editGoal" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>` : ''}
         ${edit ? `<button class="icon-btn" style="background:var(--card)" data-action="goalMore" data-id="${g.goal_id}" aria-label="Opsi lainnya"><i class="bi bi-three-dots"></i></button>` : ''}
+      </div>
+        </div>
       </div>
     </div>
     ${(() => {
