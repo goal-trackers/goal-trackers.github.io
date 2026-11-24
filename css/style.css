@@ -309,7 +309,6 @@ h1, h2, h3 { margin: 0; letter-spacing: -.02em; }
   position: relative; background: var(--card); border-radius: var(--radius); padding: 20px 20px 16px; box-shadow: var(--shadow);
   cursor: pointer; transition: transform .2s ease, box-shadow .2s ease; text-align: left; width: 100%; display: block;
 }
-.gcard:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(17,17,17,.10); }
 .gcard h3 { font-size: 20px; font-weight: 800; line-height: 1.2; margin: 8px 44px 6px 0; }
 .gcard p { margin: 0 0 14px; font-size: 14px; color: var(--muted); }
 .gcard .gc-corner { position: absolute; top: -10px; right: 14px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 18px; color: #111; background: var(--c, var(--mint)); border: 3px solid var(--bg); }
@@ -893,7 +892,6 @@ button.stat:not(.tint) { background: var(--card); }
 .journey .j-col:nth-child(2) .j-item:nth-child(4n+2) > .gcard { --tilt: -1.2deg; }
 .journey .j-col:nth-child(2) .j-item:nth-child(4n+3) > .gcard { --tilt: 0.8deg; }
 .journey .j-col:nth-child(2) .j-item:nth-child(4n+4) > .gcard { --tilt: -1.7deg; }
-.journey .j-item > .gcard:hover { transform: rotate(0deg) translateY(-3px); box-shadow: 0 20px 44px rgba(17,17,17,.14); }
 @media (max-width: 767px) {
   .journey .j-item > .gcard { --tilt-scale: .6; transform: rotate(calc(var(--tilt) * .6)); }
 }
@@ -934,7 +932,6 @@ button.stat:not(.tint) { background: var(--card); }
   box-shadow: 0 1px 1px rgba(0,0,0,.10), 0 18px 22px -14px rgba(60,30,10,.55), 0 4px 10px rgba(60,30,10,.12) !important;
 }
 .ggrid > .m-item:hover > * { box-shadow: 0 1px 1px rgba(0,0,0,.10), 0 26px 30px -16px rgba(60,30,10,.6), 0 6px 14px rgba(60,30,10,.16) !important; transform: none; }
-.ggrid > .m-item > .gcard:hover { transform: none; }
 
 /* Selotip (selang-seling dengan paku payung) */
 .ggrid > .m-item::before {
@@ -1022,7 +1019,6 @@ button.stat:not(.tint) { background: var(--card); }
 .slider .hscroll > .gcard:nth-child(5n+3) { --tilt: -0.7deg; }
 .slider .hscroll > .gcard:nth-child(5n+4) { --tilt: 1.7deg; }
 .slider .hscroll > .gcard:nth-child(5n+5) { --tilt: -1.1deg; }
-.slider .hscroll > .gcard:hover { transform: rotate(calc(var(--tilt) * -1)); box-shadow: 0 1px 1px rgba(0,0,0,.06), 0 24px 28px -16px rgba(17,17,17,.34), 0 6px 14px rgba(17,17,17,.08); }
 /* Jepitan kayu */
 .slider .hscroll > .gcard::before {
   content: ''; position: absolute; z-index: 4; left: 50%; top: -30px; width: 14px; height: 40px;
@@ -1634,3 +1630,7 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .card-more:hover, .card-more[aria-expanded="true"] { background: #fff; }
 [data-theme="dark"] .card-more { background: color-mix(in srgb, var(--c, #D5F0F7) 55%, #fff) !important; border-color: #1E1E1E; color: #1B1B1B !important; }
 .has-more .tpl-row, .has-more > .d-flex:first-of-type { padding-right: 54px !important; }
+
+
+/* Kartu goal tidak 'aktif' saat badannya diklik/disorot — hanya tombol di dalamnya yang bereaksi */
+.gcard, .gcard:focus, .gcard:focus-within, .gcard:active { outline: none; cursor: default; }
