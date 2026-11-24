@@ -46,8 +46,7 @@ function renderReports() {
     </div>
     <div class="report-grid">
       <div class="card"><h3>Progres per Kategori</h3><div class="chart-box"><canvas id="chCat" role="img" aria-label="Grafik progres per kategori"></canvas></div></div>
-      <div class="card"><h3>Tren Tabungan per Bulan</h3><div class="chart-box"><canvas id="chTrend" role="img" aria-label="Grafik tren tabungan"></canvas></div></div>
-      <div class="card"><h3>Target Bersama <span class="muted tiny">kontribusi % dari target</span></h3><div class="chart-box"><canvas id="chShared" role="img" aria-label="Grafik kontribusi target bersama"></canvas></div></div>
+      <div class="card rg-wide"><h3>Tren Tabungan per Bulan</h3><div class="chart-box"><canvas id="chTrend" role="img" aria-label="Grafik tren tabungan"></canvas></div></div>
       <div class="card span2 span3">
         <h3>Riwayat Progres <span class="muted tiny">${esc(label)}</span></h3>
         <div class="toolbar rpt-bar">
@@ -148,19 +147,6 @@ function drawReportCharts() {
     options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.raw}% rata-rata progres` } } }, scales: { x: { min: 0, max: 100, ticks: { callback: v => v + '%' }, grid: { color: t.line } }, y: { grid: { display: false } } } }
   });
   drawTrend('chTrend', savingsSeries(reportMonths()));
-  const shared = live.filter(g => g.jenis === 'Bersama' && g.tipe_target !== 'Checklist');
-  mkChart('chShared', {
-    type: 'bar',
-    data: {
-      labels: shared.map(g => g.judul.length > 22 ? g.judul.slice(0, 21) + '…' : g.judul),
-      datasets: S.users.map(u => ({
-        label: u.nama, borderColor: t.ink, borderWidth: 1, borderRadius: 6, maxBarThickness: 26,
-        backgroundColor: u.warna_profil || '#CFF2D6',
-        data: shared.map(g => Math.round(Math.max(0, S.logs.filter(l => l.goal_id === g.goal_id && l.user_id === u.user_id).reduce((s, l) => s + Number(l.nilai_tambah), 0)) / g.nilai_target * 1000) / 10)
-      }))
-    },
-    options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }, tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.raw}% dari target` } } }, scales: { x: { stacked: true, min: 0, max: 100, ticks: { callback: v => v + '%' }, grid: { color: t.line } }, y: { stacked: true, grid: { display: false } } } }
-  });
 }
 
 // ── Ekspor Excel & PDF (diproses di browser: instan, hemat kuota GAS) ──

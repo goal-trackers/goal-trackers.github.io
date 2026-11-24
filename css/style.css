@@ -428,8 +428,6 @@ h1, h2, h3 { margin: 0; letter-spacing: -.02em; }
 .ms-item.done .ms-title { text-decoration: line-through; color: var(--muted); }
 .ms-title { font-weight: 600; font-size: 15px; flex: 1; }
 .ms-val { font-size: 13px; color: var(--muted); font-weight: 600; }
-.contrib { display: grid; gap: 12px; }
-.contrib-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; font-size: 14px; font-weight: 600; }
 .react-bar { display: flex; flex-wrap: wrap; gap: 8px; }
 .react-btn { min-height: 44px; min-width: 52px; border-radius: 999px; background: var(--soft); font-size: 18px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; transition: transform .15s; }
 .react-btn:active { transform: scale(1.15); }
@@ -1719,13 +1717,5 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .dg-itin .itin-card { grid-column: 3; grid-row: 1; align-self: start; }
 }
 
-/* Kontribusi di dalam hero detail goal, rata kanan */
-.hero-contrib { background: rgba(255,255,255,.55); border-radius: 22px; padding: 16px 18px; color: #1B1B1B; }
-.hero-contrib h3 { font-size: 15px; font-weight: 800; margin: 0 0 12px; }
-.hero-contrib .pbar { background: rgba(0,0,0,.08); }
-@media (min-width: 768px) {
-  .hero.has-contrib { grid-template-columns: minmax(0,1fr) minmax(280px, 380px); column-gap: 24px; }
-  .hero.has-contrib > * { grid-column: 1; }
-  .hero.has-contrib > .hero-contrib { grid-column: 2; grid-row: 1 / span 4; align-self: center; justify-self: end; width: 100%; }
-}
 @media (min-width: 1024px) { .dg-itin .dg-main .dg-log { grid-column: auto; } }
+@media (min-width: 1024px) { .report-grid .rg-wide { grid-column: span 2; } }
