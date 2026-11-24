@@ -1384,7 +1384,7 @@ Forms.addTask = form => {
 };
 
 /* ═════════ Travel itinerary (Hari 1, 2, 3 …) untuk goal liburan — disimpan di meta.itin ═════════ */
-const ITIN_JENIS = [['wisata', 'Wisata', 'bi-camera'], ['makan', 'Makan', 'bi-cup-hot'], ['transport', 'Perjalanan', 'bi-airplane'], ['inap', 'Menginap', 'bi-building'], ['belanja', 'Belanja', 'bi-bag'], ['lain', 'Lainnya', 'bi-geo-alt']];
+const ITIN_JENIS = [['wisata', 'Wisata', 'bi-camera'], ['makan', 'Makan', 'bi-cup-hot'], ['transport', 'Pesawat', 'bi-airplane'], ['mobil', 'Mobil', 'bi-car-front'], ['inap', 'Menginap', 'bi-building'], ['belanja', 'Belanja', 'bi-bag'], ['lain', 'Lainnya', 'bi-geo-alt']];
 const ITIN_C = ['#FBEBB5', '#D5F0F7', '#F8CFE0', '#CFF2D6', '#E8D3F5', '#FFE1C7'];
 const itinOf = g => { const a = parseMeta(g.meta).itin; return Array.isArray(a) ? a : []; };
 function itinSave_(g, days) {
@@ -1395,26 +1395,28 @@ function itinSave_(g, days) {
 function itinDate_(g, i) { if (!g.tgl_pelaksanaan) return ''; const d = new Date(g.tgl_pelaksanaan + 'T00:00:00'); d.setDate(d.getDate() + i); return d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' }); }
 function itinCardHtml(g) {
   const days = itinOf(g), ed = canEdit(g);
-  const dayHtml = (d, i) => {
-    const acts = (d.a || []).slice().sort((x, y) => String(x.j || '99').localeCompare(String(y.j || '99')));
-    return `<div class="itin-day" style="--c:${ITIN_C[i % ITIN_C.length]}">
-      <div class="itin-h"><span class="itin-no">Hari ${i + 1}</span>${itinDate_(g, i) ? `<span class="itin-dt">${esc(itinDate_(g, i))}</span>` : ''}
-        ${ed ? `<button class="card-more itin-more" data-action="cardMenu" aria-label="Opsi hari ${i + 1}"><i class="bi bi-three-dots"></i></button><template class="cm-items"><button data-action="itinDay" data-id="${g.goal_id}" data-i="${i}"><i class="bi bi-pencil"></i> Ubah judul hari</button><button class="danger" data-action="itinDelDay" data-id="${g.goal_id}" data-i="${i}"><i class="bi bi-trash3"></i> Hapus hari</button></template>` : ''}</div>
-      ${d.t ? `<div class="itin-t">${esc(d.t)}</div>` : ''}
-      <ul class="itin-acts">${acts.map(a => { const k = ITIN_JENIS.find(x => x[0] === a.k) || ITIN_JENIS[5], idx = d.a.indexOf(a);
-        return `<li class="itin-act"><span class="itin-ic"><i class="bi ${k[2]}"></i></span><div class="itin-body"><div class="itin-row">${a.j ? `<span class="itin-jam">${esc(a.j)}</span>` : ''}<b>${esc(a.n)}</b></div>${a.l ? `<div class="tiny muted"><i class="bi bi-geo-alt"></i> ${esc(a.l)}</div>` : ''}${a.c ? `<div class="tiny muted">${esc(a.c)}</div>` : ''}</div>
-          ${ed ? `<button class="icon-btn sm itin-edit" data-action="itinAct" data-id="${g.goal_id}" data-i="${i}" data-x="${idx}" aria-label="Ubah kegiatan"><i class="bi bi-pencil"></i></button>` : ''}</li>`; }).join('') || '<li class="tiny muted itin-empty">Belum ada kegiatan.</li>'}</ul>
-      ${ed ? `<button class="itin-add" data-action="itinAct" data-id="${g.goal_id}" data-i="${i}"><i class="bi bi-plus-lg"></i> Kegiatan</button>` : ''}
-    </div>`;
-  };
-  return `<div class="card itin-card"><div class="d-flex align-items-center justify-content-between gap-2 mb-2"><h3 class="m-0">🧳 Itinerary Perjalanan</h3>
-      ${ed ? `<button class="btn btn-dark btn-sm" data-action="itinAddDay" data-id="${g.goal_id}"><i class="bi bi-plus-lg"></i> Hari ${days.length + 1}</button>` : ''}</div>
-    <p class="tiny muted mb-3">${days.length ? `${days.length} hari${g.tgl_pelaksanaan ? ` · mulai ${fmtLong(g.tgl_pelaksanaan)}` : ' · tanggal mengikuti tanggal pelaksanaan'}` : 'Susun rencana harian liburan: tempat wisata, makan, perjalanan, dan penginapan.'}</p>
-    ${days.length ? `<div class="itin-grid">${days.map(dayHtml).join('')}</div>` : (ed ? `<button class="itin-start" data-action="itinAddDay" data-id="${g.goal_id}"><i class="bi bi-map"></i><b>Mulai susun itinerary</b><span class="tiny muted">Tambah Hari 1</span></button>` : '')}
+  let sel = S.ui.itinSel && S.ui.itinSel.g === g.goal_id ? S.ui.itinSel.i : 0; if (sel >= days.length) sel = Math.max(0, days.length - 1);
+  const d = days[sel], c = ITIN_C[sel % ITIN_C.length];
+  const tabs = days.map((x, i) => `<button class="itin-tab ${i === sel ? 'on' : ''}" style="--c:${ITIN_C[i % ITIN_C.length]}" data-action="itinSel" data-id="${g.goal_id}" data-i="${i}"><b>Hari ${i + 1}</b>${itinDate_(g, i) ? `<small>${esc(itinDate_(g, i).replace(/^[^,]+,\s*/, ''))}</small>` : ''}</button>`).join('')
+    + (ed ? `<button class="itin-tab add" data-action="itinAddDay" data-id="${g.goal_id}" title="Tambah hari" aria-label="Tambah hari"><i class="bi bi-plus-lg"></i></button>` : '');
+  const panel = d ? (() => {
+    const acts = (d.a || []).map((a, idx) => ({ a, idx })).sort((x, y) => String(x.a.j || '99').localeCompare(String(y.a.j || '99')));
+    return `<div class="itin-panel" style="--c:${c}">
+      <div class="itin-ph"><div class="itin-pt"><b>${d.t ? esc(d.t) : 'Hari ' + (sel + 1)}</b>${itinDate_(g, sel) ? `<span>${esc(itinDate_(g, sel))}</span>` : ''}</div>
+        ${ed ? `<button class="card-more itin-more" data-action="cardMenu" aria-label="Opsi hari ${sel + 1}"><i class="bi bi-three-dots"></i></button><template class="cm-items"><button data-action="itinDay" data-id="${g.goal_id}" data-i="${sel}"><i class="bi bi-pencil"></i> Ubah judul hari</button><button class="danger" data-action="itinDelDay" data-id="${g.goal_id}" data-i="${sel}"><i class="bi bi-trash3"></i> Hapus hari</button></template>` : ''}</div>
+      <ul class="itin-list">${acts.map(({ a, idx }) => { const k = ITIN_JENIS.find(x => x[0] === a.k) || ITIN_JENIS[ITIN_JENIS.length - 1];
+        return `<li ${ed ? `data-action="itinAct" data-id="${g.goal_id}" data-i="${sel}" data-x="${idx}" title="Ubah"` : ''}><span class="itin-j">${esc(a.j || '–')}</span><span class="itin-ic"><i class="bi ${k[2]}"></i></span>
+          <span class="itin-n"><b>${esc(a.n)}</b>${a.l ? `<small> · ${esc(a.l)}</small>` : ''}${a.c ? `<small class="d-block">${esc(a.c)}</small>` : ''}</span></li>`; }).join('') || '<li class="itin-empty">Belum ada kegiatan.</li>'}</ul>
+      ${ed ? `<button class="itin-add" data-action="itinAct" data-id="${g.goal_id}" data-i="${sel}"><i class="bi bi-plus-lg"></i> Kegiatan</button>` : ''}</div>`;
+  })() : '';
+  return `<div class="card itin-card"><h3 class="mb-1">🧳 Itinerary Perjalanan</h3>
+    <p class="tiny muted mb-2">${days.length ? `${days.length} hari${g.tgl_pelaksanaan ? ` · mulai ${fmtLong(g.tgl_pelaksanaan)}` : ''}` : 'Susun rencana harian: wisata, makan, perjalanan, penginapan.'}</p>
+    ${days.length ? `<div class="itin-tabs hscroll">${tabs}</div>${panel}` : (ed ? `<button class="itin-start" data-action="itinAddDay" data-id="${g.goal_id}"><i class="bi bi-map"></i><b>Mulai susun itinerary</b><span class="tiny muted">Tambah Hari 1</span></button>` : '')}
   </div>`;
 }
 Object.assign(Actions, {
-  itinAddDay: d => { const g = goalById(d.id); if (!g) return; const days = itinOf(g).concat([{ t: '', a: [] }]); itinSave_(g, days); toast(`Hari ${days.length} ditambahkan`); },
+  itinSel: d => { S.ui.itinSel = { g: d.id, i: Number(d.i) }; renderAll(); },
+  itinAddDay: d => { const g = goalById(d.id); if (!g) return; const days = itinOf(g).concat([{ t: '', a: [] }]); S.ui.itinSel = { g: g.goal_id, i: days.length - 1 }; itinSave_(g, days); toast(`Hari ${days.length} ditambahkan`); },
   itinDelDay: d => { const g = goalById(d.id); if (!g) return; const i = Number(d.i), days = itinOf(g);
     confirmBox({ title: `Hapus Hari ${i + 1}?`, text: `${(days[i].a || []).length} kegiatan di hari ini ikut terhapus. Hari setelahnya akan bergeser maju.`, ok: 'Hapus', danger: true }, () => { days.splice(i, 1); itinSave_(g, days); toast('Hari dihapus'); }); },
   itinDay: d => { const g = goalById(d.id); if (!g) return; const i = Number(d.i), day = itinOf(g)[i] || {};
