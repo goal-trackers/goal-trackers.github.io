@@ -416,3 +416,37 @@ function renderCelebrate() {
 }
 
 window.__GT_PARTS = (window.__GT_PARTS || []).concat('JS2');
+
+// ── Masonry ringan untuk kartu rincian goal: tiap kolom mengalir sendiri, tanpa celah ──
+const MASONRY_UNIT = 4, MASONRY_GAP = 16;
+const masonryRO = typeof ResizeObserver === 'function' ? new ResizeObserver(() => requestAnimationFrame(masonryAll_)) : null;
+function masonryItems_(el) {
+  const out = [];
+  [...el.children].forEach(c => { if (getComputedStyle(c).display === 'contents') out.push(...masonryItems_(c)); else out.push(c); });
+  return out;
+}
+function masonryReset_(box) {
+  box.style.gridAutoRows = ''; box.style.rowGap = '';
+  masonryItems_(box).forEach(it => { it.style.gridRowEnd = ''; });
+}
+function masonryLayout_(box) {
+  const cs = getComputedStyle(box);
+  if (cs.display !== 'grid') return;
+  const cols = cs.gridTemplateColumns.split(' ').filter(Boolean).length;
+  if (cols < 2) { masonryReset_(box); return; }
+  box.style.gridAutoRows = MASONRY_UNIT + 'px'; box.style.rowGap = '0px';
+  masonryItems_(box).forEach(it => {
+    if (masonryRO && !it.__mObs) { masonryRO.observe(it); it.__mObs = 1; }
+    const h = it.getBoundingClientRect().height;
+    it.style.gridRowEnd = 'span ' + Math.max(1, Math.ceil((h + MASONRY_GAP) / MASONRY_UNIT));
+  });
+}
+function masonryAll_() {
+  document.querySelectorAll('.detail-grid').forEach(g => {
+    const main = g.querySelector(':scope > .dg-main');
+    if (main && getComputedStyle(main).display === 'grid') { masonryReset_(g); masonryLayout_(main); }
+    else masonryLayout_(g);
+  });
+}
+new MutationObserver(() => requestAnimationFrame(masonryAll_)).observe(document.body, { childList: true, subtree: true });
+window.addEventListener('resize', () => requestAnimationFrame(masonryAll_));
