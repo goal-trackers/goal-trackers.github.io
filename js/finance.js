@@ -338,7 +338,7 @@ function extraDetailCards(g) {
         ${canEdit(g) ? `<button class="link-btn p-0" style="min-height:0" data-action="execDate" data-id="${g.goal_id}">Tetapkan sekarang saja</button>` : ''}</div>`;
     }
   }
-  if (needsExecDate(g)) out += itinCardHtml(g);
+  if (isLiburan_(g)) out += itinCardHtml(g);
   out += pengeluaranCardHtml(g);
   return out;
 }
@@ -1393,6 +1393,8 @@ function itinSave_(g, days) {
   saveSnapshot(); renderAll(); Outbox.push('saveGoal', goalSaveArgs_(g));
 }
 function itinDate_(g, i) { if (!g.tgl_pelaksanaan) return ''; const d = new Date(g.tgl_pelaksanaan + 'T00:00:00'); d.setDate(d.getDate() + i); return d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' }); }
+/** Itinerary hanya untuk goal berkategori Liburan */
+function isLiburan_(g) { const c = catById(g.kategori_id) || {}; return g.kategori_id === 'cat-liburan' || /liburan|wisata|travel/i.test(c.nama || '') || g.template === 'liburan'; }
 function itinCardHtml(g) {
   const days = itinOf(g), ed = canEdit(g);
   let sel = S.ui.itinSel && S.ui.itinSel.g === g.goal_id ? S.ui.itinSel.i : 0; if (sel >= days.length) sel = Math.max(0, days.length - 1);
@@ -1411,7 +1413,7 @@ function itinCardHtml(g) {
   })() : '';
   return `<div class="card itin-card"><h3 class="mb-1">🧳 Itinerary Perjalanan</h3>
     <p class="tiny muted mb-2">${days.length ? `${days.length} hari${g.tgl_pelaksanaan ? ` · mulai ${fmtLong(g.tgl_pelaksanaan)}` : ''}` : 'Susun rencana harian: wisata, makan, perjalanan, penginapan.'}</p>
-    ${days.length ? `<div class="itin-tabs hscroll">${tabs}</div>${panel}` : (ed ? `<button class="itin-start" data-action="itinAddDay" data-id="${g.goal_id}"><i class="bi bi-map"></i><b>Mulai susun itinerary</b><span class="tiny muted">Tambah Hari 1</span></button>` : '')}
+    ${days.length ? `<div class="itin-tabwrap"><button class="itin-nav prev" data-action="itinScroll" data-dir="-1" aria-label="Hari sebelumnya"><i class="bi bi-chevron-left"></i></button><div class="itin-tabs hscroll">${tabs}</div><button class="itin-nav next" data-action="itinScroll" data-dir="1" aria-label="Hari berikutnya"><i class="bi bi-chevron-right"></i></button></div>${panel}` : (ed ? `<button class="itin-start" data-action="itinAddDay" data-id="${g.goal_id}"><i class="bi bi-map"></i><b>Mulai susun itinerary</b><span class="tiny muted">Tambah Hari 1</span></button>` : '')}
   </div>`;
 }
 Object.assign(Actions, {
@@ -1446,3 +1448,22 @@ Object.assign(Forms, {
     if (x >= 0) days[i].a[x] = a; else days[i].a.push(a);
     closeSheet(); itinSave_(g, days); toast(x >= 0 ? 'Kegiatan diperbarui' : 'Kegiatan ditambahkan ✈️'); }
 });
+
+Actions.itinScroll = (d, el) => { const row = el.parentElement.querySelector('.itin-tabs'); if (row) row.scrollBy({ left: Number(d.dir) * Math.max(160, row.clientWidth * .7), behavior: 'smooth' }); };
+/* Tab hari: tampilkan panah hanya bila bisa digeser; hari aktif selalu terlihat */
+function itinTabsSync_() {
+  document.querySelectorAll('.itin-tabwrap').forEach(w => {
+    const r = w.querySelector('.itin-tabs'); if (!r) return;
+    const upd = () => { w.classList.toggle('can-l', r.scrollLeft > 4); w.classList.toggle('can-r', r.scrollLeft + r.clientWidth < r.scrollWidth - 4); };
+    if (!r._b) { r._b = 1; r.addEventListener('scroll', upd, { passive: true });
+      let sx = 0, sl = 0, drag = false;   // geser dengan seret mouse (desktop)
+      r.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; drag = true; sx = e.clientX; sl = r.scrollLeft; r._moved = false; });
+      window.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - sx; if (Math.abs(dx) > 4) r._moved = true; r.scrollLeft = sl - dx; });
+      window.addEventListener('pointerup', () => { drag = false; });
+      r.addEventListener('click', e => { if (r._moved) { e.stopPropagation(); e.preventDefault(); r._moved = false; } }, true); }
+    const on = r.querySelector('.itin-tab.on');
+    if (on && !r._kept) { const a = on.offsetLeft, b = a + on.offsetWidth; if (a < r.scrollLeft || b > r.scrollLeft + r.clientWidth) r.scrollLeft = a - (r.clientWidth - on.offsetWidth) / 2; }
+    r._kept = false; upd();
+  });
+}
+new MutationObserver(() => itinTabsSync_()).observe(document.body, { childList: true, subtree: true });
