@@ -1726,3 +1726,4 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .exp-toggle .bi { transition: transform .2s; }
 .exp-toggle.open .bi { transform: rotate(180deg); }
 .exp-toggle .muted { font-weight: 600; }
+.detail-grid .dg-log { align-self: start; }
