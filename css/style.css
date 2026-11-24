@@ -1746,3 +1746,5 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .bt-row button.on .bt-n { background: #fff; color: #111; }
 [data-theme="dark"] .bt-row button.on, [data-theme="dark"] .bt-row button.on:hover { background: #F2F2F2; color: #111; }
 [data-theme="dark"] .bt-row button.on .bt-n { background: #111; color: #F2F2F2; }
+.hp-tag { white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: top; }
+@media (max-width: 400px) { .harta-item .hp-tag { font-size: 11.5px; padding: 2px 7px; } }
