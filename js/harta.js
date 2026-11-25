@@ -62,8 +62,7 @@ function hartaExtraHtml() {
   const keys = Object.keys(HARTA).filter(k => sum[k]);
   if (!keys.length) return '';
   const total = keys.reduce((s, k) => s + (sum[k].nilai || 0), 0);
-  return `<div class="fin-row tiny"><span class="muted">Harta</span><strong>${keys.slice(0, 3).map(k => HARTA[k].emoji + ' ' + qtyText(sum[k].qty)).join(' · ')}</strong></div>
-    ${total ? `<div class="fin-row tiny"><span class="muted">Perkiraan nilai harta</span><strong>± ${fmtShort(total, 'Rp')}</strong></div>` : ''}`;
+  return `<div class="fin-row tiny"><span class="muted">Harta</span><strong>${total ? `± ${fmtShort(total, 'Rp')} · ` : ''}${keys.slice(0, 3).map(k => HARTA[k].emoji + ' ' + qtyText(sum[k].qty)).join(' · ')}</strong></div>`;
 }
 
 // ── Ilustrasi batangan emas/perak (bukan foto/logo merek), ukuran mengikuti berat ──

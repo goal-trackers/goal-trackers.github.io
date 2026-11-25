@@ -368,7 +368,7 @@ function finExtraHtml() {
   const rk = rekList().filter(g => ['RDPU', 'Dolar'].includes(rekJenis(g)));
   const rdpu = rk.filter(g => rekJenis(g) === 'RDPU').reduce((s, g) => s + rekRp(g), 0);
   const usd = rk.filter(isUsdRek).reduce((s, g) => s + rekUsd(g), 0), usdRp = rk.filter(isUsdRek).reduce((s, g) => s + rekRp(g), 0);
-  const rkRow = rk.length ? `<div class="fin-row tiny"><span class="muted">Rekening</span><strong>${[rk.some(g => rekJenis(g) === 'RDPU') ? 'RDPU ' + fmtShort(rdpu, 'Rp') : '', rk.some(isUsdRek) ? fmtUsd(usd) + ' ≈ ' + fmtShort(usdRp, 'Rp') : ''].filter(Boolean).join(' · ')}</strong></div>` : '';
+  const rkRow = rk.length ? `<div class="fin-row tiny"><span class="muted">Rekening</span><strong>± ${fmtVal(rdpu + usdRp, 'Rp')}</strong></div>` : '';
   const hx = rkRow + hartaExtraHtml();
   if (!act.length && !loans.length) return hx;
   return `${act.length ? `<div class="fin-row tiny"><span class="muted">Investasi aktif</span><strong>${fmtShort(act.reduce((s, a) => s + nomRp(a), 0), 'Rp')} · kupon ${fmtShort(act.reduce((s, a) => s + assetInfo(a).net, 0), 'Rp')}/bln</strong></div>` : ''}
