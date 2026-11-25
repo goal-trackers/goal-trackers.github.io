@@ -481,7 +481,6 @@ function finSavingsHtml(f) {
       `<button data-action="openGoal" data-id="${g.goal_id}"><i class="bi bi-list-ul"></i> Rincian</button>`,
       canEdit(g) ? `<button data-action="editGoal" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit</button>` : ''].join('');
     return `<div class="card tint fin-note has-more" style="--c:${esc(goalColor(g))}">
-      ${done ? stampHtml('TERCAPAI', goalDoneDate(g)) : ''}
       ${tag ? `<div class="tpl-row align-items-center gap-2">${tag}${cardMenuBtn(mItems, g.judul)}</div>` : cardMenuBtn(mItems, g.judul)}
       <div class="d-flex align-items-center gap-3">
         <div class="ring" style="--p:${goalPct(g)};--size:84px"><div><b>${pctInt(g)}%</b></div></div>
@@ -762,7 +761,6 @@ function finLoansHtml() {
   const cards = list.map(l => {
     const i = loanInfo(l);
     return `<div class="card tint fin-note has-more" style="--c:#E8D3F5;--fg:#7E3FB3">
-      ${i.done ? stampHtml('LUNAS', i.lunas && i.lunas <= today() ? i.lunas : (String(l.diubah_pada || '').slice(0, 10) || today())) : ''}
       <div class="tpl-row d-flex gap-2 align-items-center"><span class="chip tint" style="--c:#E8D3F5">${esc(l.pemberi)}</span>${cardMenuBtn(`${!i.done ? `<button data-action="loanLunas" data-id="${l.pinjaman_id}"><i class="bi bi-check2-circle"></i> Tandai lunas</button>` : ''}<button data-action="editLoan" data-id="${l.pinjaman_id}"><i class="bi bi-pencil"></i> Edit</button><button class="danger" data-action="delLoan" data-id="${l.pinjaman_id}"><i class="bi bi-trash3"></i> Hapus</button>`, l.nama)}</div>
       <div class="loan-grid">
         <div class="ring" style="--p:${i.pct};--size:88px"><div><b>${i.k}</b><small>dari ${i.n} bln</small></div></div>

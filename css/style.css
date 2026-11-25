@@ -1796,18 +1796,3 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .card.hc > :first-child .muted { color: rgba(27,27,27,.6) !important; }
 .card.hc.itin-card > h3:first-child { margin-bottom: 10px; }
 [data-theme="dark"] .card.hc > :first-child { background: color-mix(in srgb, var(--hc) 88%, #000); }
-
-/* Stempel LUNAS / TERCAPAI */
-.fin-note, .gcard { position: relative; }
-.stamp { position: absolute; top: 64px; right: 16px; width: 104px; height: 104px; border-radius: 50%; border: 3px solid #1B7F3A; color: #1B7F3A; display: grid; place-items: center; text-align: center; transform: rotate(-12deg); opacity: .88; background: rgba(255,255,255,.22); pointer-events: none; z-index: 2; line-height: 1.15; }
-.stamp::before { content: ""; position: absolute; inset: 5px; border: 1.5px dashed #1B7F3A; border-radius: 50%; }
-.stamp b { display: block; font-size: 19px; font-weight: 900; letter-spacing: 2px; margin: 2px 0; }
-.stamp small { display: block; font-size: 9.5px; font-weight: 700; }
-.stamp b:only-child, .stamp small:first-child + b:last-child { margin-bottom: 6px; }
-.gcard .stamp { top: auto; bottom: 64px; right: 14px; width: 92px; height: 92px; }
-.gcard .stamp b { font-size: 15px; letter-spacing: 1px; }
-.stamp b { font-size: 17px; letter-spacing: 1.5px; }
-.stamp.long b, .stamp b.long { font-size: 14px; letter-spacing: .5px; }
-.gcard .stamp { top: 50%; bottom: auto; right: 72px; width: 84px; height: 84px; margin-top: -42px; }
-.gcard .stamp b { font-size: 12.5px; letter-spacing: .5px; }
-.gcard .stamp small { font-size: 8.5px; }

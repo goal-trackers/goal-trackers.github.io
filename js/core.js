@@ -538,11 +538,6 @@ function celebrateList(list, g) {
 // ============================================================
 // KOMPONEN KARTU
 // ============================================================
-/** Stempel bulat hijau untuk yang sudah lunas/tercapai */
-function stampHtml(label, tgl) {
-  return `<div class="stamp" aria-label="${esc(label)}${tgl ? ' ' + esc(fmtDate(tgl)) : ''}"><div><small>Goal Trackers</small><b class="${label.length > 6 ? 'long' : ''}">${esc(label)}</b>${tgl ? `<small>${esc(fmtDate(tgl))}</small>` : ''}</div></div>`;
-}
-const goalDoneDate = g => { const l = logsOf(g.goal_id)[0]; return l ? l.tanggal : ''; };
 function goalCard(g, o = {}) {
   const st = goalState(g);
   const [lbl, cls] = STATE_LABEL[st];
@@ -558,7 +553,6 @@ function goalCard(g, o = {}) {
     ? `<button class="icon-btn sm" data-action="${g.tipe_target === 'Checklist' ? 'addTask' : 'logProgress'}" data-id="${g.goal_id}" aria-label="${g.tipe_target === 'Checklist' ? 'Tambah tugas ke' : 'Catat progres'} ${esc(g.judul)}" title="${g.tipe_target === 'Checklist' ? 'Tambah tugas' : 'Catat progres'}"><i class="bi bi-plus-lg"></i></button>` : '';
   return `<article class="gcard tint${o.featured ? ' featured' : ''}" style="--c:${esc(color)}" data-id="${g.goal_id}" aria-label="${esc(g.judul)}">
     ${corner}
-    ${st === 'done' ? stampHtml('TERCAPAI', goalDoneDate(g)) : ''}
     ${o.featured ? '<span class="fx-note" aria-hidden="true">✨</span>' : ''}
     <span class="gc-cat"><i class="bi ${esc(cat.ikon)}"></i>${esc(cat.nama)} · ${owner}</span>
     <h3>${esc(g.judul)}</h3>
