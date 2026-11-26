@@ -203,7 +203,7 @@ function hartaItemCard(h) {
   return `<div class="card harta-item tint fin-note has-more" style="--c:${t.c}">
     ${cardMenuBtn(`<button data-action="editHarta" data-id="${h.harta_id}"><i class="bi bi-pencil"></i> Edit</button><button class="danger" data-action="delHarta" data-id="${h.harta_id}"><i class="bi bi-trash3"></i> Hapus</button>`, h.nama)}
     <div class="d-flex align-items-center gap-3">
-      <div class="harta-item-pic">${hartaThumb(h, h.jenis === 'Emas' || h.jenis === 'Perak' ? 46 : 50)}</div>
+      <div class="harta-item-pic">${hartaThumb(h, h.jenis === 'Emas' || h.jenis === 'Perak' ? 32 : 50)}</div>
       <div class="flex-grow-1" style="min-width:0">
         <div class="fw-bold text-truncate" style="font-size:16px">${esc(h.nama)}</div>
         <div class="harta-total" style="font-size:20px">${fmtGram(h.jumlah)} ${esc(h.satuan)}</div>
