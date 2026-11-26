@@ -640,4 +640,7 @@ const BackGuard = {
 };
 window.addEventListener('popstate', BackGuard.onPop);
 // Chrome mengabaikan entri riwayat yang dibuat tanpa sentuhan pengguna, jadi penjaga dipasang (ulang) saat ada interaksi.
-['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => BackGuard.ensure(), { capture: true, passive: true }));
+// Di layar sentuh, "user activation" baru terjadi pada touchend/pointerup (bukan pointerdown), jadi dengarkan event itu.
+['touchend', 'pointerup', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, () => BackGuard.ensure(), { capture: true, passive: true }));
+// Setelah kembali dari latar belakang / layar dibuka lagi, pastikan penjaga masih ada.
+document.addEventListener('visibilitychange', () => { if (!document.hidden) BackGuard.ensure(); });
