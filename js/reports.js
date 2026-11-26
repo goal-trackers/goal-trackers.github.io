@@ -297,7 +297,7 @@ function renderSettings() {
         <form data-form="unit" class="d-flex gap-2"><input class="input" name="unit" maxlength="20" placeholder="mis. liter, sesi" aria-label="Satuan baru"><button class="btn btn-dark btn-sm" type="submit">Tambah</button></form></div>`,
     admin: admin,
     aplikasi: `<div class="card">
-        <p class="tiny muted">Goal Trackers v1.0 · data tersimpan di Google Sheets milik Admin. Perubahan tersimpan otomatis di latar belakang (ikon awan di atas).</p>
+        <p class="tiny muted">Goal Trackers versi ${esc(((document.querySelector('script[src*="core.js"]') || {}).src || '').split('v=')[1] || '-')} · data tersimpan di Google Sheets milik Admin. Perubahan tersimpan otomatis di latar belakang (ikon awan di atas).</p>
         <div class="d-grid gap-2">
           <button class="btn btn-soft btn-sm" data-action="reload"><i class="bi bi-arrow-repeat"></i> Muat ulang data</button>
           <button class="btn btn-danger btn-sm" data-action="logout"><i class="bi bi-box-arrow-right"></i> Keluar</button>

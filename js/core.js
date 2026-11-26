@@ -357,6 +357,7 @@ function navigateTo(page, opts = {}) {
   renderPage(page);
   window.scrollTo(0, 0);
   closeSheet();
+  if (typeof BackGuard !== 'undefined') BackGuard.ensure();
 }
 function goBack() {
   const prev = S.ui.history.pop();
