@@ -1796,3 +1796,13 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .card.hc > :first-child .muted { color: rgba(27,27,27,.6) !important; }
 .card.hc.itin-card > h3:first-child { margin-bottom: 10px; }
 [data-theme="dark"] .card.hc > :first-child { background: color-mix(in srgb, var(--hc) 88%, #000); }
+
+/* Kartu harta lebar: Harga beli & Taksiran sejajar dengan nama/berat */
+.harta-item { container-type: inline-size; }
+.harta-item .hi-head { padding-right: 54px; }
+@container (min-width: 600px) {
+  .harta-item .hi-main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 16px; align-items: center; padding-right: 54px; }
+  .harta-item .hi-head { padding-right: 0; }
+  .harta-item .hi-kv { margin-top: 0 !important; }
+  .harta-item .hp-row { margin-right: 0; }
+}
