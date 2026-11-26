@@ -480,7 +480,9 @@ function finSavingsHtml(f) {
   const cards = list.map(g => {
     const done = goalState(g) === 'done';
     const m = parseMeta(g.meta);
-    const tag = TPL[g.template] ? `<span class="chip tint tpl-tag" style="--c:${esc(goalColor(g))}"><i class="bi ${esc(TPL[g.template].ikon || (catById(TPL[g.template].cat) || {}).ikon || 'bi-bookmark')}"></i><span class="tt-l">${TPL[g.template].label}</span></span>` : '';
+    const gc = g.kategori_id && S.categories.find(c => c.kategori_id === g.kategori_id);
+    const tag = TPL[g.template] ? `<span class="chip tint tpl-tag" style="--c:${esc(goalColor(g))}"><i class="bi ${esc(TPL[g.template].ikon || (catById(TPL[g.template].cat) || {}).ikon || 'bi-bookmark')}"></i><span class="tt-l">${TPL[g.template].label}</span></span>`
+      : gc ? `<span class="chip tint tpl-tag" style="--c:${esc(goalColor(g))}"><i class="bi ${esc(gc.ikon || 'bi-bookmark')}"></i><span class="tt-l">${esc(gc.nama)}</span></span>` : '';
     const mItems = [
       canLog(g) && !done ? `<button data-action="logProgress" data-id="${g.goal_id}"><i class="bi bi-plus-lg"></i> Setor</button>` : '',
       done && needsExecDate(g) && !g.tgl_pelaksanaan && canEdit(g) ? `<button data-action="execDate" data-id="${g.goal_id}"><i class="bi bi-calendar-plus"></i> Tetapkan tanggal pelaksanaan</button>` : '',
