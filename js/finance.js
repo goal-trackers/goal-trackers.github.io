@@ -369,7 +369,10 @@ function finExtraHtml() {
   const rdpu = rk.filter(g => rekJenis(g) === 'RDPU').reduce((s, g) => s + rekRp(g), 0);
   const usd = rk.filter(isUsdRek).reduce((s, g) => s + rekUsd(g), 0), usdRp = rk.filter(isUsdRek).reduce((s, g) => s + rekRp(g), 0);
   const rkRow = rk.length ? `<div class="fin-row tiny"><span class="muted">Rekening</span><strong>± ${fmtVal(rdpu + usdRp, 'Rp')}</strong></div>` : '';
-  const hx = rkRow + hartaExtraHtml();
+  const dd = (S.goals || []).filter(g => g.tipe_target === 'Finansial' && g.status !== 'Arsip' && !isRek(g) && (g.template === 'darurat' || g.kategori_id === 'cat-darurat' || /darurat/i.test(g.judul || '')));
+  const ddSisa = dd.reduce((s, g) => s + anggaranInfo(g).sisa, 0), ddTarget = dd.reduce((s, g) => s + (Number(g.nilai_target) || 0), 0);
+  const ddRow = dd.length ? `<div class="fin-row tiny"><span class="muted">Dana darurat</span><strong>${fmtVal(ddSisa, 'Rp')}${ddTarget ? ` <span class="muted fw-normal">dari ${fmtShort(ddTarget, 'Rp')}</span>` : ''}</strong></div>` : '';
+  const hx = ddRow + rkRow + hartaExtraHtml();
   if (!act.length && !loans.length) return hx;
   return `${act.length ? `<div class="fin-row tiny"><span class="muted">Investasi aktif</span><strong>${fmtShort(act.reduce((s, a) => s + nomRp(a), 0), 'Rp')} · kupon ${fmtShort(act.reduce((s, a) => s + assetInfo(a).net, 0), 'Rp')}/bln</strong></div>` : ''}
     ${loans.length ? `<div class="fin-row tiny"><span class="muted">Sisa cicilan</span><strong>${fmtShort(loans.reduce((s, l) => s + loanInfo(l).sisaBayar, 0), 'Rp')}</strong></div>` : ''}${hx}`;
