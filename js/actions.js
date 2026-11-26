@@ -605,3 +605,39 @@ if (mqWide.addEventListener) mqWide.addEventListener('change', onMq); else if (m
 window.__GT_PARTS = (window.__GT_PARTS || []).concat('JS4');
 
 function fmtMonthLabel() { const m = String(S.ui.reportMonth || today().slice(0, 7)); try { return new Date(m + '-01T00:00:00').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }); } catch (e) { return m; } }
+
+// ============================================================
+// TOMBOL / GESTUR KEMBALI (Android & Samsung swipe back)
+// Aplikasi menyimpan satu "penjaga" di riwayat browser. Saat pengguna menekan
+// kembali, penjaga terpakai, aplikasi menangani langkah mundurnya sendiri
+// (tutup menu/sheet → halaman sebelumnya → Beranda), lalu memasang penjaga lagi.
+// Di Beranda: geser sekali lagi dalam 2 detik untuk keluar.
+// ============================================================
+const BackGuard = {
+  exitArmed: false, timer: null,
+  active: () => !!S.token && !$('#app').hidden,
+  ensure() {
+    if (!this.active() || this.exitArmed) return;
+    if (!(history.state && history.state.gtGuard)) { try { history.pushState({ gtGuard: 1 }, ''); } catch (e) { } }
+  },
+  onPop() {
+    if (!BackGuard.active()) return;
+    if (history.state && history.state.gtGuard) return; // maju lagi ke penjaga
+    let handled = true;
+    if (document.getElementById('cardMenu')) closeCardMenu();
+    else if (document.getElementById('hfPop')) closeHfPop();
+    else if (!$('#celebration').hidden) Actions.closeCelebration();
+    else if (document.body.classList.contains('sheet-open')) closeSheet();
+    else if (S.ui.history.length || S.ui.page !== 'dashboard') goBack();
+    else handled = false;
+    if (handled) { BackGuard.exitArmed = false; BackGuard.ensure(); return; }
+    // Di Beranda tanpa riwayat: minta konfirmasi dengan geser sekali lagi
+    BackGuard.exitArmed = true;
+    toast('Geser kembali sekali lagi untuk keluar');
+    clearTimeout(BackGuard.timer);
+    BackGuard.timer = setTimeout(() => { BackGuard.exitArmed = false; BackGuard.ensure(); }, 2000);
+  }
+};
+window.addEventListener('popstate', BackGuard.onPop);
+// Chrome mengabaikan entri riwayat yang dibuat tanpa sentuhan pengguna, jadi penjaga dipasang (ulang) saat ada interaksi.
+['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => BackGuard.ensure(), { capture: true, passive: true }));
