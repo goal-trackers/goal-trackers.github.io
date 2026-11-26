@@ -614,33 +614,36 @@ function fmtMonthLabel() { const m = String(S.ui.reportMonth || today().slice(0,
 // Di Beranda: geser sekali lagi dalam 2 detik untuk keluar.
 // ============================================================
 const BackGuard = {
-  exitArmed: false, timer: null,
+  // Chrome Android melewati entri riwayat yang dibuat tanpa sentuhan pengguna. Karena itu
+  // beberapa penjaga (DEPTH) dipasang sekaligus saat pengguna menyentuh layar, dan saat
+  // gestur kembali kita hanya memakai satu penjaga (tidak memasang baru tanpa sentuhan).
+  DEPTH: 4, skip: 0,
   active: () => !!S.token && !$('#app').hidden,
+  depth: () => (history.state && history.state.gtGuard) || 0,
   ensure() {
-    if (!this.active() || this.exitArmed) return;
-    if (!(history.state && history.state.gtGuard)) { try { history.pushState({ gtGuard: 1 }, ''); } catch (e) { } }
+    if (!this.active()) return;
+    // Hanya saat ada sentuhan pengguna yang masih aktif; tanpa itu Chrome menandai entri sebagai "dilewati"
+    if (navigator.userActivation && !navigator.userActivation.isActive) return;
+    try { for (let d = this.depth(); d < this.DEPTH; d++) history.pushState({ gtGuard: d + 1 }, ''); } catch (e) { }
   },
   onPop() {
+    if (BackGuard.skip > 0) { BackGuard.skip--; return; }
     if (!BackGuard.active()) return;
-    if (history.state && history.state.gtGuard) return; // maju lagi ke penjaga
-    let handled = true;
     if (document.getElementById('cardMenu')) closeCardMenu();
     else if (document.getElementById('hfPop')) closeHfPop();
     else if (!$('#celebration').hidden) Actions.closeCelebration();
     else if (document.body.classList.contains('sheet-open')) closeSheet();
     else if (S.ui.history.length || S.ui.page !== 'dashboard') goBack();
-    else handled = false;
-    if (handled) { BackGuard.exitArmed = false; BackGuard.ensure(); return; }
-    // Di Beranda tanpa riwayat: minta konfirmasi dengan geser sekali lagi
-    BackGuard.exitArmed = true;
-    toast('Geser kembali sekali lagi untuk keluar');
-    clearTimeout(BackGuard.timer);
-    BackGuard.timer = setTimeout(() => { BackGuard.exitArmed = false; BackGuard.ensure(); }, 2000);
+    else {
+      // Beranda: buang sisa penjaga, sehingga geser berikutnya menutup aplikasi
+      toast('Geser kembali sekali lagi untuk keluar');
+      const d = BackGuard.depth();
+      if (d > 0) { BackGuard.skip = 1; history.go(-d); }
+    }
   }
 };
 window.addEventListener('popstate', BackGuard.onPop);
 // Chrome mengabaikan entri riwayat yang dibuat tanpa sentuhan pengguna, jadi penjaga dipasang (ulang) saat ada interaksi.
 // Di layar sentuh, "user activation" baru terjadi pada touchend/pointerup (bukan pointerdown), jadi dengarkan event itu.
 ['touchend', 'pointerup', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, () => BackGuard.ensure(), { capture: true, passive: true }));
-// Setelah kembali dari latar belakang / layar dibuka lagi, pastikan penjaga masih ada.
-document.addEventListener('visibilitychange', () => { if (!document.hidden) BackGuard.ensure(); });
+
