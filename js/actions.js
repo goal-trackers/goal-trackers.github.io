@@ -608,42 +608,52 @@ function fmtMonthLabel() { const m = String(S.ui.reportMonth || today().slice(0,
 
 // ============================================================
 // TOMBOL / GESTUR KEMBALI (Android & Samsung swipe back)
-// Aplikasi menyimpan satu "penjaga" di riwayat browser. Saat pengguna menekan
-// kembali, penjaga terpakai, aplikasi menangani langkah mundurnya sendiri
-// (tutup menu/sheet → halaman sebelumnya → Beranda), lalu memasang penjaga lagi.
-// Di Beranda: geser sekali lagi dalam 2 detik untuk keluar.
+// Riwayat browser dibuat SAMA dengan perpindahan halaman di aplikasi: setiap halaman
+// dan setiap sheet yang dibuka lewat sentuhan menjadi satu entri riwayat. Chrome Android
+// hanya menghormati entri yang dibuat saat ada sentuhan pengguna, jadi entri dibuat tepat
+// saat pengguna mengetuk (bukan saat gestur kembali). Di Beranda dipasang satu entri
+// penjaga sehingga geser pertama memunculkan konfirmasi keluar.
 // ============================================================
-const BackGuard = {
-  // Chrome Android melewati entri riwayat yang dibuat tanpa sentuhan pengguna. Karena itu
-  // beberapa penjaga (DEPTH) dipasang sekaligus saat pengguna menyentuh layar, dan saat
-  // gestur kembali kita hanya memakai satu penjaga (tidak memasang baru tanpa sentuhan).
-  DEPTH: 4, skip: 0,
-  active: () => !!S.token && !$('#app').hidden,
-  depth: () => (history.state && history.state.gtGuard) || 0,
-  ensure() {
-    if (!this.active()) return;
-    // Hanya saat ada sentuhan pengguna yang masih aktif; tanpa itu Chrome menandai entri sebagai "dilewati"
-    if (navigator.userActivation && !navigator.userActivation.isActive) return;
-    try { for (let d = this.depth(); d < this.DEPTH; d++) history.pushState({ gtGuard: d + 1 }, ''); } catch (e) { }
+const Hist = {
+  skip: 0,
+  touched: () => !navigator.userActivation || navigator.userActivation.isActive,
+  st: () => history.state || {},
+  entry: (page, g) => ({ gt: 'page', page, detailId: S.ui.detailId || null, n: S.ui.history.length, g: g ? 1 : 0 }),
+  onNav(page, replace) {
+    try {
+      const e = this.entry(page), cur = this.st();
+      if (replace || cur.gt === 'sheet' || !this.touched() || !cur.gt) history.replaceState(e, '');
+      else history.pushState(e, '');
+    } catch (x) { }
   },
-  onPop() {
-    if (BackGuard.skip > 0) { BackGuard.skip--; return; }
-    if (!BackGuard.active()) return;
-    if (document.getElementById('cardMenu')) closeCardMenu();
-    else if (document.getElementById('hfPop')) closeHfPop();
-    else if (!$('#celebration').hidden) Actions.closeCelebration();
-    else if (document.body.classList.contains('sheet-open')) closeSheet();
-    else if (S.ui.history.length || S.ui.page !== 'dashboard') goBack();
-    else {
-      // Beranda: buang sisa penjaga, sehingga geser berikutnya menutup aplikasi
+  onSheet() { try { if (this.touched()) history.pushState({ gt: 'sheet' }, ''); } catch (x) { } },
+  onSheetClosed() { if (this.st().gt === 'sheet' && !this.popping) { this.skip++; history.back(); } },
+  canBack() { const c = this.st(); return c.gt === 'page' && (c.n > 0 || c.g); },
+  guard() {
+    const c = this.st();
+    if (!S.token || $('#app').hidden || !this.touched()) return;
+    if (S.ui.page === 'dashboard' && c.gt === 'page' && !c.g && !c.n && !document.body.classList.contains('sheet-open')) {
+      try { history.pushState(this.entry('dashboard', true), ''); } catch (x) { }
+    }
+  },
+  onPop(ev) {
+    if (Hist.skip > 0) { Hist.skip--; return; }
+    if (!S.token || $('#app').hidden) return;
+    closeCardMenu(); closeHfPop();
+    if (!$('#celebration').hidden) Actions.closeCelebration();
+    const st = ev.state || {};
+    const hadSheet = document.body.classList.contains('sheet-open');
+    if (hadSheet) { Hist.popping = true; closeSheet(); Hist.popping = false; }
+    if (st.gt !== 'page') return;
+    const same = st.page === S.ui.page && (st.page !== 'detail' || st.detailId === S.ui.detailId);
+    if (!same) {
+      S.ui.history.length = Math.min(S.ui.history.length, st.n || 0);
+      if (st.detailId) S.ui.detailId = st.detailId;
+      navigateTo(st.page, { fromPop: true, noHistory: true });
+    } else if (!hadSheet && st.page === 'dashboard' && !st.g && !st.n) {
       toast('Geser kembali sekali lagi untuk keluar');
-      const d = BackGuard.depth();
-      if (d > 0) { BackGuard.skip = 1; history.go(-d); }
     }
   }
 };
-window.addEventListener('popstate', BackGuard.onPop);
-// Chrome mengabaikan entri riwayat yang dibuat tanpa sentuhan pengguna, jadi penjaga dipasang (ulang) saat ada interaksi.
-// Di layar sentuh, "user activation" baru terjadi pada touchend/pointerup (bukan pointerdown), jadi dengarkan event itu.
-['touchend', 'pointerup', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, () => BackGuard.ensure(), { capture: true, passive: true }));
-
+window.addEventListener('popstate', Hist.onPop);
+['touchend', 'pointerup', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, () => setTimeout(() => Hist.guard(), 0), { capture: true, passive: true }));

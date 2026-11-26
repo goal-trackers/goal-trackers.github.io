@@ -345,6 +345,7 @@ function openSheet(title, body) {
   _lastFocus = document.activeElement;
   const s = $('#sheet');
   s.innerHTML = `<div class="sheet-handle"></div><div class="sheet-head"><h2 id="sheetTitle">${title}</h2><button class="icon-btn" data-action="closeSheet" aria-label="Tutup"><i class="bi bi-x-lg"></i></button></div><div class="sheet-body">${body}</div>`;
+  if (typeof Hist !== 'undefined' && !document.body.classList.contains('sheet-open')) Hist.onSheet();
   document.body.classList.add('sheet-open');
   s.scrollTop = 0;
   setTimeout(() => { const f = s.querySelector('input:not([type=hidden]):not([type=radio]):not([type=file]), select, textarea, button.btn'); if (f && mqWide.matches) f.focus(); }, 60);
@@ -352,6 +353,7 @@ function openSheet(title, body) {
 function closeSheet() {
   if (!document.body.classList.contains('sheet-open')) return;
   document.body.classList.remove('sheet-open');
+  if (typeof Hist !== 'undefined') Hist.onSheetClosed();
   S.ui.pendingPhoto = null;
   if (_lastFocus && _lastFocus.focus && document.contains(_lastFocus)) _lastFocus.focus();
 }

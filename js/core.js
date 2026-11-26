@@ -352,14 +352,16 @@ function navigateTo(page, opts = {}) {
   }
   if (opts.detailId) S.ui.detailId = opts.detailId;
   S.ui.page = page;
+  if (!opts.fromPop && typeof Hist !== 'undefined') Hist.onNav(page, opts.noHistory);
   $$('.page').forEach(p => p.classList.toggle('active', p.dataset.page === page));
   renderHeader();
   renderPage(page);
   window.scrollTo(0, 0);
   closeSheet();
-  if (typeof BackGuard !== 'undefined') BackGuard.ensure();
 }
 function goBack() {
+  // Selaraskan dengan riwayat browser: biarkan popstate yang merender halaman sebelumnya
+  if (typeof Hist !== 'undefined' && Hist.canBack()) { history.back(); return; }
   const prev = S.ui.history.pop();
   if (prev) { S.ui.detailId = prev.detailId; navigateTo(prev.page, { noHistory: true }); }
   else navigateTo('dashboard', { noHistory: true });
