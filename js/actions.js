@@ -658,3 +658,52 @@ const Hist = {
 };
 window.addEventListener('popstate', Hist.onPop);
 ['touchend', 'pointerup', 'click', 'keydown'].forEach(ev => document.addEventListener(ev, () => setTimeout(() => Hist.guard(), 0), { capture: true, passive: true }));
+
+// ============================================================
+// LUPA PASSWORD (dari halaman login): kode 6 digit dikirim ke email terdaftar
+// ============================================================
+Object.assign(Actions, {
+  forgotPw: () => {
+    const em = ($('#view-login [name=email]') || {}).value || '';
+    openSheet('Lupa password', `<form data-form="forgotReq" novalidate>
+      <p class="muted mt-0">Masukkan email yang terdaftar. Kami akan mengirim <b>kode 6 digit</b> ke email tersebut untuk membuat password baru.</p>
+      <label class="field"><span>Alamat email</span><input name="email" type="email" autocomplete="username" required value="${esc(em.trim())}" placeholder="nama@gmail.com"></label>
+      <p class="form-error" id="fpErr" role="alert"></p>
+      <div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button><button class="btn btn-dark" type="submit"><span class="btn-label">Kirim kode</span></button></div></form>`);
+  },
+  forgotHaveCode: () => Actions._forgotStep2(S.ui.fpEmail || '')
+});
+Actions._forgotStep2 = email => openSheet('Buat password baru', `<form data-form="forgotSet" novalidate autocomplete="off">
+    <p class="muted mt-0">Kode sudah dikirim ke <b>${esc(email)}</b> (cek juga folder Spam). Kode berlaku 15 menit.</p>
+    <input type="hidden" name="email" value="${esc(email)}">
+    <label class="field"><span>Kode verifikasi</span><input name="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" required placeholder="6 digit" style="letter-spacing:6px;font-weight:700"></label>
+    <label class="field"><span>Password baru</span><input name="new1" type="password" maxlength="64" autocomplete="new-password" required><small class="muted">6 digit angka, atau min. 8 karakter dengan huruf besar, huruf kecil, dan angka. Contoh: Keluarga2027</small></label>
+    <label class="field"><span>Ulangi password baru</span><input name="new2" type="password" maxlength="64" autocomplete="new-password" required></label>
+    <p class="form-error" id="fpErr2" role="alert"></p>
+    <div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="forgotPw">Kirim ulang kode</button><button class="btn btn-dark" type="submit"><span class="btn-label">Simpan password</span></button></div></form>`);
+Object.assign(Forms, {
+  forgotReq: async f => {
+    const err = $('#fpErr'), email = f.email.value.trim().toLowerCase();
+    err.textContent = '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Format email tidak valid.'; return; }
+    const btn = f.querySelector('button[type=submit]'); setBusy(btn, true);
+    try { await api('requestPasswordReset', email); S.ui.fpEmail = email; Actions._forgotStep2(email); }
+    catch (e) { err.textContent = /tidak dikenal|Aksi/i.test(e.message || '') ? 'Fitur ini butuh backend terbaru. Minta Admin memasang Kode.gs v1.9.0.' : e.message; }
+    setBusy(btn, false);
+  },
+  forgotSet: async f => {
+    const err = $('#fpErr2'); err.textContent = '';
+    if (!/^\d{6}$/.test(f.code.value.trim())) { err.textContent = 'Masukkan kode 6 digit dari email.'; return; }
+    if (!passwordValid(f.new1.value)) { err.textContent = PASSWORD_HINT; return; }
+    if (f.new1.value !== f.new2.value) { err.textContent = 'Ulangi password baru tidak sama.'; return; }
+    const btn = f.querySelector('button[type=submit]'); setBusy(btn, true);
+    try {
+      await api('resetPasswordWithCode', f.email.value, f.code.value.trim(), f.new1.value);
+      closeSheet();
+      const le = $('#view-login [name=email]'); if (le) le.value = f.email.value;
+      const lp = $('#view-login [name=pin]'); if (lp) { lp.value = ''; lp.focus(); }
+      toast('Password baru tersimpan. Silakan masuk 🔒');
+    } catch (e) { err.textContent = e.message; }
+    setBusy(btn, false);
+  }
+});
