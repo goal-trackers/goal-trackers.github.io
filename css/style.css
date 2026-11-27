@@ -2027,3 +2027,11 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 /* Centang hijau seragam dengan hijau progres */
 .prep-list li.done .prep-chk { background: var(--green) !important; border-color: var(--green) !important; color: #fff; }
 .lg-remember input:checked + .bi { color: var(--green); }
+
+/* Login HP: logo di tengah atas layar (di atas foto) */
+.lg-topbrand { display: none; }
+@media (max-width: 991.98px) {
+  .lg-topbrand { display: block; position: absolute; z-index: 3; top: calc(18px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); }
+  .lg-topbrand .wordmark { color: #fff !important; font-size: 30px; text-shadow: 0 2px 14px rgba(0,0,0,.45); }
+  #view-login { position: relative; }
+}
