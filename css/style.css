@@ -1971,3 +1971,25 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   [data-theme="dark"] .login-card .pin-wrap:hover input, [data-theme="dark"] .login-card .pin-wrap:focus-within input { border-color: #E6E6E6 !important; }
 }
 input::-ms-reveal, input::-ms-clear { display: none; }
+/* ── Mode terang: navbar atas & kartu Insight Pintar berwarna putih ── */
+:root:not([data-theme="dark"]) .topbar { background: #fff; color: var(--text); box-shadow: 0 1px 0 rgba(0,0,0,.06); }
+:root:not([data-theme="dark"]) .topbar .brand .wordmark { color: #1B1B1B; }
+:root:not([data-theme="dark"]) .topbar .icon-btn.on-dark { background: #F1F1EE; color: #1B1B1B; }
+:root:not([data-theme="dark"]) .topbar .icon-btn.on-dark:hover { background: #E6E6E2; }
+:root:not([data-theme="dark"]) .topbar .sync { color: rgba(0,0,0,.4); }
+:root:not([data-theme="dark"]) .topbar .profile { color: #1B1B1B; }
+:root:not([data-theme="dark"]) .topbar .profile .avatar { border-color: #fff; }
+:root:not([data-theme="dark"]) .topbar .profile-text small { color: rgba(0,0,0,.55); }
+:root:not([data-theme="dark"]) .topbar .dot-count { border-color: #fff; }
+:root:not([data-theme="dark"]) .shell, :root:not([data-theme="dark"]) body { background-color: #fff; }
+@media (min-width: 992px) {
+  :root:not([data-theme="dark"]) .tn { color: rgba(0,0,0,.6); }
+  :root:not([data-theme="dark"]) .tn:hover { color: #111; background: rgba(0,0,0,.05); }
+  :root:not([data-theme="dark"]) .tn.active { color: #fff; background: #111; }
+  :root:not([data-theme="dark"]) .tn-add { color: #111; border-color: rgba(0,0,0,.2); }
+  :root:not([data-theme="dark"]) .tn-add:hover { background: rgba(0,0,0,.05); }
+}
+:root:not([data-theme="dark"]) .insight { background: #fff; color: var(--text); box-shadow: var(--shadow); }
+:root:not([data-theme="dark"]) .insight li { color: #3a3a3a; }
+:root:not([data-theme="dark"]) .insight h3 i { color: #1B7F3A; }
+:root:not([data-theme="dark"]) .insight li::before { box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
