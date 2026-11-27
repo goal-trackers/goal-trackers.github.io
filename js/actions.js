@@ -688,7 +688,7 @@ Object.assign(Forms, {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Format email tidak valid.'; return; }
     const btn = f.querySelector('button[type=submit]'); setBusy(btn, true);
     try { await api('requestPasswordReset', email); S.ui.fpEmail = email; Actions._forgotStep2(email); }
-    catch (e) { err.textContent = /tidak dikenal|Aksi/i.test(e.message || '') ? 'Fitur ini butuh backend terbaru. Minta Admin memasang Kode.gs v1.9.0.' : e.message; }
+    catch (e) { const m = e.message || ''; err.textContent = /tidak dikenal|Aksi/i.test(m) ? 'Fitur ini butuh backend terbaru. Minta Admin memasang Kode.gs v1.9.0.' : /permission|send_mail|izin/i.test(m) ? 'Server belum diberi izin mengirim email. Admin perlu menjalankan fungsi izinkanKirimEmail di Apps Script, lalu membuat Versi baru.' : m; }
     setBusy(btn, false);
   },
   forgotSet: async f => {
