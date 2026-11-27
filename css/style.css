@@ -1950,3 +1950,9 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .login-card .field + .field { margin-top: 14px !important; }
   .login-card .field input:focus { outline: 2px solid #4BA3E3 !important; outline-offset: -1px; }
 }
+@media (min-width: 992px) {
+  .login-card .field:first-of-type input, .login-card .field + .field input { border: 1.5px solid #1B1B1B !important; }
+  .login-card .field input:focus { outline: 2px solid #1B1B1B !important; outline-offset: -1px; }
+  [data-theme="dark"] .login-card .field:first-of-type input, [data-theme="dark"] .login-card .field + .field input { border-color: #E6E6E6 !important; }
+  [data-theme="dark"] .login-card .field input:focus { outline-color: #E6E6E6 !important; }
+}
