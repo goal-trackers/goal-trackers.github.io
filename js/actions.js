@@ -410,9 +410,9 @@ const Actions = {
   },
   resetPin: d => {
     const u = userById(d.id);
-    openSheet('Reset PIN ' + esc(u.nama), `<form data-form="resetPin" autocomplete="off"><input type="hidden" name="uid" value="${esc(d.id)}">
-      <label class="field"><span>PIN baru (6 digit)</span><input name="pin" type="text" inputmode="numeric" maxlength="6" required></label>
-      <p class="form-error" id="resetErr"></p><div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button><button class="btn btn-dark" type="submit">Reset PIN</button></div></form>`);
+    openSheet('Reset password ' + esc(u.nama), `<form data-form="resetPin" autocomplete="off"><input type="hidden" name="uid" value="${esc(d.id)}">
+      <label class="field"><span>Password baru</span><input name="pin" type="text" maxlength="64" autocapitalize="off" autocorrect="off" spellcheck="false" required><small class="muted">6 digit angka, atau min. 8 karakter dengan huruf besar, huruf kecil, dan angka.</small></label>
+      <p class="form-error" id="resetErr"></p><div class="sheet-foot"><button type="button" class="btn btn-soft" data-action="closeSheet">Batal</button><button class="btn btn-dark" type="submit">Reset password</button></div></form>`);
   },
   backup: async (d, el) => {
     setBusy(el, true);
@@ -485,7 +485,7 @@ const Forms = {
     const err = $('#loginError');
     const email = f.email.value.trim(), pin = f.pin.value.trim();
     err.textContent = '';
-    if (!email || !/^\d{6}$/.test(pin)) { err.textContent = 'Isi email dan password 6 digit angka.'; return; }
+    if (!email || !pin) { err.textContent = 'Isi email dan password.'; return; }
     try { lsSet('gt_remember', !f.remember || f.remember.checked); sessionStorage.setItem('gt_live', '1'); } catch (e) { }
     const btn = f.querySelector('button[type=submit]');
     setBusy(btn, true);
@@ -525,11 +525,11 @@ const Forms = {
   pin: async f => {
     const err = $('#pinError');
     err.textContent = '';
-    if (!/^\d{6}$/.test(f.new1.value)) { err.textContent = 'PIN baru harus 6 digit angka.'; return; }
-    if (f.new1.value !== f.new2.value) { err.textContent = 'Ulangi PIN baru tidak sama.'; return; }
+    if (!passwordValid(f.new1.value)) { err.textContent = PASSWORD_HINT; return; }
+    if (f.new1.value !== f.new2.value) { err.textContent = 'Ulangi password baru tidak sama.'; return; }
     const btn = f.querySelector('button[type=submit]');
     setBusy(btn, true);
-    try { await api('changePin', S.token, f.old.value, f.new1.value); f.reset(); toast('PIN berhasil diganti 🔒'); }
+    try { await api('changePin', S.token, f.old.value, f.new1.value); f.reset(); toast('Password berhasil diganti 🔒'); }
     catch (e) { e.auth ? handleAuthLost() : (err.textContent = e.message); }
     setBusy(btn, false);
   },
@@ -547,10 +547,10 @@ const Forms = {
     setBusy(btn, false);
   },
   resetPin: async f => {
-    if (!/^\d{6}$/.test(f.pin.value)) { $('#resetErr').textContent = 'PIN harus 6 digit angka.'; return; }
+    if (!passwordValid(f.pin.value.trim())) { $('#resetErr').textContent = PASSWORD_HINT; return; }
     const btn = f.querySelector('button[type=submit]');
     setBusy(btn, true);
-    try { await api('adminResetPin', S.token, f.uid.value, f.pin.value); closeSheet(); toast('PIN direset. Beritahu pasangan PIN barunya.'); }
+    try { await api('adminResetPin', S.token, f.uid.value, f.pin.value.trim()); closeSheet(); toast('Password direset. Beritahu pasangan password barunya.'); }
     catch (e) { e.auth ? handleAuthLost() : ($('#resetErr').textContent = e.message); }
     setBusy(btn, false);
   },

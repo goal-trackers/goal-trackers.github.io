@@ -48,6 +48,9 @@ const timeAgo = iso => {
 };
 const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
 const debounce = (fn, ms = 250) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+/** Password: 6 digit angka (lama) atau min. 8 karakter berisi huruf besar, huruf kecil, dan angka */
+const passwordValid = p => /^\d{6}$/.test(p) || (p.length >= 8 && p.length <= 64 && !/\s/.test(p) && /[a-z]/.test(p) && /[A-Z]/.test(p) && /\d/.test(p));
+const PASSWORD_HINT = 'Password harus 6 digit angka, atau minimal 8 karakter berisi huruf besar, huruf kecil, dan angka.';
 const lsGet = (k, def) => { try { const v = localStorage.getItem(k); return v === null ? def : JSON.parse(v); } catch (e) { return def; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
 const lsDel = k => { try { localStorage.removeItem(k); } catch (e) { } };

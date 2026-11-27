@@ -244,14 +244,14 @@ function renderSettings() {
       <form data-form="adminSettings"><label class="field"><span>Pengingat tenggat (hari sebelum)</span><input name="pengingat_hari" value="${esc(S.settings.pengingat_hari || '7,1')}" placeholder="7,1"><small>Pisahkan dengan koma. Notifikasi in-app dikirim pukul 07.00 WITA.</small></label>
       <button class="btn btn-soft btn-sm" type="submit">Simpan pengingat</button></form>
       <h3 class="mt-4">Pengguna</h3>
-      ${S.users.map(u => `<div class="cat-item">${avatarHtml(u)}<div><b>${esc(u.nama)}</b><div class="tiny muted">${esc(u.email)} · ${esc(u.peran)}</div></div><span class="d-flex gap-1 flex-wrap justify-content-end">${u.user_id === me.user_id ? '<span class="tiny muted align-self-center me-1">Anda</span>' : ''}<button class="btn btn-soft btn-sm" data-action="editMember" data-id="${u.user_id}"><i class="bi bi-pencil"></i> Edit</button>${u.user_id !== me.user_id ? `<button class="btn btn-soft btn-sm" data-action="resetPin" data-id="${u.user_id}">Reset PIN</button>` : ''}</span></div>`).join('')}
+      ${S.users.map(u => `<div class="cat-item">${avatarHtml(u)}<div><b>${esc(u.nama)}</b><div class="tiny muted">${esc(u.email)} · ${esc(u.peran)}</div></div><span class="d-flex gap-1 flex-wrap justify-content-end">${u.user_id === me.user_id ? '<span class="tiny muted align-self-center me-1">Anda</span>' : ''}<button class="btn btn-soft btn-sm" data-action="editMember" data-id="${u.user_id}"><i class="bi bi-pencil"></i> Edit</button>${u.user_id !== me.user_id ? `<button class="btn btn-soft btn-sm" data-action="resetPin" data-id="${u.user_id}">Reset password</button>` : ''}</span></div>`).join('')}
       ${(() => { const em = S.users.map(u => String(u.email).toLowerCase()); return em.some((e, i) => em.indexOf(e) !== i) ? '<div class="verdict bad mt-2"><i class="bi bi-exclamation-triangle"></i><span>Ada anggota dengan email yang sama, sehingga salah satunya tidak bisa login. Tekan <b>Edit</b> dan ganti emailnya.</span></div>' : ''; })()}
       <button class="btn btn-dark btn-sm w-100 mt-3" data-action="backup"><i class="bi bi-cloud-download"></i> Cadangkan data sekarang</button>
     </div>` : '';
   const nTpl = typeof TPL !== 'undefined' ? Object.keys(TPL).length : 0;
   const SECS = [
     ['profil', 'Profil Saya', 'Nama, foto, avatar & warna profil', '#E8D3F5', 'bi-person-circle', `<div class="d-flex align-items-center gap-2 mt-3">${avatarHtml(me)}<div style="min-width:0"><b class="d-block text-truncate">${esc(me.nama)}</b><small class="muted text-truncate d-block">${esc(me.email)}</small></div></div>`],
-    ['keamanan', 'Keamanan', 'Ganti PIN 6 digit untuk masuk', '#FFE1C7', 'bi-shield-lock', ''],
+    ['keamanan', 'Keamanan', 'Ganti password untuk masuk', '#FFE1C7', 'bi-shield-lock', ''],
     ['tampilan', 'Tampilan', 'Tema terang/gelap & tampilan bawaan Goals', '#D5F0F7', 'bi-palette', `<div class="tiny mt-3"><span class="chip">${theme === 'dark' ? '🌙 Gelap' : '☀️ Terang'}</span></div>`],
     ['kategori', 'Kategori', `${activeCats().length} kategori goal`, '#CFF2D6', 'bi-tags', `<div class="set-ics mt-3">${activeCats().slice(0, 8).map(c => `<span class="ic tint" style="--c:${esc(c.warna)}"><i class="bi ${esc(c.ikon)}"></i></span>`).join('')}</div>`],
     ['template', 'Template Goal', `${nTpl} template untuk goal baru`, '#FBEBB5', 'bi-bookmark-star', ''],
@@ -274,11 +274,11 @@ function renderSettings() {
         </form></div>`,
     keamanan: `<div class="card">
         <form data-form="pin" autocomplete="off">
-          <label class="field"><span>PIN lama</span><input name="old" type="password" inputmode="numeric" maxlength="6" required></label>
-          <label class="field"><span>PIN baru (6 digit)</span><input name="new1" type="password" inputmode="numeric" maxlength="6" required></label>
-          <label class="field"><span>Ulangi PIN baru</span><input name="new2" type="password" inputmode="numeric" maxlength="6" required></label>
+          <label class="field"><span>Password lama</span><input name="old" type="password" maxlength="64" autocomplete="current-password" required></label>
+          <label class="field"><span>Password baru</span><input name="new1" type="password" maxlength="64" autocomplete="new-password" required><small class="muted">6 digit angka, atau min. 8 karakter dengan huruf besar, huruf kecil, dan angka. Contoh: Keluarga2027</small></label>
+          <label class="field"><span>Ulangi password baru</span><input name="new2" type="password" maxlength="64" autocomplete="new-password" required></label>
           <p class="form-error" id="pinError"></p>
-          <button class="btn btn-dark btn-sm" type="submit"><span class="btn-label">Ganti PIN</span></button>
+          <button class="btn btn-dark btn-sm" type="submit"><span class="btn-label">Ganti password</span></button>
         </form>
         </div>`,
     tampilan: `<div class="card">
