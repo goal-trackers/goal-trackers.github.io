@@ -2023,3 +2023,4 @@ input::-ms-reveal, input::-ms-clear { display: none; }
   .hero-numrow .hero-actions { margin-bottom: 0 !important; align-self: flex-end; }
   .hero-numrow .hero-actions:empty { display: none; }
 }
+@media (min-width: 1024px) { .hero > .hero-top { max-width: none !important; flex-wrap: nowrap; } .hero > .hero-top > * { flex: none; } }
