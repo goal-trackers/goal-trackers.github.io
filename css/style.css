@@ -1956,3 +1956,10 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   [data-theme="dark"] .login-card .field:first-of-type input, [data-theme="dark"] .login-card .field + .field input { border-color: #E6E6E6 !important; }
   [data-theme="dark"] .login-card .field input:focus { outline-color: #E6E6E6 !important; }
 }
+@media (min-width: 992px) {
+  /* Garis hanya muncul (hitam) saat kotak disorot/aktif */
+  .login-card .field:first-of-type input, .login-card .field + .field input { border-color: #fff !important; transition: border-color .15s; }
+  .login-card .field input:hover, .login-card .field input:focus { border-color: #1B1B1B !important; outline: none !important; }
+  [data-theme="dark"] .login-card .field:first-of-type input, [data-theme="dark"] .login-card .field + .field input { border-color: var(--card) !important; }
+  [data-theme="dark"] .login-card .field input:hover, [data-theme="dark"] .login-card .field input:focus { border-color: #E6E6E6 !important; }
+}
