@@ -1993,3 +1993,4 @@ input::-ms-reveal, input::-ms-clear { display: none; }
 :root:not([data-theme="dark"]) .insight li { color: #3a3a3a; }
 :root:not([data-theme="dark"]) .insight h3 i { color: #1B7F3A; }
 :root:not([data-theme="dark"]) .insight li::before { box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+.dot-count, :root:not([data-theme="dark"]) .topbar .dot-count { border: 0 !important; }
