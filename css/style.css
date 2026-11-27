@@ -1915,3 +1915,21 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .lc-b .login-card .btn-dark { width: 100% !important; height: 54px; border-radius: 999px; background: #4C6EF5 !important; border-color: #4C6EF5 !important; box-shadow: 0 12px 26px rgba(76,110,245,.3); margin-top: 8px; }
   .lc-b .login-card > p.tiny { text-align: center !important; }
 }
+
+/* Login: baris Ingat saya / Lupa password, centang email valid, tombol biru */
+.lg-ok { display: none; }
+.lg-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 14px 4px 0; font-size: 13px; }
+.lg-remember { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); cursor: pointer; user-select: none; }
+.lg-remember input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.lg-remember .bi { font-size: 18px; color: #C9CED6; transition: color .15s; }
+.lg-remember input:checked + .bi { color: #22A45D; }
+.lg-remember input:focus-visible + .bi { outline: 2px solid #4BA3E3; border-radius: 50%; }
+.lg-forgot { border: 0; background: none; padding: 0; color: var(--muted); font-size: 13px; }
+.lg-forgot:hover { color: var(--text); text-decoration: underline; }
+@media (min-width: 992px) {
+  .login-card .field:first-of-type input:valid:not(:placeholder-shown) ~ .lg-ok, .login-card .lg-ok.show { display: none; }
+  .login-card .field:first-of-type:has(input:valid:not(:placeholder-shown)) .lg-ok { display: block; position: absolute; right: 18px; top: 50%; transform: translateY(-50%); color: #22A45D; font-size: 20px; z-index: 1; }
+  .login-card .btn-dark { background: linear-gradient(90deg, #2F8CF0, #3F6FEA) !important; border: 0 !important; color: #fff !important; box-shadow: 0 12px 26px rgba(47,140,240,.32) !important; min-width: 170px; }
+  .login-card .btn-dark:hover { filter: brightness(1.05); }
+  .lg-row { margin: 18px 6px 0; }
+}

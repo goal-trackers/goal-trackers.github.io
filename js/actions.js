@@ -485,7 +485,8 @@ const Forms = {
     const err = $('#loginError');
     const email = f.email.value.trim(), pin = f.pin.value.trim();
     err.textContent = '';
-    if (!email || !/^\d{6}$/.test(pin)) { err.textContent = 'Isi email dan PIN 6 digit angka.'; return; }
+    if (!email || !/^\d{6}$/.test(pin)) { err.textContent = 'Isi email dan password 6 digit angka.'; return; }
+    try { lsSet('gt_remember', !f.remember || f.remember.checked); sessionStorage.setItem('gt_live', '1'); } catch (e) { }
     const btn = f.querySelector('button[type=submit]');
     setBusy(btn, true);
     try { onLoggedIn(await api('login', email, pin)); f.pin.value = ''; }

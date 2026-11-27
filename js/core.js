@@ -229,6 +229,8 @@ function pollNow() {
 // ============================================================
 function boot() {
   applyTheme(lsGet(KEY.theme, null) || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'), true);
+  // "Ingat saya" tidak dicentang: sesi berakhir saat aplikasi/browser ditutup
+  try { if (lsGet('gt_remember', true) === false && !sessionStorage.getItem('gt_live')) lsDel(KEY.token); } catch (e) { }
   const token = lsGet(KEY.token, null);
   const snap = lsGet(KEY.snap, null);
   if (token && snap && snap.me) {
