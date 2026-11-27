@@ -2035,3 +2035,7 @@ input::-ms-reveal, input::-ms-clear { display: none; }
   .lg-topbrand .wordmark { color: #fff !important; font-size: 30px; text-shadow: 0 2px 14px rgba(0,0,0,.45); }
   #view-login { position: relative; }
 }
+@media (max-width: 991.98px) {
+  .lg-topbrand .wordmark { -webkit-text-stroke: 4px rgba(17,17,17,.85); paint-order: stroke fill; text-shadow: 0 2px 12px rgba(0,0,0,.5); }
+  .lg-topbrand .wm-o { filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1.5px #fff) drop-shadow(0 1px 6px rgba(0,0,0,.5)); }
+}
