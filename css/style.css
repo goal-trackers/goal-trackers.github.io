@@ -2003,3 +2003,14 @@ input::-ms-reveal, input::-ms-clear { display: none; }
   .hero-actions { align-items: center; }
   .hero-budget { flex: 0 1 300px; width: 300px; margin-right: 8px; align-self: center; }
 }
+
+/* Bar anggaran: lebih besar, di atas tombol Catat Progres, rata kanan */
+.hero-budget .exp-bar { height: 14px; }
+.hb-lbl { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 6px; font-size: 12.5px; color: rgba(27,27,27,.75); }
+.hb-lbl > b { color: #1B1B1B; font-weight: 800; }
+@media (min-width: 768px) {
+  .hero-numrow .hero-actions { flex-wrap: wrap; justify-content: flex-end; row-gap: 14px; }
+  .hero-budget { flex: 0 0 100% !important; width: 100% !important; max-width: 440px; margin: 0 0 0 auto !important; }
+  .hero-numrow .hero-actions [data-action="goalMore"] { margin-left: 0; }
+  .hero-numrow .hero-actions:has(.hero-budget) { width: 440px; max-width: 100%; }
+}

@@ -55,7 +55,7 @@ function anggaranInfo(g) {
 function anggaranBarHtml(g) {
   if (typeof punyaPengeluaran !== 'function' || !punyaPengeluaran(g)) return '';
   const a = anggaranInfo(g), lebih = a.sisa < 0;
-  return `<div class="hero-budget"><div class="exp-bar" role="img" aria-label="Terpakai ${Math.round(a.pct)}% dari anggaran"><span style="width:${Math.min(100, a.pct)}%;background:${lebih ? 'var(--red-ink)' : a.pct > 85 ? '#E8A33B' : 'var(--green-ink,#1B7F3A)'}"></span></div><div class="tiny mt-1">${fmtN(Math.round(a.pct))}% anggaran terpakai · ${fmtShort(a.pakai, 'Rp')} dari ${fmtShort(a.anggaran, 'Rp')}</div></div>`;
+  return `<div class="hero-budget"><div class="exp-bar" role="img" aria-label="Terpakai ${Math.round(a.pct)}% dari anggaran"><span style="width:${Math.min(100, a.pct)}%;background:${lebih ? 'var(--red-ink)' : a.pct > 85 ? '#E8A33B' : 'var(--green-ink,#1B7F3A)'}"></span></div><div class="hb-lbl"><b>${fmtN(Math.round(a.pct))}% anggaran terpakai</b><span>${fmtShort(a.pakai, 'Rp')} dari ${fmtShort(a.anggaran, 'Rp')} · ${lebih ? 'lebih' : 'sisa'} <b style="color:${lebih ? 'var(--red-ink)' : 'var(--green-ink,#1B7F3A)'}">${fmtShort(Math.abs(a.sisa), 'Rp')}</b></span></div></div>`;
 }
 function pengeluaranCardHtml(g) {
   if (!punyaPengeluaran(g)) return '';
@@ -80,11 +80,6 @@ function pengeluaranCardHtml(g) {
     <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-2">
       <h3 class="mb-0">${pkProfile(g) === 'pendidikan' ? '🎓' : pkProfile(g) === 'darurat' ? '🛟' : '🧾'} ${PKAT_INFO[pkProfile(g)].card}</h3>
       ${canEdit(g) ? `<button class="btn btn-dark btn-sm" data-action="newPengeluaran" data-id="${g.goal_id}"><i class="bi bi-plus-lg"></i> ${PKAT_INFO[pkProfile(g)].btn}</button>` : ''}
-    </div>
-    <div class="kv kv3">
-      <div><small>Anggaran (dana terkumpul)</small><b>${fmtShort(a.anggaran, 'Rp')}</b></div>
-      <div><small>Terpakai</small><b>${fmtShort(a.pakai, 'Rp')}</b></div>
-      <div><small>${lebih ? 'Kelebihan' : 'Sisa anggaran'}</small><b style="color:${lebih ? 'var(--red-ink)' : 'var(--green-ink,#1B7F3A)'}">${lebih ? '−' : ''}${fmtShort(Math.abs(a.sisa), 'Rp')}</b></div>
     </div>
     <div class="mt-3"></div>
     ${verdict}
