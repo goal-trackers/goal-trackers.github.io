@@ -1963,3 +1963,11 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   [data-theme="dark"] .login-card .field:first-of-type input, [data-theme="dark"] .login-card .field + .field input { border-color: var(--card) !important; }
   [data-theme="dark"] .login-card .field input:hover, [data-theme="dark"] .login-card .field input:focus { border-color: #E6E6E6 !important; }
 }
+
+/* Ikon mata password: tidak mencuri fokus, teks tidak renggang saat ditampilkan */
+.pin-wrap input[type="text"] { letter-spacing: normal; }
+@media (min-width: 992px) {
+  .login-card .pin-wrap:hover input, .login-card .pin-wrap:focus-within input { border-color: #1B1B1B !important; }
+  [data-theme="dark"] .login-card .pin-wrap:hover input, [data-theme="dark"] .login-card .pin-wrap:focus-within input { border-color: #E6E6E6 !important; }
+}
+input::-ms-reveal, input::-ms-clear { display: none; }

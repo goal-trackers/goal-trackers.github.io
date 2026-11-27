@@ -306,7 +306,15 @@ const Actions = {
       <button class="danger" data-action="logout"><i class="bi bi-box-arrow-right"></i> Keluar</button></div>`),
   closeSheet: () => closeSheet(),
   toggleTheme: () => { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); closeSheet(); },
-  togglePin: (d, el) => { const i = el.parentElement.querySelector('input'); i.type = i.type === 'password' ? 'text' : 'password'; el.innerHTML = `<i class="bi ${i.type === 'password' ? 'bi-eye' : 'bi-eye-slash'}"></i>`; },
+  togglePin: (d, el) => {
+    const i = el.parentElement.querySelector('input'), show = i.type === 'password';
+    const a = i.selectionStart, b = i.selectionEnd;
+    i.type = show ? 'text' : 'password';
+    el.innerHTML = `<i class="bi ${show ? 'bi-eye-slash' : 'bi-eye'}"></i>`;
+    el.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
+    // tetap fokus di kotak password dan kursor tidak lompat
+    i.focus({ preventScroll: true }); try { if (a !== null) i.setSelectionRange(a, b); } catch (e) { }
+  },
   goalTab: d => { S.ui.goalTab = d.tab; keepRows('#page-goals', renderGoals); },
   goalCat: d => { S.ui.goalCat = d.id; keepRows('#page-goals', renderGoals); },
   goalView: d => { S.ui.goalView = d.view; lsSet(KEY.view, d.view); keepRows('#page-goals', renderGoals); },
@@ -707,3 +715,5 @@ Object.assign(Forms, {
     setBusy(btn, false);
   }
 });
+
+document.addEventListener('mousedown', e => { if (e.target.closest && e.target.closest('[data-action=togglePin]')) e.preventDefault(); });
