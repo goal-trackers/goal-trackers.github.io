@@ -1835,3 +1835,19 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .login::after { background: linear-gradient(180deg, rgba(10,10,12,0) 0%, rgba(10,10,12,0) 30%, rgba(10,10,12,.7) 40%, #0b0b0c 50%, #0b0b0c 100%); }
   .login-panel { place-items: end center !important; padding-bottom: max(24px, env(safe-area-inset-bottom)) !important; }
 }
+/* Login laptop — opsi A: belah dua, foto penuh di kiri, kartu Masuk di latar terang kanan */
+@media (min-width: 992px) {
+  .login { background: var(--bg) !important; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) !important; }
+  .login::before, .login::after, .login-pin { display: none !important; }
+  .login-art {
+    position: relative; margin: 14px; border-radius: 28px; overflow: hidden; justify-content: space-between !important; padding: 40px 44px !important;
+    background: linear-gradient(180deg, rgba(10,10,12,.35) 0%, rgba(10,10,12,0) 22%, rgba(10,10,12,0) 48%, rgba(10,10,12,.82) 100%), url('../img/login-bg.webp') center 60% / cover no-repeat;
+    min-height: calc(100vh - 28px); min-height: calc(100dvh - 28px);
+  }
+  .login-art > p, .login-art .login-chips { display: none; }
+  .login-art .login-ayat { margin: 0; max-width: 560px; }
+  .login-art .la-ar { font-size: 26px !important; line-height: 1.8; margin-bottom: 8px; }
+  .login-ayat figcaption { font-size: 17px; }
+  .login-panel { padding: 32px !important; display: grid !important; place-items: center; }
+  .login-card { background: var(--card) !important; backdrop-filter: none; box-shadow: none !important; border: 1px solid var(--line); width: 100%; max-width: 400px; }
+}
