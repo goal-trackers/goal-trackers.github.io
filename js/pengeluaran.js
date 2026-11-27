@@ -51,6 +51,12 @@ function anggaranInfo(g) {
 }
 
 /** Kartu di detail goal: ringkasan anggaran vs terpakai + daftar pengeluaran */
+/** Bar "x% anggaran terpakai" — ditampilkan di kotak atas (hero) rincian goal */
+function anggaranBarHtml(g) {
+  if (typeof punyaPengeluaran !== 'function' || !punyaPengeluaran(g)) return '';
+  const a = anggaranInfo(g), lebih = a.sisa < 0;
+  return `<div class="hero-budget"><div class="exp-bar" role="img" aria-label="Terpakai ${Math.round(a.pct)}% dari anggaran"><span style="width:${Math.min(100, a.pct)}%;background:${lebih ? 'var(--red-ink)' : a.pct > 85 ? '#E8A33B' : 'var(--green-ink,#1B7F3A)'}"></span></div><div class="tiny mt-1">${fmtN(Math.round(a.pct))}% anggaran terpakai · ${fmtShort(a.pakai, 'Rp')} dari ${fmtShort(a.anggaran, 'Rp')}</div></div>`;
+}
 function pengeluaranCardHtml(g) {
   if (!punyaPengeluaran(g)) return '';
   const a = anggaranInfo(g), lebih = a.sisa < 0;
@@ -80,8 +86,7 @@ function pengeluaranCardHtml(g) {
       <div><small>Terpakai</small><b>${fmtShort(a.pakai, 'Rp')}</b></div>
       <div><small>${lebih ? 'Kelebihan' : 'Sisa anggaran'}</small><b style="color:${lebih ? 'var(--red-ink)' : 'var(--green-ink,#1B7F3A)'}">${lebih ? '−' : ''}${fmtShort(Math.abs(a.sisa), 'Rp')}</b></div>
     </div>
-    <div class="exp-bar mt-3" role="img" aria-label="Terpakai ${Math.round(a.pct)}% dari anggaran"><span style="width:${Math.min(100, a.pct)}%;background:${lebih ? 'var(--red-ink)' : a.pct > 85 ? '#E8A33B' : 'var(--green-ink,#1B7F3A)'}"></span></div>
-    <div class="tiny muted mt-1">${fmtN(Math.round(a.pct))}% anggaran terpakai</div>
+    <div class="mt-3"></div>
     ${verdict}
     ${kats.length ? `<div class="exp-kats mt-3">${kats.map(k => `<span class="chip tint" style="--c:${pkLook(k).c}">${pkLook(k).e} ${esc(k)} · <b>${fmtShort(byKat[k], 'Rp')}</b></span>`).join('')}</div>` : ''}
     ${rows ? `<button class="exp-toggle mt-3 ${(S.ui.expOpen || {})[g.goal_id] ? 'open' : ''}" data-action="expToggle" data-id="${g.goal_id}" aria-expanded="${(S.ui.expOpen || {})[g.goal_id] ? 'true' : 'false'}"><span>${(S.ui.expOpen || {})[g.goal_id] ? 'Sembunyikan detail' : 'Lihat detail'} <span class="muted">(${a.list.length} catatan)</span></span><i class="bi bi-chevron-down"></i></button>
