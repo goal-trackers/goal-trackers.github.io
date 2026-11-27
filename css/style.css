@@ -2024,3 +2024,6 @@ input::-ms-reveal, input::-ms-clear { display: none; }
   .hero-numrow .hero-actions:empty { display: none; }
 }
 @media (min-width: 1024px) { .hero > .hero-top { max-width: none !important; flex-wrap: nowrap; } .hero > .hero-top > * { flex: none; } }
+/* Centang hijau seragam dengan hijau progres */
+.prep-list li.done .prep-chk { background: var(--green) !important; border-color: var(--green) !important; color: #fff; }
+.lg-remember input:checked + .bi { color: var(--green); }
