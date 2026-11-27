@@ -18,14 +18,14 @@
   <!-- Font & ikon -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="image" href="img/login-bg.webp" type="image/webp">
+  <link rel="preload" as="image" href="img/login-bg.webp?v=2" type="image/webp">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <!-- Bootstrap 5: hanya reboot + utilities (tanpa komponen) agar tidak bentrok dengan desain kustom -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-reboot.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-utilities.min.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/style.css?v=1.10.188">
+  <link rel="stylesheet" href="css/style.css?v=1.10.189">
 </head>
 <body>
 
@@ -67,24 +67,14 @@
     <div class="splash-logo"><svg class="logo-svg" viewBox="0 0 64 64" fill="none" stroke="#E03131" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M41.5 13.6A20 20 0 1 0 51.6 28"/><path d="M32 4v12M32 48v12M4 32h12M48 32h12"/><path d="M22 31.5l8 7.5L50 13"/></svg></div>
     <p>Goal Trackers</p>
     <span class="spinner"></span>
-    <small style="opacity:.45;font-weight:500;font-size:12px">versi 1.10.188</small>
+    <small style="opacity:.45;font-weight:500;font-size:12px">versi 1.10.189</small>
   </div>
 
   <!-- ═════════ LOGIN ═════════ -->
-  <section id="view-login" class="login" hidden>
-    <div class="lc-switch" role="group" aria-label="Pilih konsep tampilan login">
-      <button type="button" data-lc="a">Konsep 1</button><button type="button" data-lc="b">Konsep 2</button>
-    </div>
-    <script>(function () {
-      var sec = document.getElementById('view-login'), k = 'gt_login_concept';
-      function set(v) { sec.classList.toggle('lc-b', v === 'b'); try { localStorage.setItem(k, v); } catch (e) { }
-        [].forEach.call(sec.querySelectorAll('.lc-switch button'), function (b) { b.classList.toggle('on', b.getAttribute('data-lc') === v); }); }
-      var v = 'a'; try { v = localStorage.getItem(k) || 'a'; } catch (e) { } set(v);
-      sec.querySelector('.lc-switch').addEventListener('click', function (e) { var b = e.target.closest('[data-lc]'); if (b) set(b.getAttribute('data-lc')); });
-    })();</script>
+  <section id="view-login" class="login lc-b" hidden>
     <div class="login-art" aria-hidden="true">
       <div class="brand light"><span class="wordmark" role="img" aria-label="Goal Trackers">G<svg class="wm-o" viewBox="0 0 64 64" fill="none" stroke="#E03131" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M41.5 13.6A20 20 0 1 0 51.6 28"/><path d="M32 4v12M32 48v12M4 32h12M48 32h12"/><path d="M22 31.5l8 7.5L50 13"/></svg>al<span class="wm-rest"> Trackers</span></span></div>
-      <div class="login-photo"><span class="lp-blob"></span><span class="lp-dots d1"></span><span class="lp-dots d2"></span><span class="lp-dots d3"></span><img src="img/login-bg.webp" alt=""></div>
+      <div class="login-photo"><span class="lp-blob"></span><span class="lp-dots d1"></span><span class="lp-dots d2"></span><span class="lp-dots d3"></span><img src="img/login-bg.webp?v=2" alt=""></div>
       <figure class="login-ayat" id="loginAyat"><p class="la-ar" lang="ar" dir="rtl"></p><figcaption><span class="la-id"></span><span class="la-ref"></span></figcaption></figure>
       <script>(function () { var t = window.__opTag, f = document.getElementById('loginAyat'); if (!t || !f) return;
         f.querySelector('.la-ar').innerHTML = t[2] || ''; f.querySelector('.la-id').textContent = '“' + t[0] + '”'; f.querySelector('.la-ref').textContent = t[1]; })();</script>
@@ -97,7 +87,7 @@
       </div>
     </div>
     <div class="login-panel">
-      <img class="login-pin" src="img/login-bg.webp" alt="" aria-hidden="true">
+      <img class="login-pin" src="img/login-bg.webp?v=2" alt="" aria-hidden="true">
       <form class="login-card" data-form="login" novalidate>
         <div class="brand d-md-none"><span class="wordmark" role="img" aria-label="Goal Trackers">G<svg class="wm-o" viewBox="0 0 64 64" fill="none" stroke="#E03131" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M41.5 13.6A20 20 0 1 0 51.6 28"/><path d="M32 4v12M32 48v12M4 32h12M48 32h12"/><path d="M22 31.5l8 7.5L50 13"/></svg>al<span class="wm-rest"> Trackers</span></span></div>
         <h2>Masuk</h2>
@@ -211,14 +201,14 @@
     }, 15000);
   </script>
 
-  <script src="js/config.js?v=1.10.188"></script>
-  <script src="js/core.js?v=1.10.188"></script>
-  <script src="js/pages.js?v=1.10.188"></script>
-  <script src="js/reports.js?v=1.10.188"></script>
-  <script src="js/actions.js?v=1.10.188"></script>
-  <script src="js/harta.js?v=1.10.188"></script>
-  <script src="js/pengeluaran.js?v=1.10.188"></script>
-  <script src="js/finance.js?v=1.10.188"></script>
+  <script src="js/config.js?v=1.10.189"></script>
+  <script src="js/core.js?v=1.10.189"></script>
+  <script src="js/pages.js?v=1.10.189"></script>
+  <script src="js/reports.js?v=1.10.189"></script>
+  <script src="js/actions.js?v=1.10.189"></script>
+  <script src="js/harta.js?v=1.10.189"></script>
+  <script src="js/pengeluaran.js?v=1.10.189"></script>
+  <script src="js/finance.js?v=1.10.189"></script>
   <div id="installBar" class="install-bar" hidden role="dialog" aria-label="Pasang aplikasi">
     <img src="icons/icon-192.png" alt="" width="40" height="40">
     <div class="flex-grow-1"><b>Pasang Goal Trackers</b><div class="tiny" id="installHint">Buka langsung dari layar utama, seperti aplikasi.</div></div>
@@ -231,7 +221,7 @@
       if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (r) { r.update(); }).catch(function () {}); });
       /* Pembaruan otomatis: cek version.json; versi baru → muat ulang sendiri (atau tampilkan tombol bila ada form terbuka) */
       (function () {
-        var V = '1.10.188', shown = false;
+        var V = '1.10.189', shown = false;
         function busy() { var a = document.activeElement; return document.body.classList.contains('sheet-open') || (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)); }
         function banner(v) {
           if (shown) return; shown = true;

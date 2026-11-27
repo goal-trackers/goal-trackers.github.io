@@ -1813,7 +1813,7 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 /* Login: foto keluarga (gaya Pinterest).
    HP: foto penuh di belakang kartu. Laptop: latar foto diburamkan + foto utuh sebagai "pin" di samping kartu. */
 .login { position: relative; isolation: isolate; overflow: hidden; background: #0b0b0c; }
-.login::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url('../img/login-bg.webp') center 62% / cover no-repeat; }
+.login::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url('../img/login-bg.webp?v=2') center 62% / cover no-repeat; }
 .login::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(10,10,12,.12) 0%, rgba(10,10,12,.35) 45%, rgba(10,10,12,.72) 100%); }
 .login-pin { display: none; }
 .login-card { background: rgba(255,255,255,.95); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
@@ -1831,7 +1831,7 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 }
 @media (max-width: 991.98px) {
   /* HP: keluarga tampil di separuh atas, kartu masuk di bagian bawah */
-  .login::before { background-size: auto 82dvh; background-position: 30% -27dvh; background-color: #0b0b0c; }
+  .login::before { background-size: max(100vw, 70dvh * 0.6667) auto; background-position: 50% calc(-0.56 * max(100vw, 70dvh * 0.6667) * 1.5 + 115px); background-color: #0b0b0c; }
   .login::after { background: linear-gradient(180deg, rgba(10,10,12,0) 0%, rgba(10,10,12,0) 30%, rgba(10,10,12,.7) 40%, #0b0b0c 50%, #0b0b0c 100%); }
   .login-panel { place-items: end center !important; padding-bottom: max(24px, env(safe-area-inset-bottom)) !important; }
 }
@@ -1845,7 +1845,7 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .login-art .brand .wordmark { color: var(--text); }
   .login-art > p, .login-art .login-chips { display: none; }
   .login-photo { display: block; position: relative; height: min(56vh, 480px, 34vw); aspect-ratio: 1 / 1; margin: auto auto 0; }
-  .login-photo img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; object-position: 50% 64%; border-radius: 54% 46% 42% 58% / 48% 56% 44% 52%; box-shadow: 0 30px 60px rgba(30,60,90,.18); }
+  .login-photo img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; border-radius: 54% 46% 42% 58% / 48% 56% 44% 52%; box-shadow: 0 30px 60px rgba(30,60,90,.18); }
   .lp-blob { position: absolute; inset: -6% -10% -4% -12%; background: #DCEFFB; border-radius: 42% 58% 60% 40% / 52% 44% 56% 48%; z-index: 0; }
   [data-theme="dark"] .lp-blob { background: #1E2A33; }
   .lp-dots { position: absolute; z-index: 2; width: 34px; height: 34px; border-radius: 50%; border: 3px dotted #4BA3E3; }
@@ -1882,10 +1882,6 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 /* Pilihan konsep login (sementara, untuk dibandingkan) */
 .lc-switch { display: none; }
 @media (min-width: 992px) {
-  .lc-switch { display: flex; position: absolute; top: 18px; right: 22px; z-index: 5; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,.8); box-shadow: 0 6px 18px rgba(0,0,0,.08); }
-  .lc-switch button { border: 0; background: transparent; padding: 6px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 700; color: #555; }
-  .lc-switch button.on { background: #111; color: #fff; }
-  #view-login { position: relative; }
 
   /* ── Konsep 2: latar gradasi pastel, foto lembut di kiri + judul tebal, form bergaris biru di kanan ── */
   .login.lc-b { background:
@@ -1897,8 +1893,8 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   [data-theme="dark"] .login.lc-b { background: radial-gradient(60% 70% at 10% 10%, #3A2A44 0%, transparent 70%), radial-gradient(60% 70% at 90% 20%, #3E3A24 0%, transparent 70%), #17151A !important; }
   .lc-b .login-art { justify-content: flex-start !important; padding: 36px 48px !important; }
   .lc-b .lp-blob, .lc-b .lp-dots { display: none; }
-  .lc-b .login-photo { height: min(50vh, 420px, 34vw); aspect-ratio: 5 / 4; margin: auto 0 0; }
-  .lc-b .login-photo img { border-radius: 44% 56% 48% 52% / 58% 50% 50% 42%; box-shadow: 0 24px 50px rgba(120,60,90,.18); object-position: 50% 62%; }
+  .lc-b .login-photo { height: min(54vh, 460px, 36vw); aspect-ratio: 1 / 1; margin: auto 0 0; }
+  .lc-b .login-photo img { border-radius: 44% 56% 48% 52% / 58% 50% 50% 42%; box-shadow: 0 24px 50px rgba(120,60,90,.18); object-position: 50% 47%; }
   .lc-b .login-art .login-ayat { margin: 28px 0 auto !important; text-align: left; max-width: 560px; }
   .lc-b .login-art .la-ar { text-align: left !important; font-size: 20px !important; color: #3a3a3a !important; }
   .lc-b .login-ayat figcaption { font-size: 28px !important; line-height: 1.25; font-weight: 800 !important; color: #141414 !important; letter-spacing: -.02em; }
