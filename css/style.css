@@ -1835,19 +1835,46 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .login::after { background: linear-gradient(180deg, rgba(10,10,12,0) 0%, rgba(10,10,12,0) 30%, rgba(10,10,12,.7) 40%, #0b0b0c 50%, #0b0b0c 100%); }
   .login-panel { place-items: end center !important; padding-bottom: max(24px, env(safe-area-inset-bottom)) !important; }
 }
-/* Login laptop — opsi A: belah dua, foto penuh di kiri, kartu Masuk di latar terang kanan */
+/* Login laptop — konsep ilustrasi: latar terang, foto keluarga dalam bentuk blob di kiri, form tanpa kartu di kanan */
+.login-photo, .lg-welcome, .lg-ic { display: none; }
 @media (min-width: 992px) {
-  .login { background: var(--bg) !important; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) !important; }
+  .login { background: #F7F8FA !important; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) !important; }
+  [data-theme="dark"] .login { background: var(--bg) !important; }
   .login::before, .login::after, .login-pin { display: none !important; }
-  .login-art {
-    position: relative; margin: 14px; border-radius: 28px; overflow: hidden; justify-content: space-between !important; padding: 40px 44px !important;
-    background: linear-gradient(180deg, rgba(10,10,12,.35) 0%, rgba(10,10,12,0) 22%, rgba(10,10,12,0) 48%, rgba(10,10,12,.82) 100%), url('../img/login-bg.webp') center 60% / cover no-repeat;
-    min-height: calc(100vh - 28px); min-height: calc(100dvh - 28px);
-  }
+  .login-art { display: flex !important; flex-direction: column; justify-content: flex-start !important; padding: 44px 56px !important; color: var(--text) !important; background: none !important; text-shadow: none !important; }
+  .login-art .brand .wordmark { color: var(--text); }
   .login-art > p, .login-art .login-chips { display: none; }
-  .login-art .login-ayat { margin: 0; max-width: 560px; }
-  .login-art .la-ar { font-size: 26px !important; line-height: 1.8; margin-bottom: 8px; }
-  .login-ayat figcaption { font-size: 17px; }
-  .login-panel { padding: 32px !important; display: grid !important; place-items: center; }
-  .login-card { background: var(--card) !important; backdrop-filter: none; box-shadow: none !important; border: 1px solid var(--line); width: 100%; max-width: 400px; }
+  .login-photo { display: block; position: relative; height: min(56vh, 480px, 34vw); aspect-ratio: 1 / 1; margin: auto auto 0; }
+  .login-photo img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; object-position: 50% 64%; border-radius: 54% 46% 42% 58% / 48% 56% 44% 52%; box-shadow: 0 30px 60px rgba(30,60,90,.18); }
+  .lp-blob { position: absolute; inset: -6% -10% -4% -12%; background: #DCEFFB; border-radius: 42% 58% 60% 40% / 52% 44% 56% 48%; z-index: 0; }
+  [data-theme="dark"] .lp-blob { background: #1E2A33; }
+  .lp-dots { position: absolute; z-index: 2; width: 34px; height: 34px; border-radius: 50%; border: 3px dotted #4BA3E3; }
+  .lp-dots.d1 { top: -2%; right: 8%; } .lp-dots.d2 { top: 30%; left: -9%; width: 26px; height: 26px; } .lp-dots.d3 { bottom: 10%; right: -8%; }
+  .login-art .login-ayat { margin: 26px auto 0; max-width: 520px; text-align: center; }
+  .login-art .la-ar { font-size: 22px !important; line-height: 1.8; margin: 0 0 4px !important; color: var(--text) !important; text-align: center !important; }
+  .login-ayat figcaption { font-size: 14px !important; font-weight: 500; color: var(--muted) !important; }
+  .login-ayat .la-ref { color: var(--muted); }
+  .login-panel { padding: 40px 64px 40px 24px !important; display: grid !important; place-items: center start; }
+  .login-card { background: transparent !important; box-shadow: none !important; border: 0 !important; backdrop-filter: none !important; padding: 0 !important; max-width: 440px; width: 100%; }
+  .login-card > h2:first-of-type { display: none; }
+  .login-card .lg-welcome { display: block; white-space: nowrap; font-size: clamp(28px, 2.6vw, 38px); font-weight: 500; letter-spacing: -.02em; color: #26304A; margin: 0 0 10px; }
+  [data-theme="dark"] .login-card .lg-welcome { color: var(--text); }
+  .login-card > p.muted { font-size: 14.5px; line-height: 1.6; margin-bottom: 28px; max-width: 400px; }
+  .login-card .field { position: relative; display: block; margin: 0; }
+  .login-card .field > span { position: absolute; left: 62px; top: 12px; font-size: 11.5px; color: var(--muted); font-weight: 500; z-index: 1; pointer-events: none; }
+  .login-card .lg-ic { display: grid; place-items: center; position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; color: #9AA3AF; font-size: 20px; z-index: 1; pointer-events: none; }
+  .login-card .field input { height: 70px !important; min-height: 70px; padding: 26px 18px 8px 62px !important; border-radius: 0 !important; border: 0 !important; background: #fff !important; box-shadow: none !important; font-size: 15px; }
+  [data-theme="dark"] .login-card .field input { background: var(--card) !important; }
+  .login-card .field:first-of-type input { background: #EEF1F4 !important; border-radius: 14px 14px 0 0 !important; }
+  [data-theme="dark"] .login-card .field:first-of-type input { background: var(--soft) !important; }
+  .login-card .field + .field input { border-radius: 0 0 14px 14px !important; }
+  .login-card .field:first-of-type, .login-card .field + .field { box-shadow: 0 10px 30px rgba(30,40,60,.06); border-radius: 14px; }
+  .login-card .field input:focus { outline: 2px solid #4BA3E3 !important; outline-offset: -2px; }
+  .login-card .pin-wrap .icon-btn { top: 50%; transform: translateY(-50%); }
+  .login-card .form-error { margin-top: 14px; }
+  .login-card .form-error:empty { display: none; }
+  .login-card .pin-wrap { margin: 0; }
+  .login-art .login-ayat { margin-bottom: auto !important; }
+  .login-card .btn-dark { width: auto !important; min-width: 180px; height: 52px; margin-top: 22px; padding: 0 32px; border-radius: 999px; box-shadow: 0 12px 24px rgba(0,0,0,.18); }
+  .login-card > p.tiny { text-align: left !important; margin-top: 22px !important; }
 }
