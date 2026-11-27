@@ -1508,7 +1508,7 @@ function prepCardHtml(g) {
   return `<div class="card hc prep-card" style="--hc:#CFF2D6">
     <div class="d-flex justify-content-between align-items-center gap-2 mb-1"><h3 class="mb-0">🎫 Persiapan</h3><span class="muted tiny fw-bold">${done}/${list.length}</span></div>
     <p class="tiny muted mb-2">Tiket, hotel, dan rental yang perlu dibeli atau dibooking.</p>
-    ${list.length ? `<div class="exp-bar mb-2" role="img" aria-label="${done} dari ${list.length} beres"><span style="width:${Math.round(done / list.length * 100)}%;background:var(--green-ink,#1B7F3A)"></span></div>` : ''}
+    ${list.length ? `<div class="exp-bar mb-2" role="img" aria-label="${done} dari ${list.length} beres"><span style="width:${Math.round(done / list.length * 100)}%;background:var(--green)"></span></div>` : ''}
     <ul class="prep-list">${rows.map(({ p, i }) => { const k = prepKind(p.k);
       return `<li class="${p.ok ? 'done' : ''}">
         <button class="prep-chk" ${ed ? `data-action="prepToggle" data-id="${g.goal_id}" data-i="${i}"` : 'disabled'} aria-pressed="${!!p.ok}" aria-label="${p.ok ? 'Tandai belum' : 'Tandai sudah'}"><i class="bi bi-check-lg"></i></button>

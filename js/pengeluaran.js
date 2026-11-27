@@ -55,7 +55,7 @@ function anggaranInfo(g) {
 function anggaranBarHtml(g) {
   if (typeof punyaPengeluaran !== 'function' || !punyaPengeluaran(g)) return '';
   const a = anggaranInfo(g), lebih = a.sisa < 0;
-  return `<div class="hero-budget"><div class="exp-bar" role="img" aria-label="Terpakai ${Math.round(a.pct)}% dari anggaran"><span style="width:${Math.min(100, a.pct)}%;background:${lebih ? 'var(--red-ink)' : a.pct > 85 ? '#E8A33B' : 'var(--green-ink,#1B7F3A)'}"></span></div><div class="hb-lbl"><b>${fmtN(Math.round(a.pct))}% anggaran terpakai</b><span>${fmtShort(a.pakai, 'Rp')} dari ${fmtShort(a.anggaran, 'Rp')} · ${lebih ? 'lebih' : 'sisa'} <b style="color:${lebih ? 'var(--red-ink)' : 'var(--green-ink,#1B7F3A)'}">${fmtShort(Math.abs(a.sisa), 'Rp')}</b></span></div></div>`;
+  return `<div class="hero-budget"><div class="exp-bar" role="img" aria-label="Terpakai ${Math.round(a.pct)}% dari anggaran"><span style="width:${Math.min(100, a.pct)}%;background:${lebih ? 'var(--red-ink)' : a.pct > 85 ? '#E8A33B' : 'var(--green)'}"></span></div><div class="hb-lbl"><b>${fmtN(Math.round(a.pct))}% anggaran terpakai</b><span>${fmtShort(a.pakai, 'Rp')} dari ${fmtShort(a.anggaran, 'Rp')} · ${lebih ? 'lebih' : 'sisa'} <b style="color:${lebih ? 'var(--red-ink)' : 'var(--green-ink,#1B7F3A)'}">${fmtShort(Math.abs(a.sisa), 'Rp')}</b></span></div></div>`;
 }
 function pengeluaranCardHtml(g) {
   if (!punyaPengeluaran(g)) return '';
