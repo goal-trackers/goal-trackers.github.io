@@ -1810,3 +1810,28 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
 .login { background: radial-gradient(120% 80% at 50% 40%, #1d1d1f 0%, #0b0b0c 70%); }
 .login-panel { background: transparent !important; margin: 0 !important; border-radius: 0 !important; min-height: 100vh; min-height: 100dvh; }
 .login-card { box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+/* Login: foto keluarga (gaya Pinterest).
+   HP: foto penuh di belakang kartu. Laptop: latar foto diburamkan + foto utuh sebagai "pin" di samping kartu. */
+.login { position: relative; isolation: isolate; overflow: hidden; background: #0b0b0c; }
+.login::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url('../img/login-bg.webp') center 62% / cover no-repeat; }
+.login::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(10,10,12,.12) 0%, rgba(10,10,12,.35) 45%, rgba(10,10,12,.72) 100%); }
+.login-pin { display: none; }
+.login-card { background: rgba(255,255,255,.95); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+[data-theme="dark"] .login-card { background: rgba(28,28,30,.93); }
+@media (min-width: 992px) {
+  .login::before { inset: -40px; filter: blur(26px) saturate(1.1); background-position: center 60%; }
+  .login::after { background: linear-gradient(90deg, rgba(10,10,12,.82) 0%, rgba(10,10,12,.6) 45%, rgba(10,10,12,.45) 100%); }
+  .login-art { text-shadow: 0 2px 18px rgba(0,0,0,.35); }
+}
+@media (min-width: 1200px) {
+  .login { grid-template-columns: minmax(0, 1fr) auto; }
+  .login-panel { display: flex !important; align-items: center; justify-content: center; gap: 28px; padding: 32px 56px 32px 0; }
+  .login-pin { display: block; height: min(78vh, 680px); aspect-ratio: 2 / 3; object-fit: cover; object-position: center 62%; border-radius: 28px; box-shadow: 0 30px 70px rgba(0,0,0,.5); transform: rotate(-2deg); border: 6px solid rgba(255,255,255,.9); }
+  .login-card { flex: none; width: 400px; }
+}
+@media (max-width: 991.98px) {
+  /* HP: keluarga tampil di separuh atas, kartu masuk di bagian bawah */
+  .login::before { background-size: auto 82dvh; background-position: 30% -27dvh; background-color: #0b0b0c; }
+  .login::after { background: linear-gradient(180deg, rgba(10,10,12,0) 0%, rgba(10,10,12,0) 30%, rgba(10,10,12,.7) 40%, #0b0b0c 50%, #0b0b0c 100%); }
+  .login-panel { place-items: end center !important; padding-bottom: max(24px, env(safe-area-inset-bottom)) !important; }
+}
