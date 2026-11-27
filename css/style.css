@@ -2014,3 +2014,12 @@ input::-ms-reveal, input::-ms-clear { display: none; }
   .hero-numrow .hero-actions [data-action="goalMore"] { margin-left: 0; }
   .hero-numrow .hero-actions:has(.hero-budget) { width: 440px; max-width: 100%; }
 }
+
+/* Hero: tombol ⋯ di pojok kanan atas, setelah pil status */
+.hero-top .hero-more { margin-left: auto; flex: none; }
+@media (min-width: 768px) { .hero > .hero-top .hero-more { margin-left: 4px; } }
+/* Bar anggaran sejajar baris "dari Rp …" tanpa ruang kosong */
+@media (min-width: 768px) {
+  .hero-numrow .hero-actions { margin-bottom: 0 !important; align-self: flex-end; }
+  .hero-numrow .hero-actions:empty { display: none; }
+}

@@ -351,9 +351,13 @@ const Actions = {
   goalMore: d => {
     const g = goalById(d.id);
     if (!g) return;
+    const chk = g.tipe_target === 'Checklist', ed = canEdit(g) && g.status !== 'Arsip';
     openSheet('Opsi Goal', `<div class="menu-list">
-      <button data-action="editGoal" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit goal</button>
-      <button data-action="archiveGoal" data-id="${g.goal_id}"><i class="bi ${g.status === 'Arsip' ? 'bi-arrow-counterclockwise' : 'bi-archive'}"></i> ${g.status === 'Arsip' ? 'Pulihkan dari arsip' : 'Arsipkan'}</button>
+      ${canLog(g) && !chk ? `<button data-action="logProgress" data-id="${g.goal_id}"><i class="bi bi-plus-circle"></i> Catat progres</button>` : ''}
+      ${chk && ed ? `<button data-action="addTask" data-id="${g.goal_id}"><i class="bi bi-list-check"></i> Tambah tugas</button>` : ''}
+      ${ed && typeof bisaPengeluaran === 'function' && bisaPengeluaran(g) ? `<button data-action="newPengeluaran" data-id="${g.goal_id}"><i class="bi bi-receipt"></i> ${PKAT_INFO[pkProfile(g)].btn}</button>` : ''}
+      ${canEdit(g) ? `<button data-action="editGoal" data-id="${g.goal_id}"><i class="bi bi-pencil"></i> Edit goal</button>` : ''}
+      ${canEdit(g) ? `<button data-action="archiveGoal" data-id="${g.goal_id}"><i class="bi ${g.status === 'Arsip' ? 'bi-arrow-counterclockwise' : 'bi-archive'}"></i> ${g.status === 'Arsip' ? 'Pulihkan dari arsip' : 'Arsipkan'}</button>` : ''}
       ${canDelete(g) ? `<button class="danger" data-action="deleteGoal" data-id="${g.goal_id}"><i class="bi bi-trash3"></i> Hapus permanen</button>` : '<p class="tiny muted mb-0 px-2">Hanya Admin yang bisa menghapus goal bersama.</p>'}</div>`);
   },
   archiveGoal: d => {

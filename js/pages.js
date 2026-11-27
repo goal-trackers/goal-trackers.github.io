@@ -340,6 +340,7 @@ function renderDetail() {
         ${g.jenis === 'Pribadi' ? `<span class="chip"><i class="bi ${priv ? 'bi-lock' : 'bi-eye'}"></i>${esc(g.visibilitas)}</span>` : ''}
         <span class="chip"><i class="bi bi-flag"></i>${esc(g.prioritas)}</span>
         <span class="badge-s ${cls}">${lbl}</span>
+        ${edit || canLog(g) ? `<button class="icon-btn hero-more" style="background:var(--card)" data-action="goalMore" data-id="${g.goal_id}" aria-label="Opsi lainnya"><i class="bi bi-three-dots"></i></button>` : ''}
       </div>
       <div class="hero-title"><h1>${esc(g.judul)}</h1>${g.deskripsi ? `<p>${esc(g.deskripsi)}</p>` : ''}</div>
       <div class="hero-main">
@@ -349,8 +350,6 @@ function renderDetail() {
           <span class="muted tiny">${targetText(g) ? 'dari ' + fmtVal(g.nilai_target, g.satuan) + ' · ' : ''}${fmtDate(g.tgl_mulai)} – ${fmtDate(g.tenggat)}</span></div>
         <div class="hero-actions">
         ${typeof anggaranBarHtml === 'function' ? anggaranBarHtml(g) : ''}
-        ${canLog(g) && !checklist ? `<button class="btn btn-dark" data-action="logProgress" data-id="${g.goal_id}"><i class="bi bi-plus-lg"></i> Catat Progres</button>` : ''}
-        ${edit ? `<button class="icon-btn" style="background:var(--card)" data-action="goalMore" data-id="${g.goal_id}" aria-label="Opsi lainnya"><i class="bi bi-three-dots"></i></button>` : ''}
       </div>
         </div>
       </div>
@@ -362,11 +361,11 @@ function renderDetail() {
       if (typeof isLiburan_ === 'function' && isLiburan_(g)) {
         // Itinerary di kolom sendiri: panjangnya tidak menarik tinggi kartu lain
         return `<div class="detail-grid dg-itin">
-      <div class="dg-main">${ringkas}${msCard}<div class="dg-rest">${prepCardHtml(g)}${reactCard}${extraDetailCards(g)}${riwayat}</div></div>
+      <div class="dg-main">${ringkas}${msCard}<div class="dg-rest">${prepCardHtml(g)}${extraDetailCards(g)}${riwayat}</div></div>
       ${itinCardHtml(g)}
     </div>`;
       }
-      return `<div class="detail-grid">${ringkas}${msCard}${reactCard}${extraDetailCards(g)}${riwayat}</div>`;
+      return `<div class="detail-grid">${ringkas}${msCard}${extraDetailCards(g)}${riwayat}</div>`;
     })()}`;
 }
 
