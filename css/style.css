@@ -1878,3 +1878,44 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .login-card .btn-dark { width: auto !important; min-width: 180px; height: 52px; margin-top: 22px; padding: 0 32px; border-radius: 999px; box-shadow: 0 12px 24px rgba(0,0,0,.18); }
   .login-card > p.tiny { text-align: left !important; margin-top: 22px !important; }
 }
+
+/* Pilihan konsep login (sementara, untuk dibandingkan) */
+.lc-switch { display: none; }
+@media (min-width: 992px) {
+  .lc-switch { display: flex; position: absolute; top: 18px; right: 22px; z-index: 5; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,.8); box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+  .lc-switch button { border: 0; background: transparent; padding: 6px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 700; color: #555; }
+  .lc-switch button.on { background: #111; color: #fff; }
+  #view-login { position: relative; }
+
+  /* ── Konsep 2: latar gradasi pastel, foto lembut di kiri + judul tebal, form bergaris biru di kanan ── */
+  .login.lc-b { background:
+      radial-gradient(60% 70% at 8% 10%, #E9C6F2 0%, rgba(233,198,242,0) 70%),
+      radial-gradient(55% 60% at 45% 75%, #F6B8C4 0%, rgba(246,184,196,0) 70%),
+      radial-gradient(60% 70% at 95% 15%, #F7F2B8 0%, rgba(247,242,184,0) 70%),
+      radial-gradient(50% 60% at 85% 90%, #F9D9B8 0%, rgba(249,217,184,0) 70%),
+      #F8EEF2 !important; }
+  [data-theme="dark"] .login.lc-b { background: radial-gradient(60% 70% at 10% 10%, #3A2A44 0%, transparent 70%), radial-gradient(60% 70% at 90% 20%, #3E3A24 0%, transparent 70%), #17151A !important; }
+  .lc-b .login-art { justify-content: flex-start !important; padding: 36px 48px !important; }
+  .lc-b .lp-blob, .lc-b .lp-dots { display: none; }
+  .lc-b .login-photo { height: min(50vh, 420px, 34vw); aspect-ratio: 5 / 4; margin: auto 0 0; }
+  .lc-b .login-photo img { border-radius: 44% 56% 48% 52% / 58% 50% 50% 42%; box-shadow: 0 24px 50px rgba(120,60,90,.18); object-position: 50% 62%; }
+  .lc-b .login-art .login-ayat { margin: 28px 0 auto !important; text-align: left; max-width: 560px; }
+  .lc-b .login-art .la-ar { text-align: left !important; font-size: 20px !important; color: #3a3a3a !important; }
+  .lc-b .login-ayat figcaption { font-size: 28px !important; line-height: 1.25; font-weight: 800 !important; color: #141414 !important; letter-spacing: -.02em; }
+  .lc-b .login-ayat .la-ref { display: block; margin-top: 10px; font-size: 13px; font-weight: 600; color: #6b6b6b !important; letter-spacing: 0; }
+  [data-theme="dark"] .lc-b .login-ayat figcaption, [data-theme="dark"] .lc-b .login-art .la-ar { color: #f2f2f2 !important; }
+  .lc-b .login-panel { place-items: center !important; padding: 40px 56px !important; }
+  .lc-b .login-card .lg-welcome { color: #141414; font-weight: 800; font-size: clamp(28px, 2.4vw, 34px); margin-bottom: 6px; }
+  .lc-b .login-card > p.muted { margin-bottom: 22px; }
+  .lc-b .login-card .field { margin-bottom: 18px !important; box-shadow: none !important; }
+  .lc-b .login-card .field > span { position: static; display: block; margin: 0 0 6px; font-size: 12.5px; font-weight: 700; color: #2b2b2b; }
+  .lc-b .login-card .field input, .lc-b .login-card .field:first-of-type input, .lc-b .login-card .field + .field input {
+    height: 56px !important; min-height: 56px; padding: 0 52px 0 18px !important; border-radius: 12px !important; background: rgba(255,255,255,.55) !important;
+    border: 2px solid #4C6EF5 !important; box-shadow: 0 4px 14px rgba(76,110,245,.12) !important; }
+  .lc-b .login-card .field input:focus { outline: none !important; background: #fff !important; box-shadow: 0 0 0 4px rgba(76,110,245,.18) !important; }
+  .lc-b .login-card .lg-ic { left: auto; right: 14px; top: auto; bottom: 13px; transform: none; color: #4C6EF5; }
+  .lc-b .login-card .field + .field .lg-ic { display: none; }
+  .lc-b .login-card .pin-wrap .icon-btn { color: #4C6EF5; }
+  .lc-b .login-card .btn-dark { width: 100% !important; height: 54px; border-radius: 999px; background: #4C6EF5 !important; border-color: #4C6EF5 !important; box-shadow: 0 12px 26px rgba(76,110,245,.3); margin-top: 8px; }
+  .lc-b .login-card > p.tiny { text-align: center !important; }
+}
