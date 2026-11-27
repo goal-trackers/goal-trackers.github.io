@@ -1942,3 +1942,11 @@ h1 > .h-ic, h2 > .h-ic { margin: 0; vertical-align: middle; width: 1em; height: 
   .lg-row .lg-submit { grid-row: 2; grid-column: 1 / -1; width: auto !important; min-width: 170px; height: 50px; border-radius: 999px; justify-self: center; }
   .lg-row .lg-forgot { justify-self: end; grid-row: 1; grid-column: 2; }
 }
+/* Login laptop: kotak email & password terpisah, keduanya putih */
+@media (min-width: 992px) {
+  .login-card .field:first-of-type input, .login-card .field + .field input { background: #fff !important; border-radius: 14px !important; border: 1px solid #E6E8EC !important; }
+  [data-theme="dark"] .login-card .field:first-of-type input, [data-theme="dark"] .login-card .field + .field input { background: var(--card) !important; border-color: var(--line) !important; }
+  .login-card .field:first-of-type, .login-card .field + .field { border-radius: 14px; box-shadow: 0 8px 24px rgba(30,40,60,.06); }
+  .login-card .field + .field { margin-top: 14px !important; }
+  .login-card .field input:focus { outline: 2px solid #4BA3E3 !important; outline-offset: -1px; }
+}
